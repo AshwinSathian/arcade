@@ -81,22 +81,17 @@ const games: Record<string, Shot> = {
     },
   },
   typester: {
-    url: 'https://typester.ashwinsathian.com/', start: 3.5, dur: 8,
+    // A Rush, typed at a brisk human pace from the word the game is asking for.
+    url: 'https://typester.ashwinsathian.com/play/rush', start: 6, dur: 9,
     async play(p) {
-      await wait(p, 1500);
-      await p.getByRole('button', { name: 'Got it' }).click().catch(() => {});
-      await p.getByRole('button', { name: 'Quick Play' }).click();
-      await p.waitForSelector('.game__word');
-      // Type whatever word the game shows, at a brisk human pace.
-      for (let i = 0; i < 24; i++) {
-        const word = await p.evaluate(() => document.querySelector('.game__word')?.textContent?.trim());
+      await p.waitForSelector('#field');
+      await wait(p, 1200);
+      for (let i = 0; i < 34; i++) {
+        const word = (await p.getAttribute('#field', 'aria-label'))?.replace('Type the word: ', '');
         if (!word) break;
-        await p.click('.game__input');
-        await p.keyboard.type(word, { delay: 95 });
-        await wait(p, 150);
-        // A correct word advances on its own in some modes; otherwise Enter submits it.
-        if (await p.evaluate((w) => document.querySelector('.game__word')?.textContent?.trim() === w, word)) await p.keyboard.press('Enter');
-        await wait(p, 150);
+        if (i === 9) await p.keyboard.press('q'); // one slip, so the miss feedback shows
+        await p.keyboard.type(word, { delay: 85 });
+        await wait(p, 120);
       }
     },
   },
