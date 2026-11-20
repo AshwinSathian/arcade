@@ -6,7 +6,7 @@ The front door to six browser games: [Coil](https://coil.ashwinsathian.com) (sna
 
 ## How it works
 
-Astro builds a fully static site into `dist`, and Cloudflare Workers serves it as static assets with no Worker code. The home page is about 9 KB of gzipped HTML with its CSS inlined, one 24 KB font and one script of about 2 KB.
+Astro builds a fully static site into `dist`, and Cloudflare Workers serves it as static assets. The only code on the server is `worker/index.js`, which answers byte-range requests for the clips, because Safari will not play an MP4 without them. The home page is about 9 KB of gzipped HTML with its CSS inlined, one 24 KB font and one script of about 2 KB.
 
 - **Clips are real play.** `scripts/capture.ts` drives each live game with its own hooks (Coil's replay links, Lightkeeper's attract loop, Minefield's hints, Rally's `?autoplay` bot) and records nine seconds with Playwright, encoded by ffmpeg as muted H.264 of 30 to 280 KB. A clip loads only when its tile is on screen, pauses when it leaves, and never loads under Save-Data. With reduced motion it plays only on hover or focus.
 - **Skeletons.** Every picture shimmers until it arrives. A slow navigation shows a progress bar and the shape of the next page after 120 ms; prerendered pages land before that and never show it.
