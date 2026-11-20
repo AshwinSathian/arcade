@@ -71,6 +71,22 @@ const games: Record<string, Shot> = {
       await wait(p, 1500);
     },
   },
+  noughts: {
+    // Fading on one screen, both sides playing the solver's moves: X's forced win from an edge,
+    // marks wiped as each side places a fourth, and the strike at the end.
+    url: 'https://noughts.ashwinsathian.com/', start: 3.3, dur: 9,
+    init: (p) => p.addInitScript(() => localStorage.setItem('noughts:v1', JSON.stringify({ v: 1, settings: { mode: 'fading', opp: 'local', sound: false, theme: 'auto', level: 'best' } }))),
+    async play(p) {
+      await wait(p, 700);
+      await p.click('#play');
+      await wait(p, 900);
+      for (const i of [5, 6, 4, 3, 0, 8, 2, 1, 6, 4, 7, 5, 8]) {
+        await p.click(`#board .cell[data-i="${i}"]`);
+        await wait(p, 560);
+      }
+      await wait(p, 3200);
+    },
+  },
   rally: {
     // ?autoplay hands the near paddle to the game's own bot.
     url: 'https://rally.ashwinsathian.com/?autoplay=2', start: 1.5, dur: 9,

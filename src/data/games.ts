@@ -3,6 +3,7 @@ import coilPoster from "../assets/posters/coil.png";
 import lightkeeperPoster from "../assets/posters/lightkeeper.png";
 import minefieldPoster from "../assets/posters/minefield.png";
 import nonetPoster from "../assets/posters/nonet.png";
+import noughtsPoster from "../assets/posters/noughts.png";
 import rallyPoster from "../assets/posters/rally.png";
 import typesterPoster from "../assets/posters/typester.png";
 import coilDesktop from "../assets/shots/coil-desktop.png";
@@ -13,6 +14,8 @@ import minefieldDesktop from "../assets/shots/minefield-desktop.png";
 import minefieldPhone from "../assets/shots/minefield-phone.png";
 import nonetDesktop from "../assets/shots/nonet-desktop.jpg";
 import nonetPhone from "../assets/shots/nonet-phone.jpg";
+import noughtsDesktop from "../assets/shots/noughts-desktop.jpg";
+import noughtsPhone from "../assets/shots/noughts-phone.jpg";
 import rallyDesktop from "../assets/shots/rally-desktop.png";
 import rallyPhone from "../assets/shots/rally-phone.png";
 import typesterDesktop from "../assets/shots/typester-desktop.png";
@@ -180,6 +183,37 @@ export const games: Game[] = [
     clipAlt: "Nonet in its dark theme: digits are filled in across a Medium puzzle, box by box.",
     desktop: { src: nonetDesktop, alt: "Nonet on a desktop: a Hard puzzle with pencil notes beside a 3 by 3 keypad." },
     phone: { src: nonetPhone, alt: "Nonet on a phone, a puzzle finished." },
+  },
+  {
+    slug: "noughts",
+    name: "Noughts",
+    kind: "Noughts and crosses",
+    noun: "noughts and crosses game",
+    genre: ["Board game", "Tic-tac-toe", "Strategy"],
+    line: "Noughts and crosses in three versions, against a bot that has every position worked out or a friend over a link.",
+    about: [
+      "Noughts is noughts and crosses for phone, tablet and desktop. Classic is the 3×3 game. In Fading each side keeps three marks and placing a fourth wipes out your oldest, so the grid never fills. Ultimate is nine grids in one, where the square you take decides which grid your opponent plays in next. Play the bot at three strengths, someone on the same screen, or anyone you send a link to.",
+      "Classic and Fading are solved when you open them: 5,478 positions in one and 128,170 in the other. That is how the bot plays them perfectly, how “Show odds” labels each empty square with what it leads to, and how the review grades every move after a game. Solving Fading also shows that X wins it by force, but only by opening on an edge square.",
+    ],
+    modes: ["Classic", "Fading", "Ultimate", "Online"],
+    controls: "Tap, click or the keyboard",
+    kb: 22,
+    sizeNote: "One HTML file of about 22 KB compressed, plus a 38 KB font",
+    stack: "TypeScript, SVG, Web Workers, Web Audio, Cloudflare Workers and Durable Objects",
+    highlights: [
+      { title: "Solved when it opens", detail: "Classic by negamax over 5,478 positions in about 1.5 ms. Fading has positions that repeat, so it is solved backwards from every finished position." },
+      { title: "Every move graded", detail: "After a Classic or Fading game the review marks each mistake, names the one that decided the game and shows the better squares." },
+      { title: "Ultimate by tree search", detail: "Monte Carlo tree search on bitboards in a Web Worker, up to 40,000 playouts a move." },
+      { title: "Online rooms", detail: "Each room is a Durable Object that checks every move with the same rules file the browser plays by. Reload or lose signal and your seat waits for you." },
+    ],
+    url: "https://noughts.ashwinsathian.com",
+    repo: "https://github.com/AshwinSathian/noughts",
+    ground: "#1b2420",
+    bright: "#ff8a7b",
+    poster: noughtsPoster,
+    clipAlt: "Noughts playing Fading on its blackboard theme: crosses and noughts are drawn in, the oldest cross turns pale and is wiped, and three crosses along the bottom are struck through.",
+    desktop: { src: noughtsDesktop, alt: "Noughts on a desktop reviewing a Classic game against the bot: move 5 is marked as the mistake that decided it, with the better square dashed." },
+    phone: { src: noughtsPhone, alt: "Noughts on a phone, an Ultimate game with the grid you must play in outlined." },
   },
   {
     slug: "rally",

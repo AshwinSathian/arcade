@@ -20,6 +20,8 @@
   Cache-Control: public, max-age=60, stale-while-revalidate=600
 /nonet
   Cache-Control: public, max-age=60, stale-while-revalidate=600
+/noughts
+  Cache-Control: public, max-age=60, stale-while-revalidate=600
 /rally
   Cache-Control: public, max-age=60, stale-while-revalidate=600
 /typester

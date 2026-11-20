@@ -4,7 +4,7 @@ import { chromium } from 'playwright';
 const base = process.argv[2] ?? 'http://localhost:4332';
 const out = process.argv[3] ?? '.shots';
 const browser = await chromium.launch();
-const pages = ['/', '/minefield'];
+const pages = (process.env.PAGES ?? '/,/minefield').split(',');
 for (const [w, h] of [[1440, 900], [820, 1180], [390, 844]] as const) {
   for (const scheme of ['light', 'dark'] as const) {
     const ctx = await browser.newContext({ viewport: { width: w, height: h }, deviceScaleFactor: 1, colorScheme: scheme });

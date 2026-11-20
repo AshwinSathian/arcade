@@ -10,8 +10,8 @@ const pages = readdirSync(dist).filter((f) => f.endsWith(".html"));
 const slugs = pages.filter((f) => !["index.html", "404.html"].includes(f)).map((f) => f.replace(".html", ""));
 const meta = (html, attr, key) => html.match(new RegExp(`<meta ${attr}="${key}" content="([^"]*)"`))?.[1];
 
-test("six game pages, a home page and a 404", () => {
-  assert.deepEqual(slugs.sort(), ["coil", "lightkeeper", "minefield", "nonet", "rally", "typester"]);
+test("seven game pages, a home page and a 404", () => {
+  assert.deepEqual(slugs.sort(), ["coil", "lightkeeper", "minefield", "nonet", "noughts", "rally", "typester"]);
 });
 
 for (const page of pages.filter((p) => p !== "404.html")) {

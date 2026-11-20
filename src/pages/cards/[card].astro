@@ -29,7 +29,7 @@ const one = game && (await getImage({ src: game.poster, width: 720, format: "web
     </div>
   ) : (
     <div class="card all">
-      <div class="txt"><h1>Six small games for your browser</h1><p class="site">games.ashwinsathian.com</p></div>
+      <div class="txt"><h1>Seven small games for your browser</h1><p class="site">games.ashwinsathian.com</p></div>
       {games.map((g, i) => <figure style={`--g:${g.ground};--b:${g.bright}`}><img src={posters[i].src} alt="" /><figcaption>{g.name}</figcaption></figure>)}
     </div>
   )}
@@ -47,9 +47,11 @@ const one = game && (await getImage({ src: game.poster, width: 720, format: "web
   .one h1 { font-size: 150px; color: var(--b); font-weight: 800; letter-spacing: -0.05em; }
   .one .line { font-size: 34px; line-height: 1.15; }
   .one img { width: 420px; height: 606px; object-fit: cover; border-radius: 8px; }
-  .all { grid-template-columns: 1.6fr 1fr 1fr 1fr; grid-template-rows: 1fr 1fr; }
+  .all { grid-template-columns: 1.5fr 1fr 1fr 1fr 1fr; grid-template-rows: 1fr 1fr; }
+  /* Seven games in eight slots: the first stands two rows tall. */
+  .all figure:first-of-type { grid-row: span 2; }
   .all .txt { grid-row: span 2; background: #26251e; color: #dfdedb; }
-  .all h1 { font-size: 92px; line-height: 0.95; letter-spacing: -0.04em; }
+  .all h1 { font-size: 80px; line-height: 0.95; letter-spacing: -0.04em; }
   figure { margin: 0; position: relative; border-radius: 8px; overflow: hidden; background: var(--g); }
   figure img { width: 100%; height: 100%; object-fit: cover; }
   figcaption { position: absolute; left: 0; right: 0; bottom: 0; padding: 10px 14px; background: var(--g); color: var(--b); font-weight: 700; font-size: 24px; }

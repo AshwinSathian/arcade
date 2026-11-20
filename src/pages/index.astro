@@ -9,8 +9,8 @@ const sized = games.filter((g) => g.kb !== null);
 const maxKb = Math.max(...sized.map((g) => g.kb!));
 const posts = games.filter((g) => g.post);
 
-const title = "Six free browser games: snake, pinball, sudoku and more";
-const description = "Six small games by Ashwin Sathian that open in a browser tab on phone, tablet or desktop. Free, with no install, no sign-up and no ads, and five of them are a single HTML file of 20 to 35 KB.";
+const title = "Seven free browser games: snake, pinball, sudoku and more";
+const description = "Seven small games by Ashwin Sathian that open in a browser tab on phone, tablet or desktop. Free, with no install, no sign-up and no ads, and six of them are a single HTML file of 20 to 35 KB.";
 const jsonld = [
   {
     "@context": "https://schema.org",
@@ -36,17 +36,17 @@ const jsonld = [
   },
 ];
 ---
-<Base {title} {description} og="index" ogAlt="Six tiles of real gameplay, one per game: Coil, Lightkeeper, Minefield, Nonet, Rally and Typester, beside the words “Six small games for your browser”." {jsonld}>
+<Base {title} {description} og="index" ogAlt="Seven tiles of real gameplay, one per game: Coil, Lightkeeper, Minefield, Nonet, Noughts, Rally and Typester, beside the words “Seven small games for your browser”." {jsonld}>
   <div class="board home">
     <section class="tile intro rise" aria-labelledby="title">
       <p class="intro__by"><a class="link" href={site.authorUrl}>Ashwin Sathian</a><StillToggle /></p>
-      <h1 id="title">Six small games for your browser</h1>
+      <h1 id="title">Seven small games for your browser</h1>
     </section>
 
     {games.map((g, i) => <GameTile game={g} i={i} eager={i < 2} class={`a-${g.slug}`} />)}
 
     <section class="tile say rise" style="--i:1" aria-label="What these are">
-      <p>Snake, pinball, Minesweeper, sudoku, table tennis and a typing race. Each one opens in a tab on a phone or a laptop. Nothing to install, no account to make.</p>
+      <p>Snake, pinball, Minesweeper, sudoku, noughts and crosses, table tennis and a typing race. Each one opens in a tab on a phone or a laptop. Nothing to install, no account to make.</p>
     </section>
 
     <section class="tile weight rise" style="--i:2" aria-labelledby="weight-h">
@@ -58,7 +58,7 @@ const jsonld = [
           </li>
         ))}
       </ul>
-      <p class="weight__note">Each game’s HTML file, compressed. Coil and Nonet also fetch a font (28 KB and 23 KB). Typester is an Angular app, so it isn’t on this list.</p>
+      <p class="weight__note">Each game’s HTML file, compressed. Coil, Nonet and Noughts also fetch a font (28 KB, 23 KB and 38 KB). Typester is an Angular app, so it isn’t on this list.</p>
       <p class="weight__live" data-weight aria-live="off"></p>
     </section>
 
@@ -74,7 +74,7 @@ const jsonld = [
   </div>
 
   <section class="band" aria-labelledby="shelf-h">
-    <h2 id="shelf-h" class="band__h">The six side by side</h2>
+    <h2 id="shelf-h" class="band__h">The seven side by side</h2>
     <div class="rows" data-ui>
       {games.map((g, i) => (
         <details name="shelf" open={i === 0} style={`--c:${g.bright};--d:${g.ground}`}>
@@ -100,7 +100,7 @@ const jsonld = [
 
   <section class="made" aria-labelledby="made-h">
     <h2 id="made-h">How they were made</h2>
-    <p class="made__lede">Claude Code built every game here, each in one session: five on 20 November 2026, and a ground-up rebuild of Typester on 21 November. Four of them have a write-up on the engineering underneath.</p>
+    <p class="made__lede">Claude Code built every game here, each in one session: five on 20 November 2026, then Noughts and a ground-up rebuild of Typester on 21 November. Four of them have a write-up on the engineering underneath.</p>
     <ul class="posts reveal">
       {posts.map((g) => (
         <li style={`--c:${g.bright};--d:${g.ground}`}>
@@ -116,12 +116,12 @@ const jsonld = [
 </Base>
 
 <style>
-  /* First screen: the name, six clips, and the tiles that say what they are. */
+  /* First screen: the name, seven clips, and the tiles that say what they are. */
   .home {
     grid-template-areas:
       "intro intro intro intro intro intro coil coil coil light light light"
       "say say say weight weight weight mine mine mine nonet nonet nonet"
-      "rally rally rally type type type pick pick pick pick pick pick";
+      "nought nought nought rally rally rally type type type pick pick pick";
   }
   .intro { grid-area: intro; display: flex; flex-direction: column; justify-content: space-between; gap: 40px; background: var(--ink); color: var(--bg); }
   .intro h1 { font-size: var(--t-display); font-weight: 750; max-width: 9ch; }
@@ -130,6 +130,7 @@ const jsonld = [
   :global(.a-lightkeeper) { grid-area: light; }
   :global(.a-minefield) { grid-area: mine; }
   :global(.a-nonet) { grid-area: nonet; }
+  :global(.a-noughts) { grid-area: nought; }
   :global(.a-rally) { grid-area: rally; }
   :global(.a-typester) { grid-area: type; }
   .say { grid-area: say; display: flex; align-items: flex-end; }
@@ -144,10 +145,11 @@ const jsonld = [
   .bars__kb { text-align: right; font-weight: 600; }
   .weight__note { font-size: var(--t-sm); }
   .weight__live { margin-top: auto; color: var(--muted); font-size: var(--t-sm); }
-  .pick { grid-area: pick; display: flex; flex-direction: column; align-items: flex-start; gap: 12px; }
-  .pick h2 { font-size: var(--t-display); font-weight: 750; }
+  .pick { grid-area: pick; container-type: inline-size; display: flex; flex-direction: column; align-items: flex-start; gap: 12px; }
+  /* Sized to the tile, so the longest name (Lightkeeper) fits however narrow it is. */
+  .pick h2 { font-size: min(var(--t-display), 15cqi); font-weight: 750; }
   .pick p { font-size: var(--t-lg); line-height: 1.15; }
-  .pick__name { font-size: var(--t-display) !important; font-weight: 800; letter-spacing: -0.045em; line-height: 0.9 !important; margin: auto 0 12px; color: var(--accent-ink); }
+  .pick__name { font-size: min(var(--t-display), 15cqi) !important; font-weight: 800; letter-spacing: -0.045em; line-height: 0.9 !important; margin: auto 0 12px; color: var(--accent-ink); }
   .pick__name.roll { animation: roll 420ms var(--spring); }
   @keyframes roll { from { opacity: 0; translate: 0 0.35em; } }
   .pick__acts { display: flex; flex-wrap: wrap; gap: 10px; }
@@ -207,8 +209,8 @@ const jsonld = [
         "coil coil coil light light light"
         "say say say weight weight weight"
         "mine mine mine nonet nonet nonet"
-        "rally rally rally type type type"
-        "pick pick pick pick pick pick";
+        "nought nought nought rally rally rally"
+        "type type type pick pick pick";
     }
     .intro { min-height: 46svh; }
     .rows summary { grid-template-columns: 1fr auto; min-height: 68px; }
@@ -222,7 +224,7 @@ const jsonld = [
   @media (max-width: 640px) {
     .home {
       grid-template-columns: repeat(2, minmax(0, 1fr));
-      grid-template-areas: "intro intro" "say say" "coil light" "mine nonet" "rally type" "weight weight" "pick pick";
+      grid-template-areas: "intro intro" "say say" "coil light" "mine nonet" "nought rally" "type pick" "weight weight";
     }
     .intro { min-height: 38svh; }
     .home :global(.game) { --strip: 52px; }
