@@ -1,0 +1,26 @@
+{
+  "name": "games",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "astro dev --port 4330",
+    "build": "astro check && astro build",
+    "preview": "wrangler dev --port 8799",
+    "test": "npm run build && node --test tests/*.test.mjs",
+    "capture": "node scripts/capture.ts",
+    "og": "node scripts/og.ts",
+    "deploy": "npm run build && wrangler deploy"
+  },
+  "dependencies": {
+    "@astrojs/sitemap": "^3.7.6",
+    "astro": "^7.4.13"
+  },
+  "devDependencies": {
+    "@astrojs/check": "^0.9.12",
+    "playwright": "^1.65.1",
+    "sharp": "^0.35.5",
+    "typescript": "^6.0.3",
+    "wrangler": "^4.165.0"
+  }
+}

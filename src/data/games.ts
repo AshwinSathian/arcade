@@ -1,0 +1,255 @@
+import type { ImageMetadata } from "astro";
+import coilPoster from "../assets/posters/coil.png";
+import lightkeeperPoster from "../assets/posters/lightkeeper.png";
+import minefieldPoster from "../assets/posters/minefield.png";
+import nonetPoster from "../assets/posters/nonet.png";
+import rallyPoster from "../assets/posters/rally.png";
+import typesterPoster from "../assets/posters/typester.png";
+import coilDesktop from "../assets/shots/coil-desktop.png";
+import coilPhone from "../assets/shots/coil-phone.png";
+import lightkeeperDesktop from "../assets/shots/lightkeeper-desktop.jpg";
+import lightkeeperPhone from "../assets/shots/lightkeeper-phone.jpg";
+import minefieldDesktop from "../assets/shots/minefield-desktop.png";
+import minefieldPhone from "../assets/shots/minefield-phone.png";
+import nonetDesktop from "../assets/shots/nonet-desktop.jpg";
+import nonetPhone from "../assets/shots/nonet-phone.jpg";
+import rallyDesktop from "../assets/shots/rally-desktop.png";
+import rallyPhone from "../assets/shots/rally-phone.png";
+import typesterDesktop from "../assets/shots/typester-desktop.png";
+import typesterPhone from "../assets/shots/typester-phone.png";
+
+export type Shot = { src: ImageMetadata; alt: string };
+export type Game = {
+  slug: string;
+  name: string;
+  /** What it is, in the words people search with. */
+  kind: string;
+  /** The kind as it reads mid-sentence, for page titles. */
+  noun: string;
+  /** schema.org genre values. */
+  genre: string[];
+  /** One sentence: what you do in it. */
+  line: string;
+  about: string[];
+  modes: string[];
+  controls: string;
+  /** Compressed size of the whole game page in KB, measured from the live site on 2026-11-20; null when it is an app bundle. */
+  kb: number | null;
+  sizeNote: string;
+  stack: string;
+  highlights: { title: string; detail: string }[];
+  url: string;
+  repo: string;
+  post?: { title: string; url: string };
+  /** The game's own colours: the tile ground and its one bright. */
+  ground: string;
+  bright: string;
+  poster: ImageMetadata;
+  clipAlt: string;
+  desktop: Shot;
+  phone: Shot;
+};
+
+const writing = (slug: string) => `https://ashwinsathian.com/writing/${slug}`;
+
+export const games: Game[] = [
+  {
+    slug: "coil",
+    name: "Coil",
+    kind: "Snake",
+    noun: "snake game",
+    genre: ["Arcade", "Snake"],
+    line: "Snake with five modes, replays you share as a link and a daily board the server scores itself.",
+    about: [
+      "Coil is snake for phone, tablet and desktop. Classic speeds up as you grow, Gates is a run of generated rooms whose edges open onto the far side, Daily is one room a day that is the same for everyone, Blitz gives you sixty seconds on a board that wraps, and Zen never ends.",
+      "Every run is stored as its seed and the moments it turned, so a whole game fits in a link. The Daily leaderboard never takes a score from the browser: it replays each submitted run on the server and keeps the score that replay reaches.",
+    ],
+    modes: ["Classic", "Gates", "Daily", "Blitz", "Zen"],
+    controls: "Swipe, arrow keys or a gamepad",
+    kb: 25,
+    sizeNote: "One HTML file of about 25 KB compressed, plus a 28 KB font",
+    stack: "TypeScript, Canvas 2D, Web Audio, Cloudflare Workers and D1",
+    highlights: [
+      { title: "The server scores the run", detail: "A Daily submission carries a replay, never a score. A Worker plays the run to its end with the same simulation and stores what it scored." },
+      { title: "Replays in a link", detail: "Seed plus turns, packed as varints in base64url: a 55-segment Classic game fits in 192 characters." },
+      { title: "Walls and gates, cell by cell", detail: "Any stretch of an edge can be a wall or a gate to the opposite side, and a flood fill keeps every room solvable." },
+      { title: "Two looks", detail: "Retro block snake or a Modern glowing tube, each in light and dark." },
+    ],
+    url: "https://coil.ashwinsathian.com",
+    repo: "https://github.com/AshwinSathian/coil",
+    post: { title: "Coil’s leaderboard never asks the browser for a score", url: writing("coils-leaderboard-never-asks-the-browser-for-a-score") },
+    ground: "#1c1915",
+    bright: "#ffc23a",
+    poster: coilPoster,
+    clipAlt: "Coil replaying a Classic run: a yellow and red block snake turning across a dark board towards a green gem while the score climbs.",
+    desktop: { src: coilDesktop, alt: "Coil on a desktop: the board on the left and the mode list on the right with best scores." },
+    phone: { src: coilPhone, alt: "Coil on a phone, mid-game." },
+  },
+  {
+    slug: "lightkeeper",
+    name: "Lightkeeper",
+    kind: "Pinball",
+    noun: "pinball table",
+    genre: ["Arcade", "Pinball"],
+    line: "A pinball table of a lighthouse on a night sea, with multiball, timed watches and replays.",
+    about: [
+      "Lightkeeper is a full pinball table: three pop bumpers, slingshots, a spinner orbit, a ramp, drop targets and a lamp room that locks three balls for multiball. Three timed watches, Fog, Squall and Rescue, lead to Long Night, where every shot scores 50,000.",
+      "The physics runs at a fixed 480 steps a second and is deterministic, so every game can be watched again at 1×, 2× or 4× or shared as a link. All the art is painted with WebGL 2 when the page opens; there are no image files.",
+    ],
+    modes: ["3 balls", "3 minutes", "Practice"],
+    controls: "Touch the left or right half, Z and / on a keyboard, or a gamepad",
+    kb: 35,
+    sizeNote: "One HTML file of about 35 KB compressed, with no image files",
+    stack: "TypeScript, WebGL 2, Web Audio, Cloudflare Workers",
+    highlights: [
+      { title: "Deterministic at 480 Hz", detail: "The same inputs always give the same game, which is what makes replay links possible." },
+      { title: "Art painted at boot", detail: "The table, the lighthouse and the dot-matrix display are drawn in code when the page loads." },
+      { title: "A full rule set", detail: "Skill shot, bonus multipliers, kickback, ball save, combos, nudging and tilt." },
+      { title: "Built for every screen", detail: "Phones get the whole table; wide screens get a tilted cabinet view with the score beside it." },
+    ],
+    url: "https://lightkeeper.ashwinsathian.com",
+    repo: "https://github.com/AshwinSathian/lightkeeper",
+    post: { title: "A pinball table built by an agent that never touched the flippers", url: writing("a-pinball-table-built-by-an-agent-that-never-touched-the-flippers") },
+    ground: "#070d18",
+    bright: "#f7b23b",
+    poster: lightkeeperPoster,
+    clipAlt: "Lightkeeper's attract loop: the ball rattles between red pop bumpers while the lighthouse beam sweeps the table.",
+    desktop: { src: lightkeeperDesktop, alt: "Lightkeeper on a desktop: an amber dot-matrix score of 21,250 on the left and the lighthouse table on the right." },
+    phone: { src: lightkeeperPhone, alt: "Lightkeeper on a phone, the whole table in view." },
+  },
+  {
+    slug: "minefield",
+    name: "Minefield",
+    kind: "Minesweeper",
+    noun: "Minesweeper game",
+    genre: ["Puzzle", "Minesweeper", "Logic"],
+    line: "Minesweeper where every board can be cleared by logic, with hints that show the proof.",
+    about: [
+      "Minefield is Minesweeper for phone, tablet and desktop: Beginner, Intermediate, Expert, custom boards up to 60 by 40, and a Daily board that is the same for everyone.",
+      "With No guessing on, a board is dealt only after an exact solver has cleared it from your first click. The same solver gives hints that ring the numbers behind a move, shows every hidden cell's exact chance of a mine, and tells you after a loss whether a safe move was open.",
+    ],
+    modes: ["Beginner", "Intermediate", "Expert", "Custom", "Daily"],
+    controls: "Tap, click or the keyboard",
+    kb: 21,
+    sizeNote: "One HTML file of about 21 KB compressed, with no fonts or images",
+    stack: "TypeScript, Web Workers, CSS Grid, Web Audio, Cloudflare Workers",
+    highlights: [
+      { title: "No-guess boards", detail: "Only 15.8% of random Expert deals can be solved without a guess; the solver finds one in 2.5 ms on the median." },
+      { title: "Hints with their reasons", detail: "A hint outlines a safe cell or a mine and rings the numbers that prove it." },
+      { title: "Exact odds", detail: "The odds view shades every hidden cell by its true chance of a mine, counted over every arrangement." },
+      { title: "Loss review", detail: "After a mine, it says whether a safe move was open, or that the guess was forced and what the odds were." },
+    ],
+    url: "https://minefield.ashwinsathian.com",
+    repo: "https://github.com/AshwinSathian/minefield",
+    post: { title: "A no-guess Minesweeper board is only as honest as its solver", url: writing("a-no-guess-minesweeper-board-is-only-as-honest-as-its-solver") },
+    ground: "#121417",
+    bright: "#e8743f",
+    poster: minefieldPoster,
+    clipAlt: "Minefield clearing an Intermediate board by following its own hints: safe cells open and mines are flagged one by one.",
+    desktop: { src: minefieldDesktop, alt: "Minefield on a desktop: an Expert board with the odds view on, cells shaded by their chance of a mine." },
+    phone: { src: minefieldPhone, alt: "Minefield on a phone with a hint outlining a safe cell." },
+  },
+  {
+    slug: "nonet",
+    name: "Nonet",
+    kind: "Sudoku",
+    noun: "sudoku",
+    genre: ["Puzzle", "Sudoku", "Logic"],
+    line: "Sudoku graded by the techniques you need, with hints that teach and a mode that adapts to you.",
+    about: [
+      "Nonet is sudoku for phone, tablet and desktop with five levels from Easy to Master, a Daily puzzle and an adaptive mode. It plays offline and saves after every move.",
+      "Every puzzle is graded by a solver that only uses the techniques a person uses, 24 of them from hidden singles to alternating chains. The hardest step sets the level and the hint is the next step from your own notes. In the adaptive mode your rating moves after each game, and the next puzzle is set to match.",
+    ],
+    modes: ["Easy", "Medium", "Hard", "Expert", "Master", "Daily", "Adaptive"],
+    controls: "Tap, click or the keyboard",
+    kb: 24,
+    sizeNote: "One HTML file of about 24 KB compressed, plus a 23 KB font",
+    stack: "TypeScript, Web Workers, CSS Grid, Cloudflare Workers",
+    highlights: [
+      { title: "Graded like a person solves", detail: "Levels come from the hardest of 24 human techniques a puzzle needs, not from how long a computer takes." },
+      { title: "Hints that explain", detail: "A hint names the technique, then shows the cells and the digits it removes, then applies it as one move you can undo." },
+      { title: "An adaptive rating", detail: "An Elo update that scores time against par, mistakes and hints sets the next puzzle." },
+      { title: "A Daily with no server", detail: "The Daily is generated on your device from the date, so it is the same everywhere and works offline." },
+    ],
+    url: "https://nonet.ashwinsathian.com",
+    repo: "https://github.com/AshwinSathian/nonet",
+    post: { title: "A computer can’t tell you how hard a sudoku is", url: writing("a-computer-cant-tell-you-how-hard-a-sudoku-is") },
+    ground: "#18202b",
+    bright: "#8fb0ff",
+    poster: nonetPoster,
+    clipAlt: "Nonet in its dark theme: digits are filled in across a Medium puzzle, box by box.",
+    desktop: { src: nonetDesktop, alt: "Nonet on a desktop: a Hard puzzle with pencil notes beside a 3 by 3 keypad." },
+    phone: { src: nonetPhone, alt: "Nonet on a phone, a puzzle finished." },
+  },
+  {
+    slug: "rally",
+    name: "Rally",
+    kind: "Table tennis",
+    noun: "table tennis game",
+    genre: ["Sports", "Table tennis"],
+    line: "Table tennis to eleven against an opponent that reads the ball like a person, or keep-ups on your own.",
+    about: [
+      "Rally is table tennis you play with one finger or a mouse. In Match you play first to eleven against a computer opponent at Casual, Club or Pro. In Solo you hold the bat flat and bounce the ball on it for as long as you can, with clean hits in a row raising the multiplier.",
+      "Where the ball meets your paddle decides where it lands, pushing forward adds pace and moving sideways adds spin. The opponent predicts the ball with the same physics you play against, then reacts late and misreads it a little, the way a person would.",
+    ],
+    modes: ["Match: Casual", "Match: Club", "Match: Pro", "Solo keep-ups"],
+    controls: "Drag, move the mouse, or the arrow keys",
+    kb: 20,
+    sizeNote: "One HTML file of about 20 KB compressed, with no fonts, images or audio files",
+    stack: "TypeScript, Canvas 2D, Web Audio, Cloudflare Workers",
+    highlights: [
+      { title: "Exact at any speed", detail: "Collision is solved as a sweep of the ball against the paddle's capsule, so a fast ball can never pass through it." },
+      { title: "An opponent with reflexes", detail: "It reacts late, misjudges the ball a little and has limits on speed and acceleration." },
+      { title: "Aim by contact point", detail: "Centred hits are safe; the corners take a hit near the tip." },
+      { title: "Slow-motion finish", detail: "The last two seconds of a game play back in slow motion before the result." },
+    ],
+    url: "https://rally.ashwinsathian.com",
+    repo: "https://github.com/AshwinSathian/rally",
+    ground: "#0b1220",
+    bright: "#ff8d3a",
+    poster: rallyPoster,
+    clipAlt: "Rally: an orange ball crossing a blue table between your red paddle and the opponent's.",
+    desktop: { src: rallyDesktop, alt: "Rally on a desktop: the Match and Solo menu beside a blue table with a rally in progress." },
+    phone: { src: rallyPhone, alt: "A Rally match on a phone, seen from behind your paddle." },
+  },
+  {
+    slug: "typester",
+    name: "Typester",
+    kind: "Typing game",
+    noun: "typing game",
+    genre: ["Typing", "Word"],
+    line: "A typing race against the clock, with streak multipliers and a daily word list for everyone.",
+    about: [
+      "Typester is a keyboard speed game. Type each word as it comes; a streak of clean words raises a combo multiplier and power words score extra. Quick Play, Timed and Endless rounds sit beside a Daily that gives everyone the same words.",
+      "It is a ground-up rebuild of a 2018 Angular app in zoneless, signals-first Angular. A round's settings live in the URL, so it survives a refresh and can be shared, and it installs as an app that plays offline.",
+    ],
+    modes: ["Quick Play", "Timed", "Endless", "Daily"],
+    controls: "A keyboard",
+    kb: null,
+    sizeNote: "A prerendered Angular app that installs and plays offline",
+    stack: "Angular 22 (zoneless, signals), Tailwind CSS, Cloudflare Workers",
+    highlights: [
+      { title: "The same words for everyone", detail: "The Daily seeds its word list from the UTC date, so every player gets the same round." },
+      { title: "State in the URL", detail: "A round's settings are route parameters: refresh mid-game, bookmark it or send it to someone." },
+      { title: "Streaks and power words", detail: "Clean words in a row raise a combo multiplier; power words are worth more." },
+      { title: "Static and offline", detail: "Prerendered pages with no server at runtime, installable as an app." },
+    ],
+    url: "https://typester.ashwinsathian.com",
+    repo: "https://github.com/AshwinSathian/typester",
+    ground: "#0f141b",
+    bright: "#ff9a3c",
+    poster: typesterPoster,
+    clipAlt: "Typester: words are typed one after another while the timer ring runs down and the words-per-minute count rises past 100.",
+    desktop: { src: typesterDesktop, alt: "Typester on a desktop, mid-round: the current word large, the next words beside it and the score below." },
+    phone: { src: typesterPhone, alt: "Typester on a phone, mid-round." },
+  },
+];
+
+export const bySlug = (slug: string) => games.find((g) => g.slug === slug)!;
+export const site = {
+  url: "https://games.ashwinsathian.com",
+  name: "Games by Ashwin Sathian",
+  author: "Ashwin Sathian",
+  authorUrl: "https://ashwinsathian.com",
+  github: "https://github.com/AshwinSathian",
+};

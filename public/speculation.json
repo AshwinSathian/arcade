@@ -1,0 +1,14 @@
+{
+  "prerender": [
+    {
+      "where": { "and": [{ "href_matches": "/*" }, { "not": { "href_matches": ["/*.txt", "/*.xml", "/*.png", "/*.jpg", "/*.mp4", "/og/*"] } }] },
+      "eagerness": "moderate"
+    }
+  ],
+  "prefetch": [
+    {
+      "where": { "selector_matches": "a[data-play]" },
+      "eagerness": "moderate"
+    }
+  ]
+}

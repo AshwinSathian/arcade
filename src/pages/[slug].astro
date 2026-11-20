@@ -1,0 +1,186 @@
+---
+import { Picture, getImage } from "astro:assets";
+import Base from "../layouts/Base.astro";
+import GameTile from "../components/GameTile.astro";
+import Arrow from "../components/Arrow.astro";
+import { games, site, type Game } from "../data/games";
+
+export function getStaticPaths() {
+  return games.map((game, i) => ({ params: { slug: game.slug }, props: { game, i } }));
+}
+interface Props { game: Game; i: number }
+const { game, i } = Astro.props;
+const others = [...games.slice(i + 1), ...games.slice(0, i)];
+const poster = await getImage({ src: game.poster, width: 720, format: "webp", quality: 72 });
+const shot = await getImage({ src: game.desktop.src, width: 1200, format: "webp" });
+
+const title = `${game.name}: a free ${game.noun} for your browser`;
+const description = `${game.line} Free on phone, tablet and desktop, with no install, no sign-up and no ads.`;
+const page = `${site.url}/${game.slug}`;
+const jsonld = [
+  {
+    "@context": "https://schema.org",
+    "@type": "VideoGame",
+    "@id": `${page}#game`,
+    name: game.name,
+    url: game.url,
+    mainEntityOfPage: page,
+    description: [game.line, ...game.about].join(" "),
+    genre: game.genre,
+    gamePlatform: ["Web browser", "Android", "iOS", "Windows", "macOS", "Linux"],
+    applicationCategory: "Game",
+    operatingSystem: "Any (runs in a web browser)",
+    playMode: "SinglePlayer",
+    inLanguage: "en",
+    isAccessibleForFree: true,
+    offers: { "@type": "Offer", price: 0, priceCurrency: "USD", availability: "https://schema.org/InStock", url: game.url },
+    image: [`${site.url}${shot.src}`, `${site.url}/og/${game.slug}.jpg`],
+    screenshot: `${site.url}${shot.src}`,
+    author: { "@type": "Person", "@id": `${site.authorUrl}/#person`, name: site.author, url: site.authorUrl },
+    sameAs: [game.repo, ...(game.post ? [game.post.url] : [])],
+    trailer: {
+      "@type": "VideoObject",
+      name: `${game.name} gameplay`,
+      description: game.clipAlt,
+      thumbnailUrl: `${site.url}${poster.src}`,
+      contentUrl: `${site.url}/media/${game.slug}.mp4`,
+      uploadDate: "2026-11-20",
+      duration: "PT9S",
+    },
+  },
+  {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      { "@type": "ListItem", position: 1, name: "Games", item: site.url },
+      { "@type": "ListItem", position: 2, name: game.name, item: page },
+    ],
+  },
+];
+---
+<Base {title} {description} og={game.slug} {jsonld}>
+  <div class="board detail" style={`--g-ground:${game.ground};--g-bright:${game.bright}`}>
+    <nav class="crumbs rise" aria-label="Breadcrumb">
+      <a class="crumbs__back" href="/"><Arrow dir="left" /> All games</a>
+    </nav>
+
+    <div class="clip game" style={`--i:0`} data-game={game.slug}>
+      <div class="game__media" style={`view-transition-name: media-${game.slug}`}>
+        <span class="sk" aria-hidden="true"></span>
+        <img src={poster.src} width="720" height="900" alt={game.clipAlt} fetchpriority="high" decoding="async" />
+        <video muted loop playsinline preload="none" aria-hidden="true" data-src={`/media/${game.slug}.mp4`} width="720" height="900"></video>
+      </div>
+    </div>
+
+    <section class="tile head rise" style="--i:1" aria-labelledby="name">
+      <p class="head__kind">{game.kind}</p>
+      <h1 id="name">{game.name}</h1>
+      <p class="head__line">{game.line}</p>
+      <p class="head__acts">
+        <a class="btn play" href={game.url} data-play>Play {game.name} <Arrow /></a>
+        <a class="link" href={game.repo}>Source code</a>
+        {game.post && <a class="link" href={game.post.url}>How it was built</a>}
+      </p>
+    </section>
+
+    <dl class="tile facts rise" style="--i:2">
+      <div><dt>Modes</dt><dd>{game.modes.join(", ")}</dd></div>
+      <div><dt>Controls</dt><dd>{game.controls}</dd></div>
+      <div><dt>Size</dt><dd>{game.sizeNote}</dd></div>
+      <div><dt>Made with</dt><dd>{game.stack}</dd></div>
+    </dl>
+
+    <figure class="shot shot--wide">
+      <Picture src={game.desktop.src} widths={[640, 960, 1440]} sizes="(max-width: 1100px) 100vw, 74vw" formats={["avif"]} fallbackFormat="webp" alt={game.desktop.alt} loading="lazy" decoding="async" />
+    </figure>
+    <figure class="shot shot--tall">
+      <Picture src={game.phone.src} widths={[320, 480, 640]} sizes="(max-width: 640px) 50vw, 25vw" formats={["avif"]} fallbackFormat="webp" alt={game.phone.alt} loading="lazy" decoding="async" />
+    </figure>
+
+    <section class="tile about" aria-labelledby="about-h">
+      <h2 id="about-h">About {game.name}</h2>
+      {game.about.map((p) => <p>{p}</p>)}
+    </section>
+    <section class="notes" aria-labelledby="notes-h">
+      <h2 id="notes-h" class="sr">What sets it apart</h2>
+      <ul class="reveal">
+        {game.highlights.map((h) => <li class="tile"><h3>{h.title}</h3><p>{h.detail}</p></li>)}
+      </ul>
+    </section>
+  </div>
+
+  <section class="more" aria-labelledby="more-h">
+    <h2 id="more-h">More games</h2>
+    <div class="more__row">
+      {others.map((g, k) => <GameTile game={g} i={k} heading="h3" />)}
+    </div>
+  </section>
+</Base>
+
+<style>
+  .detail { grid-template-areas:
+    "crumbs crumbs crumbs crumbs crumbs crumbs crumbs crumbs crumbs crumbs crumbs crumbs"
+    "clip clip clip clip clip head head head head head head head"
+    "clip clip clip clip clip facts facts facts facts facts facts facts"
+    "wide wide wide wide wide wide wide wide wide tall tall tall"
+    "about about about about about about notes notes notes notes notes notes";
+    grid-template-rows: auto 1fr auto auto auto;
+  }
+  .crumbs { grid-area: crumbs; padding: 4px 4px 8px; }
+  .crumbs__back { display: inline-flex; align-items: center; gap: 8px; min-height: 44px; font-weight: 600; text-decoration: none; }
+  .crumbs__back :global(svg) { width: 16px; transition: translate 220ms var(--spring); }
+  .crumbs__back:hover :global(svg) { translate: -4px 0; }
+  .clip { grid-area: clip; grid-template-rows: 1fr; }
+  .clip .game__media { aspect-ratio: 4 / 5; height: 100%; }
+  .head { grid-area: head; background: var(--g-ground); color: #f1efe8; display: flex; flex-direction: column; gap: 20px; padding: 32px; }
+  .head__kind { color: var(--g-bright); font-size: var(--t-md); font-weight: 600; }
+  .head h1 { font-size: clamp(3.5rem, 9vw, 9rem); color: var(--g-bright); font-weight: 800; letter-spacing: -0.045em; margin-top: auto; }
+  .head__line { font-size: var(--t-lg); line-height: 1.15; max-width: 26ch; }
+  .head__acts { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 28px; margin-top: 12px; }
+  .play { background: var(--g-bright); color: var(--g-ground); min-height: 56px; padding: 0 28px; font-size: var(--t-md); }
+  .facts { grid-area: facts; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px 32px; }
+  .facts dt { color: var(--muted); font-size: var(--t-sm); margin-bottom: 4px; }
+  .facts dd { font-size: var(--t-body); }
+  .shot { margin: 0; border-radius: var(--r); overflow: hidden; background: var(--surface-2); }
+  .shot :global(img) { width: 100%; height: 100%; object-fit: cover; }
+  .shot--wide { grid-area: wide; aspect-ratio: 16 / 10; }
+  .shot--tall { grid-area: tall; }
+  .about { grid-area: about; display: grid; gap: 16px; align-content: start; padding: 32px; }
+  .about h2 { font-size: var(--t-lg); margin-bottom: 8px; }
+  .about p { max-width: 62ch; }
+  .notes { grid-area: notes; }
+  .notes ul { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--gap); height: 100%; }
+  .notes li { display: grid; gap: 10px; align-content: start; }
+  .notes h3 { font-size: var(--t-md); line-height: 1.15; letter-spacing: -0.015em; }
+  .notes p { font-size: var(--t-sm); line-height: 1.5; }
+  .notes li:nth-child(1) { background: var(--g-ground); color: #f1efe8; }
+  .notes li:nth-child(1) h3 { color: var(--g-bright); }
+
+  .more { padding: 120px var(--edge) 0; }
+  .more h2 { font-size: var(--t-display); margin-bottom: 32px; }
+  .more__row { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: var(--gap); }
+  .more__row :global(.game__kind) { display: none; }
+
+  @media (max-width: 1100px) {
+    .detail { grid-template-columns: repeat(6, minmax(0, 1fr)); grid-template-areas:
+      "crumbs crumbs crumbs crumbs crumbs crumbs"
+      "head head head head head head"
+      "clip clip clip facts facts facts"
+      "wide wide wide wide wide wide"
+      "tall tall about about about about"
+      "notes notes notes notes notes notes";
+      grid-template-rows: auto;
+    }
+    .facts { grid-template-columns: 1fr; }
+    .more__row { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  }
+  @media (max-width: 640px) {
+    .detail { grid-template-columns: repeat(2, minmax(0, 1fr)); grid-template-areas: "crumbs crumbs" "head head" "clip clip" "facts facts" "wide wide" "about about" "tall tall" "notes notes"; }
+    .head { padding: 24px; }
+    .shot--tall { max-width: 70%; justify-self: center; }
+    .notes ul { grid-template-columns: 1fr; }
+    .more__row { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .more__row :global(.game__strip) { padding-left: 12px; }
+    .more__row :global(.game__name) { font-size: 1.0625rem; }
+  }
+</style>

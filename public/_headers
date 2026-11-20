@@ -1,0 +1,40 @@
+# Cloudflare serves ./dist straight from its edge, so these apply to every file.
+/*
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: strict-origin-when-cross-origin
+  Permissions-Policy: camera=(), microphone=(), geolocation=(), interest-cohort=()
+  X-Frame-Options: DENY
+  Cross-Origin-Opener-Policy: same-origin
+  Strict-Transport-Security: max-age=31536000
+  Speculation-Rules: "/speculation.json"
+  Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self'; media-src 'self'; font-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'none'; frame-ancestors 'none'; upgrade-insecure-requests
+
+# Pages: fresh for a minute, then served from cache while it revalidates. Back/forward and repeat visits cost no wait.
+/
+  Cache-Control: public, max-age=60, stale-while-revalidate=600
+/coil
+  Cache-Control: public, max-age=60, stale-while-revalidate=600
+/lightkeeper
+  Cache-Control: public, max-age=60, stale-while-revalidate=600
+/minefield
+  Cache-Control: public, max-age=60, stale-while-revalidate=600
+/nonet
+  Cache-Control: public, max-age=60, stale-while-revalidate=600
+/rally
+  Cache-Control: public, max-age=60, stale-while-revalidate=600
+/typester
+  Cache-Control: public, max-age=60, stale-while-revalidate=600
+
+# Hashed build output never changes.
+/_astro/*
+  Cache-Control: public, max-age=31536000, immutable
+
+# Clips and cards: a day fresh, a week stale.
+/media/*
+  Cache-Control: public, max-age=86400, stale-while-revalidate=604800
+/og/*
+  Cache-Control: public, max-age=86400, stale-while-revalidate=604800
+
+/speculation.json
+  Content-Type: application/speculationrules+json
+  Cache-Control: public, max-age=3600

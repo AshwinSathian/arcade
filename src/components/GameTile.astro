@@ -1,0 +1,31 @@
+---
+// A game as a tile: its real play on a muted loop over its poster, and a strip in the game's own colours.
+// The tile links to the game's page; the Play pill goes straight to the game.
+import { getImage } from "astro:assets";
+import type { Game } from "../data/games";
+import Arrow from "./Arrow.astro";
+
+interface Props { game: Game; i?: number; eager?: boolean; heading?: "h2" | "h3"; class?: string }
+const { game, i = 0, eager = false, heading: H = "h2", class: cls = "" } = Astro.props;
+const poster = await getImage({ src: game.poster, width: 720, format: "webp", quality: 70 });
+const small = await getImage({ src: game.poster, width: 400, format: "webp", quality: 70 });
+---
+<article class:list={["game shutter", cls]} style={`--g-ground:${game.ground};--g-bright:${game.bright};--i:${i}`} data-game={game.slug}>
+  <div class="game__media" style={`view-transition-name: media-${game.slug}`}>
+    <span class="sk" aria-hidden="true"></span>
+    <img
+      src={poster.src}
+      srcset={`${small.src} 400w, ${poster.src} 720w`}
+      sizes="(max-width: 640px) 50vw, (max-width: 1024px) 50vw, 25vw"
+      width="720" height="900" alt={game.clipAlt}
+      loading={eager ? "eager" : "lazy"} fetchpriority={eager && i === 0 ? "high" : "auto"} decoding="async"
+    />
+    <video muted loop playsinline preload="none" aria-hidden="true" data-src={`/media/${game.slug}.mp4`} width="720" height="900"></video>
+  </div>
+  <div class="game__strip">
+    <H class="game__name">{game.name}</H>
+    <span class="game__kind">{game.kind}</span>
+    <a class="game__play" href={game.url} data-play aria-label={`Play ${game.name}`}>Play <Arrow /></a>
+  </div>
+  <a class="game__hit" href={`/${game.slug}`}><span class="sr">{game.name}: {game.line}</span></a>
+</article>

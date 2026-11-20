@@ -1,0 +1,20 @@
+---
+import Base from "../layouts/Base.astro";
+import GameTile from "../components/GameTile.astro";
+import { games } from "../data/games";
+---
+<Base title="Page not found" description="There is no page at this address. The six games are one click away." og="index" jsonld={[]} noindex>
+  <div class="board lost">
+    <section class="tile lost__say">
+      <h1>No game at this address</h1>
+      <p><a class="btn" href="/">See all six</a></p>
+    </section>
+    {games.slice(0, 2).map((g, i) => <GameTile game={g} i={i} heading="h2" />)}
+  </div>
+</Base>
+<style>
+  .lost__say { grid-column: span 6; display: flex; flex-direction: column; justify-content: space-between; gap: 32px; min-height: 50svh; background: var(--ink); color: var(--bg); }
+  .lost__say h1 { font-size: var(--t-display); max-width: 10ch; }
+  .lost :global(.game) { grid-column: span 3; }
+  @media (max-width: 760px) { .lost__say { grid-column: 1 / -1; } .lost :global(.game) { grid-column: span 6; } }
+</style>
