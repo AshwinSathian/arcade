@@ -17,12 +17,32 @@ function play(el: HTMLElement) {
 }
 const pause = (el: HTMLElement) => video(el).pause();
 
+// The page's own switch (WCAG 2.2.2): stilled clips stay paused, and play only on hover or focus, like reduced motion.
+const KEY = "games:still";
+let stilled = false;
+try { stilled = localStorage.getItem(KEY) === "1"; } catch { /* storage blocked: the switch still works for this page */ }
+const quiet = () => still.matches || stilled;
+const onScreen = new Set<HTMLElement>();
+const toggles = [...document.querySelectorAll<HTMLButtonElement>("[data-still-toggle]")];
+function setStill(on: boolean) {
+  stilled = on;
+  try { localStorage.setItem(KEY, on ? "1" : "0"); } catch { /* as above */ }
+  if (on) root.dataset.still = "";
+  else delete root.dataset.still;
+  toggles.forEach((b) => b.setAttribute("aria-pressed", String(on)));
+  clips.forEach((el) => (on || !onScreen.has(el) ? pause(el) : play(el)));
+}
+toggles.forEach((b) => b.addEventListener("click", () => setStill(!stilled)));
+setStill(stilled);
+
 if (!frugal) {
   const io = new IntersectionObserver(
     (entries) => {
       for (const e of entries) {
         const el = e.target as HTMLElement;
-        if (e.isIntersecting && !still.matches) play(el);
+        if (e.isIntersecting) onScreen.add(el);
+        else onScreen.delete(el);
+        if (e.isIntersecting && !quiet()) play(el);
         else pause(el);
       }
     },
@@ -32,8 +52,8 @@ if (!frugal) {
     io.observe(el);
     el.addEventListener("pointerenter", () => play(el));
     el.addEventListener("focusin", () => play(el));
-    el.addEventListener("pointerleave", () => still.matches && pause(el));
-    el.addEventListener("focusout", () => still.matches && pause(el));
+    el.addEventListener("pointerleave", () => quiet() && pause(el));
+    el.addEventListener("focusout", () => quiet() && pause(el));
   });
   // A hidden tab plays nothing.
   document.addEventListener("visibilitychange", () => {
@@ -119,7 +139,11 @@ if (pick && pickName && again) {
   roll();
   pickName.classList.remove("roll");
   again.hidden = false;
-  again.addEventListener("click", roll);
+  again.addEventListener("click", () => {
+    // Announce picks the visitor asked for, not the silent first one.
+    pickName.setAttribute("aria-live", "polite");
+    roll();
+  });
 }
 
 // ---------- the weight meter: what this visit has actually downloaded, read from the browser's own timings ----------

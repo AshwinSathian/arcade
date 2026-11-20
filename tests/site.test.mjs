@@ -73,7 +73,7 @@ test("every page has its cache rule, and every clip exists", () => {
 test("sitemap lists the pages and leaves the cards out", () => {
   const xml = read("sitemap-0.xml");
   for (const s of slugs) assert.match(xml, new RegExp(`/${s}</loc>`));
-  assert.doesNotMatch(xml, /\/og\//);
+  assert.doesNotMatch(xml, /\/cards\//);
   assert.match(read("robots.txt"), /Sitemap: https:\/\/games\.ashwinsathian\.com\/sitemap-index\.xml/);
 });
 

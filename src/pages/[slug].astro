@@ -3,6 +3,7 @@ import { Picture, getImage } from "astro:assets";
 import Base from "../layouts/Base.astro";
 import GameTile from "../components/GameTile.astro";
 import Arrow from "../components/Arrow.astro";
+import StillToggle from "../components/StillToggle.astro";
 import { games, site, type Game } from "../data/games";
 
 export function getStaticPaths() {
@@ -58,10 +59,11 @@ const jsonld = [
   },
 ];
 ---
-<Base {title} {description} og={game.slug} {jsonld}>
+<Base {title} {description} og={game.slug} ogAlt={`${game.name} in its own colours beside a frame of real play. ${game.clipAlt}`} {jsonld}>
   <div class="board detail" style={`--g-ground:${game.ground};--g-bright:${game.bright}`}>
     <nav class="crumbs rise" aria-label="Breadcrumb">
       <a class="crumbs__back" href="/"><Arrow dir="left" /> All games</a>
+      <StillToggle />
     </nav>
 
     <div class="clip game" style={`--i:0`} data-game={game.slug}>
@@ -126,7 +128,7 @@ const jsonld = [
     "about about about about about about notes notes notes notes notes notes";
     grid-template-rows: auto 1fr auto auto auto;
   }
-  .crumbs { grid-area: crumbs; padding: 4px 4px 8px; }
+  .crumbs { grid-area: crumbs; padding: 4px 4px 8px; display: flex; justify-content: space-between; align-items: center; }
   .crumbs__back { display: inline-flex; align-items: center; gap: 8px; min-height: 44px; font-weight: 600; text-decoration: none; }
   .crumbs__back :global(svg) { width: 16px; transition: translate 220ms var(--spring); }
   .crumbs__back:hover :global(svg) { translate: -4px 0; }
@@ -136,6 +138,7 @@ const jsonld = [
   .head__kind { color: var(--g-bright); font-size: var(--t-md); font-weight: 600; }
   .head h1 { font-size: clamp(3.5rem, 9vw, 9rem); color: var(--g-bright); font-weight: 800; letter-spacing: -0.045em; margin-top: auto; }
   .head__line { font-size: var(--t-lg); line-height: 1.15; max-width: 26ch; }
+  .head__acts .link { display: inline-flex; align-items: center; min-height: 44px; }
   .head__acts { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 28px; margin-top: 12px; }
   .play { background: var(--g-bright); color: var(--g-ground); min-height: 56px; padding: 0 28px; font-size: var(--t-md); }
   .facts { grid-area: facts; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px 32px; }

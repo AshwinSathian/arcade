@@ -1,7 +1,7 @@
 {
   "prerender": [
     {
-      "where": { "and": [{ "href_matches": "/*" }, { "not": { "href_matches": ["/*.txt", "/*.xml", "/*.png", "/*.jpg", "/*.mp4", "/og/*"] } }] },
+      "where": { "and": [{ "href_matches": "/*" }, { "not": { "href_matches": ["/*.txt", "/*.xml", "/*.png", "/*.jpg", "/*.mp4", "/og/*", "/cards/*"] } }] },
       "eagerness": "moderate"
     }
   ],

@@ -10,7 +10,7 @@ export default defineConfig({
   build: { format: "file", inlineStylesheets: "always" },
   // Link prefetching is public/speculation.json plus src/scripts/site.ts.
   prefetch: false,
-  integrations: [sitemap({ filter: (u) => !u.includes("/og/") })],
+  integrations: [sitemap({ filter: (u) => !u.includes("/cards/") })],
   // No data: URIs or inline scripts: the CSP in public/_headers forbids both.
   vite: { build: { assetsInlineLimit: 0 } },
 });

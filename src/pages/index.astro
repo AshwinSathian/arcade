@@ -2,14 +2,15 @@
 import Base from "../layouts/Base.astro";
 import GameTile from "../components/GameTile.astro";
 import Arrow from "../components/Arrow.astro";
+import StillToggle from "../components/StillToggle.astro";
 import { games, site } from "../data/games";
 
 const sized = games.filter((g) => g.kb !== null);
 const maxKb = Math.max(...sized.map((g) => g.kb!));
 const posts = games.filter((g) => g.post);
 
-const title = "Six free browser games: snake, pinball, Minesweeper, sudoku, table tennis, typing";
-const description = "Six small games by Ashwin Sathian that open in a browser tab on phone, tablet or desktop. Free, with no install, no sign-up and no ads, and five of them load as one file of 20 to 35 KB.";
+const title = "Six free browser games: snake, pinball, sudoku and more";
+const description = "Six small games by Ashwin Sathian that open in a browser tab on phone, tablet or desktop. Free, with no install, no sign-up and no ads, and five of them are a single HTML file of 20 to 35 KB.";
 const jsonld = [
   {
     "@context": "https://schema.org",
@@ -35,10 +36,10 @@ const jsonld = [
   },
 ];
 ---
-<Base {title} {description} og="index" {jsonld}>
+<Base {title} {description} og="index" ogAlt="Six tiles of real gameplay, one per game: Coil, Lightkeeper, Minefield, Nonet, Rally and Typester, beside the words “Six small games for your browser”." {jsonld}>
   <div class="board home">
     <section class="tile intro rise" aria-labelledby="title">
-      <p class="intro__by"><a class="link" href={site.authorUrl}>Ashwin Sathian</a></p>
+      <p class="intro__by"><a class="link" href={site.authorUrl}>Ashwin Sathian</a><StillToggle /></p>
       <h1 id="title">Six small games for your browser</h1>
     </section>
 
@@ -57,14 +58,14 @@ const jsonld = [
           </li>
         ))}
       </ul>
-      <p class="weight__note">Each game’s whole page, compressed, as it arrives. Typester is an Angular app, so it isn’t on this list.</p>
+      <p class="weight__note">Each game’s HTML file, compressed. Coil and Nonet also fetch a font (28 KB and 23 KB). Typester is an Angular app, so it isn’t on this list.</p>
       <p class="weight__live" data-weight aria-live="off"></p>
     </section>
 
     <section class="tile tile--accent pick rise" style="--i:3" aria-labelledby="pick-h">
       <h2 id="pick-h">Can’t choose?</h2>
       <p>Picked for you:</p>
-      <p class="pick__name" data-pick-name aria-live="polite">{games[2].name}</p>
+      <p class="pick__name" data-pick-name>{games[2].name}</p>
       <p class="pick__acts">
         <a class="btn btn--light" href={games[2].url} data-pick data-play>Play <span data-pick-label>{games[2].name}</span> <Arrow /></a>
         <button class="btn pick__again" type="button" data-pick-again hidden>Pick again</button>
@@ -124,7 +125,7 @@ const jsonld = [
   }
   .intro { grid-area: intro; display: flex; flex-direction: column; justify-content: space-between; gap: 40px; background: var(--ink); color: var(--bg); }
   .intro h1 { font-size: var(--t-display); font-weight: 750; max-width: 9ch; }
-  .intro__by { font-size: var(--t-md); font-weight: 600; }
+  .intro__by { font-size: var(--t-md); font-weight: 600; display: flex; justify-content: space-between; align-items: center; gap: 12px; }
   :global(.a-coil) { grid-area: coil; }
   :global(.a-lightkeeper) { grid-area: light; }
   :global(.a-minefield) { grid-area: mine; }
@@ -228,7 +229,8 @@ const jsonld = [
     .home :global(.game__kind) { display: none; }
     .home :global(.game__strip) { padding-left: 12px; gap: 6px; }
     .home :global(.game__name) { font-size: 1.0625rem; }
-    .home :global(.game__play) { padding: 0 12px; }
+    .home :global(.game__play) { padding: 0 14px; }
+    .home :global(.game__play svg) { display: none; }
     .say p { font-size: 1.375rem; }
     .pick { min-height: 300px; }
     .band { margin-top: 80px; padding: 64px var(--edge); }

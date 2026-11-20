@@ -38,6 +38,8 @@ const games: Record<string, Shot> = {
     url: 'https://minefield.ashwinsathian.com/', scheme: 'dark', start: 3, dur: 9,
     init: (p) => p.addInitScript(() => localStorage.setItem('minefield:v1', JSON.stringify({ v: 1, settings: { mode: 'intermediate', sound: false } }))),
     async play(p) {
+      // The hint toasts would cover the top of the board in the poster frame.
+      await p.addStyleTag({ content: '#toast { display: none !important; }' });
       await wait(p, 600);
       await p.click('#' + await p.evaluate(() => document.querySelector('#board')!.getAttribute('aria-activedescendant')));
       await wait(p, 700);

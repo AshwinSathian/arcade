@@ -1,4 +1,4 @@
-// Photographs the /og/* card pages of the built site into public/og/*.jpg, and draws the touch icon.
+// Photographs the /cards/* pages of the built site into public/og/*.jpg, and draws the touch icon.
 // Usage: npm run build && node scripts/og.ts   (then build again so dist carries the cards)
 import { chromium } from 'playwright';
 import { execFileSync } from 'node:child_process';
@@ -13,11 +13,11 @@ for (let i = 0; i < 60; i++) {
   try { await fetch(base); break; } catch { await new Promise((r) => setTimeout(r, 250)); }
 }
 mkdirSync('public/og', { recursive: true });
-const cards = readdirSync('dist/og').filter((f) => f.endsWith('.html')).map((f) => f.replace('.html', ''));
+const cards = readdirSync('dist/cards').filter((f) => f.endsWith('.html')).map((f) => f.replace('.html', ''));
 const browser = await chromium.launch();
 const page = await browser.newPage({ viewport: { width: 1200, height: 630 } });
 for (const c of cards) {
-  await page.goto(`${base}/og/${c}`, { waitUntil: 'networkidle' });
+  await page.goto(`${base}/cards/${c}`, { waitUntil: 'networkidle' });
   await page.evaluate(() => document.fonts.ready);
   await page.screenshot({ path: `public/og/${c}.jpg`, type: 'jpeg', quality: 86 });
   console.log('card', c);
