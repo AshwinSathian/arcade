@@ -16,6 +16,8 @@
   Cache-Control: public, max-age=60, stale-while-revalidate=600
 /lightkeeper
   Cache-Control: public, max-age=60, stale-while-revalidate=600
+/lintel
+  Cache-Control: public, max-age=60, stale-while-revalidate=600
 /minefield
   Cache-Control: public, max-age=60, stale-while-revalidate=600
 /nonet
