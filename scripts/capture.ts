@@ -34,10 +34,10 @@ const games: Record<string, Shot> = {
     url: 'https://lightkeeper.ashwinsathian.com/', start: 2, dur: 9, size: [1440, 1800], crop: 'crop=920:1150:260:300',
     play: (p) => wait(p, 12000),
   },
-  lintel: {
+  clinker: {
     // ?auto hands the game to its own bot, playing real moves on a fresh wall.
-    url: 'https://lintel.ashwinsathian.com/?auto', start: 5, dur: 9,
-    play: (p) => wait(p, 15000),
+    url: 'https://clinker.ashwinsathian.com/?auto', start: 8, dur: 9,
+    play: (p) => wait(p, 19000),
   },
   minefield: {
     url: 'https://minefield.ashwinsathian.com/', scheme: 'dark', start: 3, dur: 9,
