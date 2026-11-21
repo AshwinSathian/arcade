@@ -112,7 +112,7 @@ export const games: Game[] = [
     ],
     url: "https://lightkeeper.ashwinsathian.com",
     repo: "https://github.com/AshwinSathian/lightkeeper",
-    post: { title: "A pinball table built by an agent that never touched the flippers", url: writing("a-pinball-table-built-by-an-agent-that-never-touched-the-flippers") },
+    post: { title: "A pinball replay is a promise about the last bit of every float", url: writing("a-pinball-replay-is-a-promise-about-the-last-bit-of-every-float") },
     ground: "#070d18",
     bright: "#f7b23b",
     poster: lightkeeperPoster,
