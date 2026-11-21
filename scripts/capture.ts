@@ -34,6 +34,11 @@ const games: Record<string, Shot> = {
     url: 'https://lightkeeper.ashwinsathian.com/', start: 2, dur: 9, size: [1440, 1800], crop: 'crop=920:1150:260:300',
     play: (p) => wait(p, 12000),
   },
+  lintel: {
+    // ?auto hands the game to its own bot, playing real moves on a fresh wall.
+    url: 'https://lintel.ashwinsathian.com/?auto', start: 5, dur: 9,
+    play: (p) => wait(p, 15000),
+  },
   minefield: {
     url: 'https://minefield.ashwinsathian.com/', scheme: 'dark', start: 3, dur: 9,
     init: (p) => p.addInitScript(() => localStorage.setItem('minefield:v1', JSON.stringify({ v: 1, settings: { mode: 'intermediate', sound: false } }))),
@@ -116,7 +121,7 @@ const games: Record<string, Shot> = {
 const only = process.argv.slice(2);
 mkdirSync('public/media', { recursive: true });
 mkdirSync('src/assets/posters', { recursive: true });
-const browser = await chromium.launch();
+const browser = await chromium.launch({ args: ['--use-angle=metal', '--enable-webgl', '--ignore-gpu-blocklist'] });
 for (const [slug, g] of Object.entries(games)) {
   if (only.length && !only.includes(slug)) continue;
   const dir = mkdtempSync(join(tmpdir(), `games-${slug}-`));
