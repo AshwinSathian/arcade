@@ -11,7 +11,7 @@ const slugs = pages.filter((f) => !["index.html", "404.html"].includes(f)).map((
 const meta = (html, attr, key) => html.match(new RegExp(`<meta ${attr}="${key}" content="([^"]*)"`))?.[1];
 
 test("eight game pages, a home page and a 404", () => {
-  assert.deepEqual(slugs.sort(), ["clinker", "coil", "lightkeeper", "minefield", "nonet", "noughts", "rally", "typester"]);
+  assert.deepEqual(slugs.sort(), ["bricks", "coil", "lightkeeper", "minefield", "nonet", "noughts", "rally", "typester"]);
 });
 
 for (const page of pages.filter((p) => p !== "404.html")) {
