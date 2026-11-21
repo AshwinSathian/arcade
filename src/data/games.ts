@@ -1,7 +1,9 @@
+import clinkerPoster from "../assets/posters/clinker.png";
+import clinkerDesktop from "../assets/shots/clinker-desktop.jpg";
+import clinkerPhone from "../assets/shots/clinker-phone.jpg";
 import type { ImageMetadata } from "astro";
 import coilPoster from "../assets/posters/coil.png";
 import lightkeeperPoster from "../assets/posters/lightkeeper.png";
-import lintelPoster from "../assets/posters/lintel.png";
 import minefieldPoster from "../assets/posters/minefield.png";
 import nonetPoster from "../assets/posters/nonet.png";
 import noughtsPoster from "../assets/posters/noughts.png";
@@ -11,8 +13,6 @@ import coilDesktop from "../assets/shots/coil-desktop.png";
 import coilPhone from "../assets/shots/coil-phone.png";
 import lightkeeperDesktop from "../assets/shots/lightkeeper-desktop.jpg";
 import lightkeeperPhone from "../assets/shots/lightkeeper-phone.jpg";
-import lintelDesktop from "../assets/shots/lintel-desktop.jpg";
-import lintelPhone from "../assets/shots/lintel-phone.jpg";
 import minefieldDesktop from "../assets/shots/minefield-desktop.png";
 import minefieldPhone from "../assets/shots/minefield-phone.png";
 import nonetDesktop from "../assets/shots/nonet-desktop.jpg";
@@ -59,6 +59,37 @@ export type Game = {
 const writing = (slug: string) => `https://ashwinsathian.com/writing/${slug}`;
 
 export const games: Game[] = [
+  {
+    slug: "clinker",
+    name: "Clinker",
+    kind: "Falling bricks",
+    noun: "falling-brick puzzle",
+    genre: ["Puzzle", "Arcade"],
+    line: "Steer falling bricks, finish courses and knock them out of a wall built from real-looking fired clay.",
+    about: [
+      "Clinker is a falling-brick puzzle for phone, tablet and desktop. Steer pieces of two, three or five bricks into a wall 12 bricks wide, and fill a whole row, called a course, to knock it out. Shift is endless and speeds up every ten courses, Sprint is forty courses against the clock, Daily gives everyone the same 100 pieces, and Demolition is twelve condemned walls to clear.",
+      "Clinkers are dark over-fired bricks with a glowing rim. When a clinker’s course goes, it bursts the bricks around it, which is how you dig out buried gaps. Every ten courses also charges a trowel that fills the buried gap closest to finishing a course.",
+    ],
+    modes: ["Shift", "Sprint", "Daily", "Demolition"],
+    controls: "Touch, keyboard or gamepad",
+    kb: 25,
+    sizeNote: "One HTML file of about 25 KB compressed, plus a 14 KB font",
+    stack: "TypeScript, WebGL 2, Web Audio, Cloudflare Workers and Durable Objects",
+    highlights: [
+      { title: "Replays from inputs", detail: "The rules run at a fixed 120 ticks a second from a seed and an input log, so a closed tab resumes exactly and any run can be watched back." },
+      { title: "Clinker bursts", detail: "A dark brick in a finished course takes the eight bricks around it, which opens up gaps a normal clear can’t reach." },
+      { title: "Art with no image files", detail: "Every clay, the clinker glaze and the old wall behind the game are painted by shaders when the page opens." },
+      { title: "A Daily the server scores", detail: "The server replays each Daily run to get its score, and keeps only a histogram that deletes itself after three days." },
+    ],
+    url: "https://clinker.ashwinsathian.com",
+    repo: "https://github.com/AshwinSathian/clinker",
+    ground: "#1a110d",
+    bright: "#e0573a",
+    poster: clinkerPoster,
+    clipAlt: "Clinker: red, orange, buff and blue bricks fall into a wall inside a brick recess, and finished courses burst into rubble and dust.",
+    desktop: { src: clinkerDesktop, alt: "Clinker on a desktop: a part-built wall of fired bricks, with the score on the left and the next pieces on the right." },
+    phone: { src: clinkerPhone, alt: "Clinker on a phone, the wall above Hold, Turn, Trowel and Drop buttons." },
+  },
   {
     slug: "coil",
     name: "Coil",
@@ -122,37 +153,6 @@ export const games: Game[] = [
     clipAlt: "Lightkeeper's attract loop: the ball rattles between red pop bumpers while the lighthouse beam sweeps the table.",
     desktop: { src: lightkeeperDesktop, alt: "Lightkeeper on a desktop: an amber dot-matrix score of 21,250 on the left and the lighthouse table on the right." },
     phone: { src: lightkeeperPhone, alt: "Lightkeeper on a phone, the whole table in view." },
-  },
-  {
-    slug: "lintel",
-    name: "Lintel",
-    kind: "Brick puzzle",
-    noun: "falling-brick puzzle",
-    genre: ["Puzzle", "Arcade"],
-    line: "Drop bricks into a staggered wall and connect one colour from side to side to burn it away.",
-    about: [
-      "Lintel is a falling-brick puzzle for phone, tablet and desktop. Three bricks hang from a stone lintel. You aim them, turn them in 60-degree steps and drop them into a wall laid in running bond, where every brick touches six others. When one colour connects the left pier to the right, all of that colour touching it burns away, and the bricks above can set off a chain.",
-      "Score goes with the square of the bricks in a fire, so it pays to grow a big mass and hold back the last brick. Bricks left too long cure to grey stone, which only a fire beside it can break. Shift is endless with a fuse on every load, Day’s Load gives everyone the same 40 loads with no clock, and Repairs is 30 damaged walls to empty.",
-    ],
-    modes: ["Shift", "Day’s Load", "Repairs"],
-    controls: "Drag, mouse, keyboard or gamepad",
-    kb: 23,
-    sizeNote: "One HTML file of about 23 KB compressed, plus a 14 KB font",
-    stack: "TypeScript, WebGL 2, Web Audio, Cloudflare Workers and Durable Objects",
-    highlights: [
-      { title: "One rules file everywhere", detail: "A game is a pure function of its seed and placements. The browser, the server, the bot and the tests all run the same file." },
-      { title: "A preview on every aim", detail: "Each course of the wall is one byte, so a bit-parallel flood fill can show what would burn each time you move." },
-      { title: "Puzzles proven by search", detail: "Every possible move sequence was played for each of the 30 Repairs, so each has a known fix and a count of how many exist." },
-      { title: "A daily table with no names", detail: "The server replays each Day’s Load run to get its score, and keeps only a histogram that deletes itself after three days." },
-    ],
-    url: "https://lintel.ashwinsathian.com",
-    repo: "https://github.com/AshwinSathian/lintel",
-    ground: "#16100d",
-    bright: "#8bb9a2",
-    poster: lintelPoster,
-    clipAlt: "Lintel: glazed red, green and amber bricks drop into a staggered wall inside a stone doorway, and connected colours burn away in sparks.",
-    desktop: { src: lintelDesktop, alt: "Lintel on a desktop: a half-built wall of glazed bricks under a stone lintel, with three bricks hanging on ropes." },
-    phone: { src: lintelPhone, alt: "Lintel on a phone, the wall above large Turn and Drop buttons." },
   },
   {
     slug: "minefield",
