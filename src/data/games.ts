@@ -1,6 +1,6 @@
-import clinkerPoster from "../assets/posters/clinker.png";
-import clinkerDesktop from "../assets/shots/clinker-desktop.jpg";
-import clinkerPhone from "../assets/shots/clinker-phone.jpg";
+import bricksPoster from "../assets/posters/bricks.png";
+import bricksDesktop from "../assets/shots/bricks-desktop.jpg";
+import bricksPhone from "../assets/shots/bricks-phone.jpg";
 import type { ImageMetadata } from "astro";
 import coilPoster from "../assets/posters/coil.png";
 import lightkeeperPoster from "../assets/posters/lightkeeper.png";
@@ -60,35 +60,35 @@ const writing = (slug: string) => `https://ashwinsathian.com/writing/${slug}`;
 
 export const games: Game[] = [
   {
-    slug: "clinker",
-    name: "Clinker",
+    slug: "bricks",
+    name: "Bricks",
     kind: "Falling bricks",
     noun: "falling-brick puzzle",
     genre: ["Puzzle", "Arcade"],
-    line: "Steer falling bricks, finish courses and knock them out of a wall built from real-looking fired clay.",
+    line: "Steer falling bricks and knock out full courses on a wall of one natural clay, from morning light to night.",
     about: [
-      "Clinker is a falling-brick puzzle for phone, tablet and desktop. Steer pieces of two, three or five bricks into a wall 12 bricks wide, and fill a whole row, called a course, to knock it out. Shift is endless and speeds up every ten courses, Sprint is forty courses against the clock, Daily gives everyone the same 100 pieces, and Demolition is twelve condemned walls to clear.",
-      "Clinkers are dark over-fired bricks with a glowing rim. When a clinker’s course goes, it bursts the bricks around it, which is how you dig out buried gaps. Every ten courses also charges a trowel that fills the buried gap closest to finishing a course.",
+      "Bricks is a falling-brick puzzle for phone, tablet and desktop. Steer pieces of two, three or five bricks into a wall 12 bricks wide, and fill a whole row, called a course, to knock it out. Shift is endless, Sprint is forty courses against the clock, Daily gives everyone the same 100 pieces, and Demolition is twelve old walls to bring down.",
+      "Every brick is the same clay. The light changes instead: every three levels the sun moves from morning through noon and golden hour to night, and each brick casts a shadow along it. Bricks stamped with a white ring burst their neighbours when their course goes, and every ten courses charges a trowel that fills a buried gap.",
     ],
     modes: ["Shift", "Sprint", "Daily", "Demolition"],
     controls: "Touch, keyboard or gamepad",
-    kb: 25,
-    sizeNote: "One HTML file of about 25 KB compressed, plus a 14 KB font",
+    kb: 26,
+    sizeNote: "One HTML file of about 26 KB compressed, plus an 18 KB font",
     stack: "TypeScript, WebGL 2, Web Audio, Cloudflare Workers and Durable Objects",
     highlights: [
+      { title: "A day on the wall", detail: "Plaster, mortar, sunlight and cast shadows all shift as levels rise, while the clay stays the same." },
       { title: "Replays from inputs", detail: "The rules run at a fixed 120 ticks a second from a seed and an input log, so a closed tab resumes exactly and any run can be watched back." },
-      { title: "Clinker bursts", detail: "A dark brick in a finished course takes the eight bricks around it, which opens up gaps a normal clear can’t reach." },
-      { title: "Art with no image files", detail: "Every clay, the clinker glaze and the old wall behind the game are painted by shaders when the page opens." },
+      { title: "Art with no image files", detail: "Thirty-six different faces of one clay are painted by shaders when the page opens." },
       { title: "A Daily the server scores", detail: "The server replays each Daily run to get its score, and keeps only a histogram that deletes itself after three days." },
     ],
-    url: "https://clinker.ashwinsathian.com",
-    repo: "https://github.com/AshwinSathian/clinker",
-    ground: "#1a110d",
-    bright: "#e0573a",
-    poster: clinkerPoster,
-    clipAlt: "Clinker: red, orange, buff and blue bricks fall into a wall inside a brick recess, and finished courses burst into rubble and dust.",
-    desktop: { src: clinkerDesktop, alt: "Clinker on a desktop: a part-built wall of fired bricks, with the score on the left and the next pieces on the right." },
-    phone: { src: clinkerPhone, alt: "Clinker on a phone, the wall above Hold, Turn, Trowel and Drop buttons." },
+    url: "https://bricks.ashwinsathian.com",
+    repo: "https://github.com/AshwinSathian/bricks",
+    ground: "#211813",
+    bright: "#d9764f",
+    poster: bricksPoster,
+    clipAlt: "Bricks: natural red bricks fall into a wall inside a brick frame on pale plaster, and finished courses burst into rubble and dust.",
+    desktop: { src: bricksDesktop, alt: "Bricks on a desktop: a part-built wall of one red clay inside a brick frame, with the score on the left and the next pieces on the right." },
+    phone: { src: bricksPhone, alt: "Bricks on a phone, the wall above Hold, Turn, Trowel and Drop buttons." },
   },
   {
     slug: "coil",

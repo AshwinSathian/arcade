@@ -34,9 +34,9 @@ const games: Record<string, Shot> = {
     url: 'https://lightkeeper.ashwinsathian.com/', start: 2, dur: 9, size: [1440, 1800], crop: 'crop=920:1150:260:300',
     play: (p) => wait(p, 12000),
   },
-  clinker: {
+  bricks: {
     // ?auto hands the game to its own bot, playing real moves on a fresh wall.
-    url: 'https://clinker.ashwinsathian.com/?auto', start: 8, dur: 9,
+    url: 'https://bricks.ashwinsathian.com/?auto', start: 8, dur: 9,
     play: (p) => wait(p, 19000),
   },
   minefield: {

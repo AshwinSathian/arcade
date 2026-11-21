@@ -36,7 +36,7 @@ const jsonld = [
   },
 ];
 ---
-<Base {title} {description} og="index" ogAlt="Eight tiles of real gameplay, one per game: Clinker, Coil, Lightkeeper, Minefield, Nonet, Noughts, Rally and Typester, beside the words “Eight small games for your browser”." {jsonld}>
+<Base {title} {description} og="index" ogAlt="Eight tiles of real gameplay, one per game: Bricks, Coil, Lightkeeper, Minefield, Nonet, Noughts, Rally and Typester, beside the words “Eight small games for your browser”." {jsonld}>
   <div class="board home">
     <section class="tile intro rise" aria-labelledby="title">
       <p class="intro__by"><a class="link" href={site.authorUrl}>Ashwin Sathian</a><StillToggle /></p>
@@ -58,7 +58,7 @@ const jsonld = [
           </li>
         ))}
       </ul>
-      <p class="weight__note">Each game’s HTML file, compressed. Clinker, Coil, Nonet and Noughts also fetch a font (14 KB, 28 KB, 23 KB and 38 KB). Typester is an Angular app, so it isn’t on this list.</p>
+      <p class="weight__note">Each game’s HTML file, compressed. Bricks, Coil, Nonet and Noughts also fetch a font (18 KB, 28 KB, 23 KB and 38 KB). Typester is an Angular app, so it isn’t on this list.</p>
       <p class="weight__live" data-weight aria-live="off"></p>
     </section>
 
@@ -119,7 +119,7 @@ const jsonld = [
   /* First screen: the name, eight clips, and the tiles that say what they are. */
   .home {
     grid-template-areas:
-      "intro intro intro intro intro intro clinker clinker clinker coil coil coil"
+      "intro intro intro intro intro intro bricks bricks bricks coil coil coil"
       "say say say weight weight weight light light light mine mine mine"
       "nonet nonet nonet nought nought nought rally rally rally type type type"
       "pick pick pick pick pick pick pick pick pick pick pick pick";
@@ -127,7 +127,7 @@ const jsonld = [
   .intro { grid-area: intro; display: flex; flex-direction: column; justify-content: space-between; gap: 40px; background: var(--ink); color: var(--bg); }
   .intro h1 { font-size: var(--t-display); font-weight: 750; max-width: 9ch; }
   .intro__by { font-size: var(--t-md); font-weight: 600; display: flex; justify-content: space-between; align-items: center; gap: 12px; }
-  :global(.a-clinker) { grid-area: clinker; }
+  :global(.a-bricks) { grid-area: bricks; }
   :global(.a-coil) { grid-area: coil; }
   :global(.a-lightkeeper) { grid-area: light; }
   :global(.a-minefield) { grid-area: mine; }
@@ -208,7 +208,7 @@ const jsonld = [
       grid-template-columns: repeat(6, minmax(0, 1fr));
       grid-template-areas:
         "intro intro intro intro intro intro"
-        "clinker clinker clinker coil coil coil"
+        "bricks bricks bricks coil coil coil"
         "say say say weight weight weight"
         "light light light mine mine mine"
         "nonet nonet nonet nought nought nought"
@@ -227,7 +227,7 @@ const jsonld = [
   @media (max-width: 640px) {
     .home {
       grid-template-columns: repeat(2, minmax(0, 1fr));
-      grid-template-areas: "intro intro" "say say" "clinker coil" "light mine" "nonet nought" "rally type" "pick pick" "weight weight";
+      grid-template-areas: "intro intro" "say say" "bricks coil" "light mine" "nonet nought" "rally type" "pick pick" "weight weight";
     }
     .intro { min-height: 38svh; }
     .home :global(.game) { --strip: 52px; }
