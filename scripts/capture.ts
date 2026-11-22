@@ -96,6 +96,11 @@ const games: Record<string, Shot> = {
       await wait(p, 12000);
     },
   },
+  spillway: {
+    // The game's own bot, skipped ahead to lantern night.
+    url: 'https://spillway.ashwinsathian.com/?autoplay&start=open&at=820', start: 2, dur: 9,
+    play: (p) => wait(p, 12500),
+  },
   typester: {
     // A Rush, typed at a brisk human pace from the word the game is asking for.
     url: 'https://typester.ashwinsathian.com/play/rush', start: 6, dur: 9,
@@ -116,7 +121,8 @@ const games: Record<string, Shot> = {
 const only = process.argv.slice(2);
 mkdirSync('public/media', { recursive: true });
 mkdirSync('src/assets/posters', { recursive: true });
-const browser = await chromium.launch();
+// The GPU flags matter for the WebGL games: software rendering records at a few frames a second.
+const browser = await chromium.launch({ args: ['--use-angle=metal', '--enable-gpu', '--ignore-gpu-blocklist'] });
 for (const [slug, g] of Object.entries(games)) {
   if (only.length && !only.includes(slug)) continue;
   const dir = mkdtempSync(join(tmpdir(), `games-${slug}-`));
