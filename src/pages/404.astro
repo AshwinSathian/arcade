@@ -3,11 +3,11 @@ import Base from "../layouts/Base.astro";
 import GameTile from "../components/GameTile.astro";
 import { games } from "../data/games";
 ---
-<Base title="Page not found" description="There is no page at this address. The eight games are one click away." og="index" ogAlt="Eight tiles of real gameplay from the eight games." jsonld={[]} noindex>
+<Base title="Page not found" description="There is no page at this address. The seven games are one click away." og="index" ogAlt="Seven tiles of real gameplay from the seven games." jsonld={[]} noindex>
   <div class="board lost">
     <section class="tile lost__say">
       <h1>No game at this address</h1>
-      <p><a class="btn" href="/">See all eight</a></p>
+      <p><a class="btn" href="/">See all seven</a></p>
     </section>
     {games.slice(0, 2).map((g, i) => <GameTile game={g} i={i} heading="h2" />)}
   </div>

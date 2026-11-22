@@ -1,6 +1,3 @@
-import bricksPoster from "../assets/posters/bricks.png";
-import bricksDesktop from "../assets/shots/bricks-desktop.jpg";
-import bricksPhone from "../assets/shots/bricks-phone.jpg";
 import type { ImageMetadata } from "astro";
 import coilPoster from "../assets/posters/coil.png";
 import lightkeeperPoster from "../assets/posters/lightkeeper.png";
@@ -59,37 +56,6 @@ export type Game = {
 const writing = (slug: string) => `https://ashwinsathian.com/writing/${slug}`;
 
 export const games: Game[] = [
-  {
-    slug: "bricks",
-    name: "Bricks",
-    kind: "Falling bricks",
-    noun: "falling-brick puzzle",
-    genre: ["Puzzle", "Arcade"],
-    line: "Steer falling bricks and knock out full courses on a wall of one natural clay, from morning light to night.",
-    about: [
-      "Bricks is a falling-brick puzzle for phone, tablet and desktop. Steer pieces of two, three or five bricks into a wall 12 bricks wide, and fill a whole row, called a course, to knock it out. Shift is endless, Sprint is forty courses against the clock, Daily gives everyone the same 100 pieces, and Demolition is twelve old walls to bring down.",
-      "Every brick is the same clay. The light changes instead: every three levels the sun moves from morning through noon and golden hour to night, and each brick casts a shadow along it. Bricks stamped with a white ring burst their neighbours when their course goes, and every ten courses charges a trowel that fills a buried gap.",
-    ],
-    modes: ["Shift", "Sprint", "Daily", "Demolition"],
-    controls: "Touch, keyboard or gamepad",
-    kb: 26,
-    sizeNote: "One HTML file of about 26 KB compressed, plus an 18 KB font",
-    stack: "TypeScript, WebGL 2, Web Audio, Cloudflare Workers and Durable Objects",
-    highlights: [
-      { title: "A day on the wall", detail: "Plaster, mortar, sunlight and cast shadows all shift as levels rise, while the clay stays the same." },
-      { title: "Replays from inputs", detail: "The rules run at a fixed 120 ticks a second from a seed and an input log, so a closed tab resumes exactly and any run can be watched back." },
-      { title: "Art with no image files", detail: "Thirty-six different faces of one clay are painted by shaders when the page opens." },
-      { title: "A Daily the server scores", detail: "The server replays each Daily run to get its score, and keeps only a histogram that deletes itself after three days." },
-    ],
-    url: "https://bricks.ashwinsathian.com",
-    repo: "https://github.com/AshwinSathian/bricks",
-    ground: "#211813",
-    bright: "#d9764f",
-    poster: bricksPoster,
-    clipAlt: "Bricks: natural red bricks fall into a wall inside a brick frame on pale plaster, and finished courses burst into rubble and dust.",
-    desktop: { src: bricksDesktop, alt: "Bricks on a desktop: a part-built wall of one red clay inside a brick frame, with the score on the left and the next pieces on the right." },
-    phone: { src: bricksPhone, alt: "Bricks on a phone, the wall above Hold, Turn, Trowel and Drop buttons." },
-  },
   {
     slug: "coil",
     name: "Coil",
