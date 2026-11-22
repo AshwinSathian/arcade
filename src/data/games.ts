@@ -5,6 +5,7 @@ import minefieldPoster from "../assets/posters/minefield.png";
 import nonetPoster from "../assets/posters/nonet.png";
 import noughtsPoster from "../assets/posters/noughts.png";
 import rallyPoster from "../assets/posters/rally.png";
+import spillwayPoster from "../assets/posters/spillway.png";
 import typesterPoster from "../assets/posters/typester.png";
 import coilDesktop from "../assets/shots/coil-desktop.png";
 import coilPhone from "../assets/shots/coil-phone.png";
@@ -18,6 +19,8 @@ import noughtsDesktop from "../assets/shots/noughts-desktop.jpg";
 import noughtsPhone from "../assets/shots/noughts-phone.jpg";
 import rallyDesktop from "../assets/shots/rally-desktop.png";
 import rallyPhone from "../assets/shots/rally-phone.png";
+import spillwayDesktop from "../assets/shots/spillway-desktop.jpg";
+import spillwayPhone from "../assets/shots/spillway-phone.jpg";
 import typesterDesktop from "../assets/shots/typester-desktop.png";
 import typesterPhone from "../assets/shots/typester-phone.png";
 
@@ -245,6 +248,37 @@ export const games: Game[] = [
     clipAlt: "Rally: an orange ball crossing a blue table between your red paddle and the opponent's.",
     desktop: { src: rallyDesktop, alt: "Rally on a desktop: the Match and Solo menu beside a blue table with a rally in progress." },
     phone: { src: rallyPhone, alt: "A Rally match on a phone, seen from behind your paddle." },
+  },
+  {
+    slug: "spillway",
+    name: "Spillway",
+    kind: "Endless runner",
+    noun: "3D endless runner",
+    genre: ["Arcade", "Endless runner"],
+    line: "A 3D endless runner: ride a front door on a hydrofoil through a flooded town and deliver the post.",
+    about: [
+      "Spillway is a 3D endless runner played from behind the rider, a courier called Tavi who surfs a salvaged front door through a town under monsoon water. Jump timber booms, tuck under washing lines and footbridges, and dodge pilings, barges and ferries across three channels while the weather turns from golden evening to lantern night, downpour and dawn.",
+      "Letters fill your bag, and riding through a red post buoy hands them in and raises your multiplier. Late dodges charge Surge, which smashes through anything for about three seconds. Open Water is a new course every run, Daily Route is one course a day for everyone, Slack Water is the gentler speed, and any finished run can be sent as a ghost for someone else to race.",
+    ],
+    modes: ["Open Water", "Daily Route", "Slack Water", "Ghost"],
+    controls: "Swipe, arrow keys or a gamepad",
+    kb: 47,
+    sizeNote: "One HTML file of about 47 KB compressed, plus a 34 KB font, with no image, model or audio files",
+    stack: "TypeScript, WebGL 2, Web Audio, Cloudflare Workers",
+    highlights: [
+      { title: "Courses checked before you see them", detail: "A search over every channel and jump or tuck timing must find a route from all three channels, or the section is thrown away." },
+      { title: "Ghosts in a link", detail: "A run is its seed and inputs, replayed by a deterministic 120 Hz simulation, so anyone with the link can race it." },
+      { title: "Nothing to download", detail: "Every model, texture and sound is generated in the browser when the page opens." },
+      { title: "Water on a phone budget", detail: "Reflections and bloom fit in ordinary 8-bit render targets, and resolution and effects step down if frames run long." },
+    ],
+    url: "https://spillway.ashwinsathian.com",
+    repo: "https://github.com/AshwinSathian/spillway",
+    ground: "#10222c",
+    bright: "#ff6f52",
+    poster: spillwayPoster,
+    clipAlt: "A Spillway run at night: a courier in a red raincoat rides a blue door down a flooded street, past lit windows reflected in the water, collecting letters and dodging obstacles.",
+    desktop: { src: spillwayDesktop, alt: "Spillway on a desktop at night: lit windows reflected in the flooded street, with the score at the top left." },
+    phone: { src: spillwayPhone, alt: "Spillway on a phone in the rain: the rider on a blue door, seen from behind, on a flooded street." },
   },
   {
     slug: "typester",
