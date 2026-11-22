@@ -97,9 +97,15 @@ const games: Record<string, Shot> = {
     },
   },
   spillway: {
-    // The game's own bot, skipped ahead to lantern night.
-    url: 'https://spillway.ashwinsathian.com/?autoplay&start=open&at=820', start: 2, dur: 9,
-    play: (p) => wait(p, 12500),
+    // The game's own bot at lantern night, switching to day and back so the loop closes on the same sky.
+    url: 'https://spillway.ashwinsathian.com/?autoplay&start=open&at=120&theme=night', start: 2, dur: 9,
+    async play(p) {
+      await wait(p, 4500);
+      await p.keyboard.press('t');
+      await wait(p, 4000);
+      await p.keyboard.press('t');
+      await wait(p, 4000);
+    },
   },
   typester: {
     // A Rush, typed at a brisk human pace from the word the game is asking for.
