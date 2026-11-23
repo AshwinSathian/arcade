@@ -16,16 +16,19 @@ const wait = (p: Page, ms: number) => p.waitForTimeout(ms);
 
 const games: Record<string, Shot> = {
   coil: {
-    // An autopilot Classic run, replayed from its link: the game's own replay viewer plays it.
-    url: `https://coil.ashwinsathian.com/#r=${execFileSync('node', ['scripts/demo-replay.ts', 'classic', '1400'], { cwd: '../coil' }).toString().split(' ')[0]}`,
-    // Skip ahead at 4x to where the snake is long, then watch at 1x.
-    start: 10, dur: 9,
+    // An autopilot Gates run from its link, switching to Modern and back so the loop closes on Retro.
+    url: `https://coil.ashwinsathian.com/?hq#r=${execFileSync('node', ['scripts/demo-replay.ts', 'gates', '1400'], { cwd: '../coil' }).toString().split(' ')[0]}`,
+    start: 8.8, dur: 9,
     async play(p) {
       await wait(p, 800);
       await p.click('[data-speed="4"]');
-      await wait(p, 9000);
+      await wait(p, 7800);
       await p.click('[data-speed="1"]');
-      await wait(p, 10500);
+      await wait(p, 1800);
+      await p.keyboard.press('m');
+      await wait(p, 3000);
+      await p.keyboard.press('m');
+      await wait(p, 4600);
     },
   },
   lightkeeper: {
