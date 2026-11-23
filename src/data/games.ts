@@ -6,6 +6,7 @@ import nonetPoster from "../assets/posters/nonet.png";
 import noughtsPoster from "../assets/posters/noughts.png";
 import rallyPoster from "../assets/posters/rally.png";
 import spillwayPoster from "../assets/posters/spillway.png";
+import swishPoster from "../assets/posters/swish.png";
 import typesterPoster from "../assets/posters/typester.png";
 import coilDesktop from "../assets/shots/coil-desktop.png";
 import coilPhone from "../assets/shots/coil-phone.png";
@@ -21,6 +22,8 @@ import rallyDesktop from "../assets/shots/rally-desktop.png";
 import rallyPhone from "../assets/shots/rally-phone.png";
 import spillwayDesktop from "../assets/shots/spillway-desktop.jpg";
 import spillwayPhone from "../assets/shots/spillway-phone.jpg";
+import swishDesktop from "../assets/shots/swish-desktop.jpg";
+import swishPhone from "../assets/shots/swish-phone.jpg";
 import typesterDesktop from "../assets/shots/typester-desktop.png";
 import typesterPhone from "../assets/shots/typester-phone.png";
 
@@ -280,6 +283,37 @@ export const games: Game[] = [
     clipAlt: "A Spillway run that turns from night to day and back: a courier in a red raincoat rides a blue door down a flooded street as the sky changes and the street lights go off and on in a wave.",
     desktop: { src: spillwayDesktop, alt: "Spillway on a desktop at night: lit windows reflected in the flooded street, with the score at the top left." },
     phone: { src: spillwayPhone, alt: "Spillway on a phone in the rain: the rider on a blue door, seen from behind, on a flooded street." },
+  },
+  {
+    slug: "swish",
+    name: "Swish",
+    kind: "Free throws",
+    noun: "3D free throw game",
+    genre: ["Sports", "Arcade"],
+    line: "A 3D free throw game: pull the ball back on a slingshot rig, read the dotted arc and shoot on a rooftop court.",
+    about: [
+      "Swish is a free throw game played side-on, on a rooftop court above a city. The ball sits in a slingshot rig at the free throw line. Drag back to set the angle and speed, read the dotted arc and let go. A swish scores 3, a shot off the glass 2 and one off the rim 1, and makes in a row multiply your points. The court has a Day and a Night that follow your device's light or dark setting, and switching runs the sun down and strikes the floodlights one at a time.",
+      "Free Throws is ten shots from the line. Step Back moves you back after every make and ends on your first miss. Shot Clock gives you 24 seconds and adds time for makes, and a shot in the air at the buzzer still counts. Daily is ten spots with wind, the same for everyone that day. A finished round can be sent as a link, and whoever opens it shoots with your shots flying beside theirs as ghost balls.",
+    ],
+    modes: ["Free Throws", "Step Back", "Shot Clock", "Daily", "Challenge"],
+    controls: "Mouse, touch, or arrow keys and Space",
+    kb: 37,
+    sizeNote: "One HTML file of about 37 KB compressed, plus a 21 KB font, with no image, model or audio files",
+    stack: "TypeScript, WebGL 2, Web Audio, Cloudflare Workers",
+    highlights: [
+      { title: "Physics with no timestep", detail: "A flight is a chain of exact parabolas, and each contact time is the root of a polynomial, so frame rate can't change a shot." },
+      { title: "A map of every free throw", detail: "The record screen solves 24,000 combinations of angle and speed on your device and plots your own shots on top." },
+      { title: "Challenges in a link", detail: "A shot is two integers, so a link can carry a whole round. The receiver's browser replays it to work out the score." },
+      { title: "A ball with no mesh", detail: "The ball is ray-traced in a fragment shader, and the net is a small cloth simulation that the ball pushes through." },
+    ],
+    url: "https://swish.ashwinsathian.com",
+    repo: "https://github.com/AshwinSathian/swish",
+    ground: "#0e171f",
+    bright: "#37c5b4",
+    poster: swishPoster,
+    clipAlt: "A round of Swish that turns from night to day and back: a basketball flies from a slingshot rig to the hoop on a teal rooftop court as the sky changes and the floodlights go off and on.",
+    desktop: { src: swishDesktop, alt: "Swish on a desktop at night: a ball in flight towards the hoop, with the lit city behind the rooftop court." },
+    phone: { src: swishPhone, alt: "Swish on a phone in daylight: a ball in flight above a teal court, with the hoop at the right." },
   },
   {
     slug: "typester",
