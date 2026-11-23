@@ -6,7 +6,7 @@ export const GET: APIRoute = () => {
   const body = [
     `# ${site.name}`,
     "",
-    `> Eight free games that run in a web browser on phone, tablet and desktop, made by ${site.author} (${site.authorUrl}). No install, no sign-up, no ads and no analytics. All eight are open source under the MIT licence.`,
+    `> Nine free games that run in a web browser on phone, tablet and desktop, made by ${site.author} (${site.authorUrl}). No install, no sign-up, no ads and no analytics. All nine are open source under the MIT licence.`,
     "",
     ...games.flatMap((g) => [
       `## ${g.name} (${g.kind})`,

@@ -9,8 +9,8 @@ const sized = games.filter((g) => g.kb !== null);
 const maxKb = Math.max(...sized.map((g) => g.kb!));
 const posts = games.filter((g) => g.post);
 
-const title = "Eight free browser games: snake, pinball, sudoku and more";
-const description = "Eight small games by Ashwin Sathian that open in a browser tab on phone, tablet or desktop. Free, with no install, no sign-up and no ads, and seven of them are a single HTML file under 60 KB.";
+const title = "Nine free browser games: snake, pinball, sudoku and more";
+const description = "Nine small games by Ashwin Sathian that open in a browser tab on phone, tablet or desktop. Free, with no install, no sign-up and no ads, and eight of them are a single HTML file under 60 KB.";
 const jsonld = [
   {
     "@context": "https://schema.org",
@@ -36,17 +36,17 @@ const jsonld = [
   },
 ];
 ---
-<Base {title} {description} og="index" ogAlt="Eight tiles of real gameplay, one per game: Coil, Lightkeeper, Minefield, Nonet, Noughts, Rally, Spillway and Typester, beside the words “Eight small games for your browser”." {jsonld}>
+<Base {title} {description} og="index" ogAlt="Nine tiles of real gameplay, one per game: Coil, Lightkeeper, Minefield, Nonet, Noughts, Rally, Spillway, Swish and Typester, beside the words “Nine small games for your browser”." {jsonld}>
   <div class="board home">
     <section class="tile intro rise" aria-labelledby="title">
       <p class="intro__by"><a class="link" href={site.authorUrl}>Ashwin Sathian</a><StillToggle /></p>
-      <h1 id="title">Eight small games for your browser</h1>
+      <h1 id="title">Nine small games for your browser</h1>
     </section>
 
     {games.map((g, i) => <GameTile game={g} i={i} eager={i < 2} class={`a-${g.slug}`} />)}
 
     <section class="tile say rise" style="--i:1" aria-label="What these are">
-      <p>Snake, pinball, Minesweeper, sudoku, noughts and crosses, table tennis, a 3D endless runner and a typing race. Each one opens in a tab on a phone or a laptop. Nothing to install, no account to make.</p>
+      <p>Snake, pinball, Minesweeper, sudoku, noughts and crosses, table tennis, a 3D endless runner, free throws and a typing race. Each one opens in a tab on a phone or a laptop. Nothing to install, no account to make.</p>
     </section>
 
     <section class="tile weight rise" style="--i:2" aria-labelledby="weight-h">
@@ -58,7 +58,7 @@ const jsonld = [
           </li>
         ))}
       </ul>
-      <p class="weight__note">Each game’s HTML file, compressed. Coil, Nonet, Noughts and Spillway also fetch a font (28 KB, 23 KB, 38 KB and 34 KB). Typester is an Angular app, so it isn’t on this list.</p>
+      <p class="weight__note">Each game’s HTML file, compressed. Coil, Nonet, Noughts, Spillway and Swish also fetch a font (28 KB, 23 KB, 38 KB, 34 KB and 21 KB). Typester is an Angular app, so it isn’t on this list.</p>
       <p class="weight__live" data-weight aria-live="off"></p>
     </section>
 
@@ -74,7 +74,7 @@ const jsonld = [
   </div>
 
   <section class="band" aria-labelledby="shelf-h">
-    <h2 id="shelf-h" class="band__h">The eight side by side</h2>
+    <h2 id="shelf-h" class="band__h">The nine side by side</h2>
     <div class="rows" data-ui>
       {games.map((g, i) => (
         <details name="shelf" open={i === 0} style={`--c:${g.bright};--d:${g.ground}`}>
@@ -116,13 +116,13 @@ const jsonld = [
 </Base>
 
 <style>
-  /* First screen: the name, eight clips, and the tiles that say what they are. */
+  /* First screen: the name, nine clips, and the tiles that say what they are. */
   .home {
     grid-template-areas:
       "intro intro intro intro intro intro coil coil coil light light light"
       "say say say say say say mine mine mine nonet nonet nonet"
       "nought nought nought rally rally rally weight weight weight weight weight weight"
-      "spill spill spill type type type pick pick pick pick pick pick";
+      "spill spill spill swish swish swish type type type pick pick pick";
   }
   .intro { grid-area: intro; display: flex; flex-direction: column; justify-content: space-between; gap: 40px; background: var(--ink); color: var(--bg); }
   .intro h1 { font-size: var(--t-display); font-weight: 750; max-width: 9ch; }
@@ -134,6 +134,7 @@ const jsonld = [
   :global(.a-noughts) { grid-area: nought; }
   :global(.a-rally) { grid-area: rally; }
   :global(.a-spillway) { grid-area: spill; }
+  :global(.a-swish) { grid-area: swish; }
   :global(.a-typester) { grid-area: type; }
   .say { grid-area: say; display: flex; align-items: flex-end; }
   .say p { font-size: clamp(1.375rem, 1.9vw, 1.75rem); line-height: 1.2; letter-spacing: -0.015em; font-weight: 500; }
@@ -212,8 +213,8 @@ const jsonld = [
         "say say say weight weight weight"
         "mine mine mine nonet nonet nonet"
         "nought nought nought rally rally rally"
-        "spill spill spill type type type"
-        "pick pick pick pick pick pick";
+        "spill spill spill swish swish swish"
+        "type type type pick pick pick";
     }
     .intro { min-height: 46svh; }
     .rows summary { grid-template-columns: 1fr auto; min-height: 68px; }
@@ -227,7 +228,7 @@ const jsonld = [
   @media (max-width: 640px) {
     .home {
       grid-template-columns: repeat(2, minmax(0, 1fr));
-      grid-template-areas: "intro intro" "say say" "coil light" "mine nonet" "nought rally" "spill type" "pick pick" "weight weight";
+      grid-template-areas: "intro intro" "say say" "coil light" "mine nonet" "nought rally" "spill swish" "type pick" "weight weight";
     }
     .intro { min-height: 38svh; }
     .home :global(.game) { --strip: 52px; }

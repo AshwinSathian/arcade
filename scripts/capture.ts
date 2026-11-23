@@ -110,6 +110,17 @@ const games: Record<string, Shot> = {
       await wait(p, 4000);
     },
   },
+  swish: {
+    // The game's own bot under the floodlights, switching to day and back so the loop closes on the same sky.
+    url: 'https://swish.ashwinsathian.com/?autoplay&start=free&seed=7&theme=night', start: 2, dur: 9,
+    async play(p) {
+      await wait(p, 4500);
+      await p.keyboard.press('t');
+      await wait(p, 4000);
+      await p.keyboard.press('t');
+      await wait(p, 4000);
+    },
+  },
   typester: {
     // A Rush, typed at a brisk human pace from the word the game is asking for.
     url: 'https://typester.ashwinsathian.com/play/rush', start: 6, dur: 9,

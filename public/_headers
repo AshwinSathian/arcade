@@ -26,6 +26,8 @@
   Cache-Control: public, max-age=60, stale-while-revalidate=600
 /spillway
   Cache-Control: public, max-age=60, stale-while-revalidate=600
+/swish
+  Cache-Control: public, max-age=60, stale-while-revalidate=600
 /typester
   Cache-Control: public, max-age=60, stale-while-revalidate=600
 
