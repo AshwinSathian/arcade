@@ -6,7 +6,6 @@ import StillToggle from "../components/StillToggle.astro";
 import Lights from "../components/Lights.astro";
 import { games, site } from "../data/games";
 
-const posts = games.filter((g) => g.post);
 const posters = await Promise.all(games.map((g) => getImage({ src: g.poster, width: 480, format: "webp", quality: 72 })));
 const hall = games.map((g, i) => ({ slug: g.slug, name: g.name, kind: g.kind, ground: g.ground, bright: g.bright, poster: posters[i].src, clip: `/media/${g.slug}.mp4` }));
 const pad = (n: number) => String(n).padStart(2, "0");
@@ -81,22 +80,6 @@ const jsonld = [
     <h2 id="about-h">Twelve small games, one room</h2>
     <p>Snake, pinball, Minesweeper, sudoku, noughts and crosses, table tennis, air hockey, ten-pin bowling, a 3D endless runner, free throws, a hedge maze chase and a typing race. Every screen in the hall is playing a real recording of its game. Each machine takes tokens: you start with 12, good runs pay some back, and your cup refills while you are away. <a class="link" href="/tokens">How the arcade works</a></p>
     <p class="about__small">The hall is drawn live in WebGL 2: the machines, their art and the room are built in the browser when the page opens, and the floor reflects whatever the screens are showing. Day and Night follow your system until you pick one.</p>
-  </section>
-
-  <section class="made" aria-labelledby="made-h">
-    <h2 id="made-h">The engineering underneath</h2>
-    <p class="made__lede">Four of the games have a write-up on how they work.</p>
-    <ul class="posts reveal">
-      {posts.map((g) => (
-        <li style={`--c:${g.bright};--d:${g.ground}`}>
-          <a href={g.post!.url}>
-            <span class="posts__game">{g.name}</span>
-            <span class="posts__title">{g.post!.title}</span>
-            <span class="posts__go">Read on ashwinsathian.com <Arrow /></span>
-          </a>
-        </li>
-      ))}
-    </ul>
   </section>
 </Base>
 <script src="../scripts/arcade.ts"></script>
@@ -207,25 +190,9 @@ const jsonld = [
   .about p { grid-column: 7 / span 6; font-size: var(--t-lg); line-height: 1.2; letter-spacing: -0.015em; font-weight: 500; }
   .about .about__small { grid-column: 7 / span 5; font-size: var(--t-body); line-height: 1.5; letter-spacing: 0; font-weight: 400; color: var(--muted); }
 
-  .made { padding: 140px var(--edge) 0; display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: var(--gap); }
-  .made h2 { grid-column: 1 / span 6; font-size: var(--t-display); }
-  .made__lede { grid-column: 7 / span 5; align-self: end; font-size: var(--t-md); line-height: 1.4; }
-  .posts { grid-column: 1 / -1; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: var(--gap); margin-top: 40px; }
-  .posts a {
-    display: flex; flex-direction: column; gap: 16px; min-height: 340px; padding: 24px;
-    border-radius: var(--r); background: var(--d); color: #f1efe8; text-decoration: none;
-    transition: transform 260ms var(--spring);
-  }
-  .posts a:hover { transform: translateY(-6px); }
-  .posts__game { color: var(--c); font-weight: 700; font-size: var(--t-md); }
-  .posts__title { font-size: var(--t-lg); line-height: 1.08; letter-spacing: -0.02em; font-weight: 600; margin-bottom: auto; }
-  .posts__go { display: flex; align-items: center; gap: 8px; font-size: var(--t-sm); }
-  .posts__go :global(svg) { width: 12px; }
 
   @media (max-width: 1100px) {
     .about h2, .about p, .about .about__small { grid-column: 1 / -1; }
-    .posts { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-    .made h2, .made__lede { grid-column: 1 / -1; }
     .hall__hint { display: none; }
   }
   /* Below 900 px the tools drop to icons: the hall needs the width more than the labels do. */
@@ -264,8 +231,6 @@ const jsonld = [
     .attract { bottom: calc(64px + env(safe-area-inset-bottom)); }
   }
   @media (max-width: 640px) {
-    .posts { grid-template-columns: 1fr; }
-    .posts a { min-height: 220px; }
-    .about, .made { padding-top: 88px; }
+    .about { padding-top: 88px; }
   }
 </style>
