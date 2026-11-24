@@ -1,16 +1,18 @@
 ---
+import { getImage } from "astro:assets";
 import Base from "../layouts/Base.astro";
-import GameTile from "../components/GameTile.astro";
 import Arrow from "../components/Arrow.astro";
 import StillToggle from "../components/StillToggle.astro";
+import Lights from "../components/Lights.astro";
 import { games, site } from "../data/games";
 
-const sized = games.filter((g) => g.kb !== null);
-const maxKb = Math.max(...sized.map((g) => g.kb!));
 const posts = games.filter((g) => g.post);
+const posters = await Promise.all(games.map((g) => getImage({ src: g.poster, width: 480, format: "webp", quality: 72 })));
+const hall = games.map((g, i) => ({ slug: g.slug, name: g.name, kind: g.kind, ground: g.ground, bright: g.bright, poster: posters[i].src, clip: `/media/${g.slug}.mp4` }));
+const pad = (n: number) => String(n).padStart(2, "0");
 
-const title = "Ten free browser games: snake, pinball, sudoku and more";
-const description = "Ten small games by Ashwin Sathian that open in a browser tab on phone, tablet or desktop. Free, with no install, no sign-up and no ads, and nine of them are a single HTML file under 60 KB.";
+const title = "The Arcade: ten free browser games by Ashwin Sathian";
+const description = "Ten small games in a 3D arcade that opens in a browser tab on phone, tablet or desktop. Free, with no install, no sign-up and no ads, and nine are one HTML file under 60 KB.";
 const jsonld = [
   {
     "@context": "https://schema.org",
@@ -27,75 +29,53 @@ const jsonld = [
     "@type": "ItemList",
     name: "Games",
     numberOfItems: games.length,
-    itemListElement: games.map((g, i) => ({
-      "@type": "ListItem",
-      position: i + 1,
-      url: `${site.url}/${g.slug}`,
-      name: g.name,
-    })),
+    itemListElement: games.map((g, i) => ({ "@type": "ListItem", position: i + 1, url: `${site.url}/${g.slug}`, name: g.name })),
   },
 ];
 ---
-<Base {title} {description} og="index" ogAlt="Ten tiles of real gameplay, one per game: Clover, Coil, Lightkeeper, Minefield, Nonet, Noughts, Rally, Spillway, Swish and Typester, beside the words “Ten small games for your browser”." {jsonld}>
-  <div class="board home">
-    <section class="tile intro rise" aria-labelledby="title">
-      <p class="intro__by"><a class="link" href={site.authorUrl}>Ashwin Sathian</a><StillToggle /></p>
-      <h1 id="title">Ten small games for your browser</h1>
-    </section>
+<Base {title} {description} og="index" ogAlt="The Arcade at night: a row of ten game cabinets under downlights, each screen playing its game, with a pink ARCADE neon on the wall." {jsonld}>
+  <section class="hall" data-hall aria-labelledby="title">
+    <canvas class="hall__gl" data-games={JSON.stringify(hall)} aria-hidden="true"></canvas>
+    <header class="hall__top">
+      <h1 id="title" class="hall__mark"><span>The Arcade</span> <a class="link" href={site.authorUrl}>by {site.author}</a></h1>
+      <div class="hall__tools">
+        <Lights />
+        <button class="still-toggle hall__sound" type="button" aria-pressed="true" data-sound hidden><span>Sound</span></button>
+        <StillToggle />
+      </div>
+    </header>
 
-    {games.map((g, i) => <GameTile game={g} i={i} eager={i < 2} class={`a-${g.slug}`} />)}
-
-    <section class="tile say rise" style="--i:1" aria-label="What these are">
-      <p>Snake, pinball, Minesweeper, sudoku, noughts and crosses, table tennis, a 3D endless runner, free throws, a hedge maze chase and a typing race. Each one opens in a tab on a phone or a laptop. Nothing to install, no account to make.</p>
-    </section>
-
-    <section class="tile weight rise" style="--i:2" aria-labelledby="weight-h">
-      <h2 id="weight-h">How much each one weighs</h2>
-      <ul class="bars">
-        {sized.map((g) => (
-          <li style={`--w:${((g.kb ?? 0) * 100) / maxKb}%;--c:${g.bright};--d:${g.ground}`}>
-            <span class="bars__name">{g.name}</span><span class="bars__bar"></span><span class="bars__kb num">{g.kb} KB</span>
-          </li>
-        ))}
-      </ul>
-      <p class="weight__note">Each game’s HTML file, compressed. Clover, Coil, Nonet, Noughts, Spillway and Swish also fetch a font (36 KB, 28 KB, 23 KB, 38 KB, 34 KB and 21 KB). Typester is an Angular app, so it isn’t on this list.</p>
-      <p class="weight__live" data-weight aria-live="off"></p>
-    </section>
-
-    <section class="tile tile--accent pick rise" style="--i:3" aria-labelledby="pick-h">
-      <h2 id="pick-h">Can’t choose?</h2>
-      <p>Picked for you:</p>
-      <p class="pick__name" data-pick-name>{games[2].name}</p>
-      <p class="pick__acts">
-        <a class="btn btn--light" href={games[2].url} data-pick data-play>Play <span data-pick-label>{games[2].name}</span> <Arrow /></a>
-        <button class="btn pick__again" type="button" data-pick-again hidden>Pick again</button>
-      </p>
-    </section>
-  </div>
-
-  <section class="band" aria-labelledby="shelf-h">
-    <h2 id="shelf-h" class="band__h">The ten side by side</h2>
-    <div class="rows" data-ui>
+    <div class="hall__cards" aria-live="polite">
       {games.map((g, i) => (
-        <details name="shelf" open={i === 0} style={`--c:${g.bright};--d:${g.ground}`}>
-          <summary>
-            <span class="r__name">{g.name}</span>
-            <span class="r__kind">{g.kind}</span>
-            <span class="r__modes">{g.modes.length} modes</span>
-            <span class="r__ctl">{g.controls}</span>
-            <span class="r__kb num">{g.kb ? g.kb + " KB" : "App"}</span>
-          </summary>
-          <div class="r__open">
-            <p>{g.line}</p>
-            <p class="r__list">{g.modes.join(", ")}</p>
-            <p class="r__acts">
-              <a class="btn btn--light" href={g.url} data-play>Play {g.name} <Arrow /></a>
-              <a class="link" href={`/${g.slug}`}>About {g.name}</a>
-            </p>
-          </div>
-        </details>
+        <article class="card" id={`m-${g.slug}`} data-card hidden={i !== 0} style={`--g-ground:${g.ground};--g-bright:${g.bright}`} aria-labelledby={`n-${g.slug}`}>
+          <p class="card__kind"><span class="num">{pad(i + 1)} / {pad(games.length)}</span> {g.kind}</p>
+          <h2 id={`n-${g.slug}`} class="card__name">{g.name}</h2>
+          <p class="card__line">{g.line}</p>
+          <p class="card__acts">
+            <a class="card__play" href={g.url} data-play>Play {g.name} <Arrow /></a>
+            <a class="card__about link" href={`/${g.slug}`}>About {g.name}</a>
+          </p>
+        </article>
       ))}
     </div>
+
+    <nav class="hall__row" aria-label="Machines">
+      <button class="row__step" type="button" data-step="-1" aria-label="Previous machine"><Arrow dir="left" /></button>
+      <ol>
+        {games.map((g, i) => (
+          <li><button type="button" data-go={i} aria-current={i === 0 ? "true" : undefined} aria-controls={`m-${g.slug}`} style={`--g-bright:${g.bright}`}><span class="num">{pad(i + 1)}</span> {g.name}</button></li>
+        ))}
+      </ol>
+      <button class="row__step" type="button" data-step="1" aria-label="Next machine"><Arrow dir="right" /></button>
+      <button class="row__coin" type="button" data-coin>Insert coin</button>
+    </nav>
+    <p class="hall__hint" aria-hidden="true">Drag or use the arrow keys to walk the row. Enter plays.</p>
+  </section>
+
+  <section class="about" aria-labelledby="about-h">
+    <h2 id="about-h">Ten small games, one room</h2>
+    <p>Snake, pinball, Minesweeper, sudoku, noughts and crosses, table tennis, a 3D endless runner, free throws, a hedge maze chase and a typing race. Every screen in the hall is playing a real recording of its game. Each one opens in a tab on a phone or a laptop, with nothing to install and no account to make.</p>
+    <p class="about__small">The hall is drawn live in WebGL 2: the machines, their art and the room are built in the browser when the page opens, and the floor reflects whatever the screens are showing. Day and Night follow your system until you pick one.</p>
   </section>
 
   <section class="made" aria-labelledby="made-h">
@@ -114,83 +94,84 @@ const jsonld = [
     </ul>
   </section>
 </Base>
+<script src="../scripts/arcade.ts"></script>
 
 <style>
-  /* First screen: the name, ten clips, and the tiles that say what they are. */
-  .home {
-    grid-template-areas:
-      "intro intro intro intro intro intro coil coil coil light light light"
-      "say say say say say say mine mine mine nonet nonet nonet"
-      "nought nought nought rally rally rally weight weight weight weight weight weight"
-      "spill spill spill swish swish swish clover clover clover type type type"
-      "pick pick pick pick pick pick pick pick pick pick pick pick";
+  /* The hall fills the first screen. Until the canvas draws, a photograph of it stands in. */
+  .hall {
+    position: relative; height: 100svh; min-height: 560px; overflow: hidden; isolation: isolate;
+    background: #0b0a0f center / cover no-repeat url("/hall/night.webp");
+    color: #f4f1ea; transition: color 900ms var(--ease);
   }
-  .intro { grid-area: intro; display: flex; flex-direction: column; justify-content: space-between; gap: 40px; background: var(--ink); color: var(--bg); }
-  .intro h1 { font-size: var(--t-display); font-weight: 750; max-width: 9ch; }
-  .intro__by { font-size: var(--t-md); font-weight: 600; display: flex; justify-content: space-between; align-items: center; gap: 12px; }
-  :global(.a-clover) { grid-area: clover; }
-  :global(.a-coil) { grid-area: coil; }
-  :global(.a-lightkeeper) { grid-area: light; }
-  :global(.a-minefield) { grid-area: mine; }
-  :global(.a-nonet) { grid-area: nonet; }
-  :global(.a-noughts) { grid-area: nought; }
-  :global(.a-rally) { grid-area: rally; }
-  :global(.a-spillway) { grid-area: spill; }
-  :global(.a-swish) { grid-area: swish; }
-  :global(.a-typester) { grid-area: type; }
-  .say { grid-area: say; display: flex; align-items: flex-end; }
-  .say p { font-size: clamp(1.375rem, 1.9vw, 1.75rem); line-height: 1.2; letter-spacing: -0.015em; font-weight: 500; }
-  .weight { grid-area: weight; display: flex; flex-direction: column; gap: 18px; }
-  .weight h2 { font-size: var(--t-md); letter-spacing: -0.01em; line-height: 1.2; }
-  .bars { display: grid; gap: 8px; }
-  .bars li { display: grid; grid-template-columns: 6.5em 1fr 3.4em; align-items: center; gap: 10px; font-size: var(--t-sm); }
-  .bars__bar { height: 22px; border-radius: 4px; background: var(--surface-2); position: relative; overflow: hidden; }
-  .bars__bar::after { content: ""; position: absolute; inset: 0; width: var(--w); background: var(--c); border-radius: 4px; transform-origin: left; animation: grow 900ms var(--ease) 300ms both; }
-  @keyframes grow { from { transform: scaleX(0); } }
-  .bars__kb { text-align: right; font-weight: 600; }
-  .weight__note { font-size: var(--t-sm); }
-  .weight__live { margin-top: auto; color: var(--muted); font-size: var(--t-sm); }
-  .pick { grid-area: pick; container-type: inline-size; display: flex; flex-direction: column; align-items: flex-start; gap: 12px; }
-  /* Sized to the tile, so the longest name (Lightkeeper) fits however narrow it is. */
-  .pick h2 { font-size: min(var(--t-display), 15cqi); font-weight: 750; }
-  .pick p { font-size: var(--t-lg); line-height: 1.15; }
-  .pick__name { font-size: min(var(--t-display), 15cqi) !important; font-weight: 800; letter-spacing: -0.045em; line-height: 0.9 !important; margin: auto 0 12px; color: var(--accent-ink); }
-  .pick__name.roll { animation: roll 420ms var(--spring); }
-  @keyframes roll { from { opacity: 0; translate: 0 0.35em; } }
-  .pick__acts { display: flex; flex-wrap: wrap; gap: 10px; }
-  .pick__again { background: transparent; color: var(--accent-ink); box-shadow: inset 0 0 0 2px currentColor; }
+  /* Flying into a screen: the page's own furniture steps aside. */
+  .hall__top, .hall__cards, .hall__row, .hall__hint { transition: opacity 300ms var(--ease); }
+  :global(html[data-entering]) :is(.hall__top, .hall__cards, .hall__row, .hall__hint) { opacity: 0; pointer-events: none; }
+  :global(html[data-theme="day"]) .hall { background-color: #b9b3aa; background-image: url("/hall/day.webp"); color: #1f1d18; }
+  .hall__gl { position: absolute; inset: 0; width: 100%; height: 100%; z-index: -1; opacity: 0; transition: opacity 600ms var(--ease); touch-action: pan-y; cursor: grab; }
+  :global(html[data-hall-live]) .hall__gl { opacity: 1; }
+  .hall__top {
+    position: absolute; inset: 0 0 auto; display: flex; justify-content: space-between; align-items: center; gap: 16px;
+    padding: calc(var(--edge) + env(safe-area-inset-top)) var(--edge) 0 calc(var(--edge) + 8px);
+  }
+  .hall__mark { display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap; font-size: clamp(1.375rem, 1rem + 1vw, 1.875rem); font-weight: 800; letter-spacing: -0.035em; }
+  .hall__mark a { font-size: var(--t-sm); font-weight: 600; letter-spacing: 0; }
+  .hall__tools { display: flex; align-items: center; gap: 8px; }
+  .card, .hall__row ol, .hall__tools > :global(*), .row__step {
+    background: color-mix(in srgb, var(--bg) 74%, transparent);
+    backdrop-filter: blur(18px) saturate(1.4); -webkit-backdrop-filter: blur(18px) saturate(1.4);
+    box-shadow: inset 0 0 0 1px color-mix(in srgb, currentColor 14%, transparent);
+  }
+  .hall__sound[aria-pressed="false"] span { text-decoration: line-through; }
 
-  /* The board of rows: a departure board on a dark field. */
-  .band { background: var(--band); color: var(--band-ink); margin-top: 120px; padding: 96px var(--edge); }
-  .band__h { font-size: var(--t-display); margin-bottom: 40px; max-width: 14ch; }
-  .rows { display: grid; gap: 4px; }
-  .rows details { border-radius: var(--r); background: var(--band-row); overflow: hidden; transition: background-color 200ms; }
-  .rows details[open] { background: var(--accent); color: var(--accent-ink); }
-  @media (prefers-color-scheme: dark) { .rows details[open] { color: #0c0c0a; } }
-  .rows summary {
-    list-style: none; cursor: pointer; min-height: 76px;
-    display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: var(--gap); align-items: center;
-    padding: 0 12px 0 20px; font-size: var(--t-md);
+  /* The card for the machine in focus. */
+  .hall__cards { position: absolute; left: var(--edge); bottom: calc(96px + env(safe-area-inset-bottom)); width: min(440px, calc(100% - 2 * var(--edge))); }
+  .card { display: grid; gap: 12px; padding: 22px 24px 20px; border-radius: 16px; }
+  .card[hidden] { display: none; }
+  .card:not([hidden]) { animation: card 420ms var(--ease) both; }
+  @keyframes card { from { opacity: 0; translate: -12px 0; } }
+  .card__kind { display: flex; gap: 10px; font-size: var(--t-sm); font-weight: 600; opacity: 0.8; }
+  .card__name { font-size: clamp(2.75rem, 2rem + 3vw, 4.5rem); font-weight: 800; letter-spacing: -0.05em; line-height: 0.9; color: var(--g-bright); text-shadow: 0 0 28px color-mix(in srgb, var(--g-bright) 45%, transparent); }
+  :global(html[data-theme="day"]) .card__name { color: var(--g-ground); text-shadow: none; }
+  .card__line { font-size: var(--t-body); line-height: 1.4; }
+  .card__acts { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 22px; margin-top: 6px; }
+  .card__play {
+    display: inline-flex; align-items: center; gap: 10px; min-height: 52px; padding: 0 24px; border-radius: 999px;
+    background: var(--g-bright); color: var(--g-ground); font-weight: 750; font-size: var(--t-md); text-decoration: none;
+    box-shadow: 0 0 0 0 var(--g-bright); transition: transform 220ms var(--spring), box-shadow 300ms;
   }
-  .rows summary::-webkit-details-marker { display: none; }
-  .rows summary:hover .r__name { translate: 6px 0; }
-  .r__name { grid-column: 1 / span 3; font-size: clamp(1.5rem, 2.2vw, 2rem); font-weight: 700; letter-spacing: -0.025em; transition: translate 240ms var(--spring); }
-  .r__kind { grid-column: 4 / span 2; }
-  .r__modes { grid-column: 6 / span 2; }
-  .r__ctl { grid-column: 8 / span 4; color: var(--band-muted); font-size: var(--t-body); }
-  details[open] .r__ctl { color: inherit; }
-  .r__kb { grid-column: 12; justify-self: end; background: var(--c); color: var(--d); font-weight: 700; padding: 8px 12px; border-radius: 6px; min-width: 4.4em; text-align: center; }
-  .r__open { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: 12px var(--gap); padding: 4px 20px 28px; }
-  .r__open > p:first-child { grid-column: 1 / span 7; font-size: var(--t-lg); line-height: 1.15; }
-  .r__list { grid-column: 8 / span 5; }
-  .r__acts { grid-column: 1 / -1; display: flex; align-items: center; gap: 24px; margin-top: 8px; }
-  @media (prefers-reduced-motion: no-preference) {
-    .rows details::details-content { block-size: 0; overflow: hidden; transition: block-size 380ms var(--ease), content-visibility 380ms allow-discrete; }
-    .rows details[open]::details-content { block-size: auto; }
-    :root { interpolate-size: allow-keywords; }
-  }
+  .card__play :global(svg) { width: 14px; height: 14px; }
+  .card__play:hover { transform: translateY(-2px); box-shadow: 0 8px 30px -6px var(--g-bright); }
+  .card__play:active { transform: scale(0.96); }
+  .card__about { display: inline-flex; align-items: center; min-height: 44px; font-weight: 600; }
 
-  /* Write-ups: each in its game's colours. */
+  /* The row: one button per machine, the steppers and the coin. */
+  .hall__row { position: absolute; left: var(--edge); right: var(--edge); bottom: calc(var(--edge) + env(safe-area-inset-bottom)); display: flex; align-items: center; gap: 8px; }
+  .hall__row ol { display: flex; gap: 2px; padding: 4px; border-radius: 999px; overflow-x: auto; scrollbar-width: none; min-width: 0; flex: 1; scroll-snap-type: x proximity; }
+  .hall__row ol::-webkit-scrollbar { display: none; }
+  .hall__row li { flex: 1 0 auto; scroll-snap-align: center; }
+  .hall__row li button {
+    width: 100%; min-height: 48px; padding: 0 14px; border: 0; border-radius: 999px; background: transparent; color: inherit;
+    font: 600 var(--t-sm) / 1 var(--font); white-space: nowrap; cursor: pointer; transition: background-color 200ms, color 200ms;
+  }
+  .hall__row li button .num { opacity: 0.55; margin-right: 4px; }
+  .hall__row li button:hover { background: color-mix(in srgb, currentColor 10%, transparent); }
+  .hall__row li button[aria-current="true"] { background: var(--g-bright); color: #101010; }
+  .hall__row li button[aria-current="true"] .num { opacity: 0.7; }
+  .row__step, .row__coin {
+    flex: none; display: grid; place-items: center; min-width: 52px; min-height: 52px; border: 0; border-radius: 999px; cursor: pointer;
+    color: inherit; transition: transform 200ms var(--spring);
+  }
+  .row__step :global(svg) { width: 16px; height: 16px; }
+  .row__step:active, .row__coin:active { transform: scale(0.92); }
+  .row__coin { padding: 0 20px; font: 700 var(--t-sm) / 1 var(--font); background: #ffcf3d; color: #241a00; box-shadow: 0 0 24px -4px #ffcf3d; }
+  .hall__hint { position: absolute; right: calc(var(--edge) + 8px); bottom: calc(84px + env(safe-area-inset-bottom)); font-size: var(--t-sm); opacity: 0.7; }
+  :global(html:not([data-hall-live])) .hall__hint { display: none; }
+
+  .about { padding: 120px var(--edge) 0; display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: 24px var(--gap); }
+  .about h2 { grid-column: 1 / span 5; font-size: var(--t-display); }
+  .about p { grid-column: 7 / span 6; font-size: var(--t-lg); line-height: 1.2; letter-spacing: -0.015em; font-weight: 500; }
+  .about .about__small { grid-column: 7 / span 5; font-size: var(--t-body); line-height: 1.5; letter-spacing: 0; font-weight: 400; color: var(--muted); }
+
   .made { padding: 140px var(--edge) 0; display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: var(--gap); }
   .made h2 { grid-column: 1 / span 6; font-size: var(--t-display); }
   .made__lede { grid-column: 7 / span 5; align-self: end; font-size: var(--t-md); line-height: 1.4; }
@@ -207,44 +188,26 @@ const jsonld = [
   .posts__go :global(svg) { width: 12px; }
 
   @media (max-width: 1100px) {
-    .home {
-      grid-template-columns: repeat(6, minmax(0, 1fr));
-      grid-template-areas:
-        "intro intro intro intro intro intro"
-        "coil coil coil light light light"
-        "say say say weight weight weight"
-        "mine mine mine nonet nonet nonet"
-        "nought nought nought rally rally rally"
-        "spill spill spill swish swish swish"
-        "clover clover clover type type type"
-        "pick pick pick pick pick pick";
-    }
-    .intro { min-height: 46svh; }
-    .rows summary { grid-template-columns: 1fr auto; min-height: 68px; }
-    .r__kind, .r__modes, .r__ctl { display: none; }
-    .r__name { grid-column: 1; }
-    .r__kb { grid-column: 2; }
-    .r__open > p:first-child, .r__list { grid-column: 1 / -1; }
+    .about h2, .about p, .about .about__small { grid-column: 1 / -1; }
     .posts { grid-template-columns: repeat(2, minmax(0, 1fr)); }
     .made h2, .made__lede { grid-column: 1 / -1; }
+    .hall__hint { display: none; }
+  }
+  @media (max-width: 720px) {
+    .hall__top { flex-direction: column; align-items: flex-start; gap: 10px; }
+    .hall__tools :global(.still-toggle span) { display: none; }
+    .hall__tools :global(.still-toggle) { padding: 0 14px; }
+    .hall__sound span { display: inline !important; }
+    .hall__cards { bottom: calc(80px + env(safe-area-inset-bottom)); }
+    .card { padding: 18px 18px 16px; gap: 8px; }
+    .card__line { font-size: var(--t-sm); }
+    .card__play { min-height: 48px; font-size: var(--t-body); }
+    .row__step { display: none; }
+    .row__coin { padding: 0 16px; }
   }
   @media (max-width: 640px) {
-    .home {
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      grid-template-areas: "intro intro" "say say" "coil light" "mine nonet" "nought rally" "spill swish" "clover type" "pick pick" "weight weight";
-    }
-    .intro { min-height: 38svh; }
-    .home :global(.game) { --strip: 52px; }
-    .home :global(.game__kind) { display: none; }
-    .home :global(.game__strip) { padding-left: 12px; gap: 6px; }
-    .home :global(.game__name) { font-size: 1.0625rem; }
-    .home :global(.game__play) { padding: 0 14px; }
-    .home :global(.game__play svg) { display: none; }
-    .say p { font-size: 1.375rem; }
-    .pick { min-height: 300px; }
-    .band { margin-top: 80px; padding: 64px var(--edge); }
     .posts { grid-template-columns: 1fr; }
     .posts a { min-height: 220px; }
-    .made { padding-top: 96px; }
+    .about, .made { padding-top: 88px; }
   }
 </style>

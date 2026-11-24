@@ -4,6 +4,7 @@ import Base from "../layouts/Base.astro";
 import GameTile from "../components/GameTile.astro";
 import Arrow from "../components/Arrow.astro";
 import StillToggle from "../components/StillToggle.astro";
+import Lights from "../components/Lights.astro";
 import { games, site, type Game } from "../data/games";
 
 export function getStaticPaths() {
@@ -62,8 +63,8 @@ const jsonld = [
 <Base {title} {description} og={game.slug} ogAlt={`${game.name} in its own colours beside a frame of real play. ${game.clipAlt}`} {jsonld}>
   <div class="board detail" style={`--g-ground:${game.ground};--g-bright:${game.bright}`}>
     <nav class="crumbs rise" aria-label="Breadcrumb">
-      <a class="crumbs__back" href="/"><Arrow dir="left" /> All games</a>
-      <StillToggle />
+      <a class="crumbs__back" href={`/#${game.slug}`}><Arrow dir="left" /> Back to the arcade</a>
+      <span class="crumbs__tools"><Lights /><StillToggle /></span>
     </nav>
 
     <div class="clip game" style={`--i:0`} data-game={game.slug}>
@@ -129,6 +130,7 @@ const jsonld = [
     grid-template-rows: auto 1fr auto auto auto;
   }
   .crumbs { grid-area: crumbs; padding: 4px 4px 8px; display: flex; justify-content: space-between; align-items: center; }
+    .crumbs__tools { display: flex; gap: 8px; align-items: center; }
   .crumbs__back { display: inline-flex; align-items: center; gap: 8px; min-height: 44px; font-weight: 600; text-decoration: none; }
   .crumbs__back :global(svg) { width: 16px; transition: translate 220ms var(--spring); }
   .crumbs__back:hover :global(svg) { translate: -4px 0; }

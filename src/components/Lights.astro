@@ -1,0 +1,9 @@
+---
+// Day, Night, or whatever the system says. src/scripts/site.ts keeps it, public/theme.js applies it before paint.
+---
+<fieldset class="lights" data-lights-switch>
+  <legend class="sr">Lights</legend>
+  <label title="Follow the system"><input type="radio" name="lights" value="auto" checked /><span>Auto</span></label>
+  <label><input type="radio" name="lights" value="day" /><svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="3.2" fill="currentColor" /><g stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M8 1.2v1.6M8 13.2v1.6M1.2 8h1.6M13.2 8h1.6M3.2 3.2l1.1 1.1M11.7 11.7l1.1 1.1M3.2 12.8l1.1-1.1M11.7 4.3l1.1-1.1" /></g></svg><span>Day</span></label>
+  <label><input type="radio" name="lights" value="night" /><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M13.5 10.4A6 6 0 0 1 5.6 2.5a6 6 0 1 0 7.9 7.9z" fill="currentColor" /></svg><span>Night</span></label>
+</fieldset>

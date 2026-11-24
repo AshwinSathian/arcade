@@ -55,11 +55,27 @@ test("every character on every page is in the font cut", () => {
   }
 });
 
-test("byte budgets: home page HTML under 12 KB gzipped, script under 4 KB", () => {
+test("byte budgets: home page HTML under 12 KB gzipped, shared script under 4 KB, the hall under 30 KB", () => {
   assert.ok(gzipSync(read("index.html")).length < 12 * 1024);
   const js = readdirSync(new URL("_astro/", dist)).filter((f) => f.endsWith(".js"));
-  assert.equal(js.length, 1);
-  assert.ok(gzipSync(readFileSync(new URL(`_astro/${js[0]}`, dist))).length < 4 * 1024);
+  const size = (f) => gzipSync(readFileSync(new URL(`_astro/${f}`, dist))).length;
+  const hall = js.filter((f) => f.startsWith("index."));
+  const shared = js.filter((f) => !f.startsWith("index."));
+  assert.equal(hall.length, 1);
+  assert.equal(shared.length, 1);
+  assert.ok(size(shared[0]) < 4 * 1024, `shared script ${size(shared[0])} B`);
+  assert.ok(size(hall[0]) < 30 * 1024, `hall script ${size(hall[0])} B`);
+});
+
+test("the hall: a still for each light, the lights script loaded before paint, one card and one row button per game", () => {
+  for (const t of ["day", "night"]) assert.ok(existsSync(new URL(`hall/${t}.webp`, dist)), `missing hall/${t}.webp`);
+  const html = read("index.html");
+  assert.ok(html.indexOf('<script src="/theme.js"></script>') < html.indexOf("</head>"));
+  assert.equal(html.match(/data-card/g)?.length, slugs.length);
+  assert.equal(html.match(/data-go=/g)?.length, slugs.length);
+  const games = JSON.parse(html.match(/data-games="([^"]+)"/)[1].replace(/&quot;/g, '"').replace(/&amp;/g, "&"));
+  assert.deepEqual(games.map((g) => g.slug).sort(), [...slugs].sort());
+  for (const g of games) assert.ok(existsSync(new URL(`.${g.clip}`, dist)) && existsSync(new URL(`.${g.poster}`, dist)), g.slug);
 });
 
 test("every page has its cache rule, and every clip exists", () => {
