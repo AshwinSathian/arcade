@@ -112,5 +112,8 @@ test("the arcade pass: one classic script under 14 KB gzipped, with its font", (
   assert.doesNotMatch(js.toString(), /^\s*(import|export)\s|\bimport\(/m);
   assert.ok(existsSync(new URL("pass/bricolage.woff2", dist)));
   const headers = readFileSync(new URL("../public/_headers", import.meta.url), "utf8");
+  const all = headers.match(/^\/\*\n(?:  .*\n)+/m)[0];
+  assert.match(all, /^\/\*\n[\s\S]*\n  Content-Security-Policy: default-src 'self'; script-src 'self';/m, "the site-wide CSP is in the /* block");
+  assert.match(all, /\n  Speculation-Rules: "\/speculation\.json"\n/);
   assert.match(headers, /\/pass\.js\n  Cache-Control: public, max-age=300[^\n]*\n  Access-Control-Allow-Origin: \*/);
 });
