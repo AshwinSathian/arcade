@@ -42,6 +42,16 @@ export function motif(c: C, slug: string, x: number, y: number, s: number, fg: s
       c.fillStyle = bg; c.fillRect(-u * 0.25, -u * 0.25, u * 0.5, u * 0.5);
       break;
     }
+    case "glide": { // a mallet from above, and the puck's dashed bank off the rail into the goal
+      c.lineWidth = u * 0.35; c.beginPath(); c.moveTo(-u * 4.8, -u * 4.6); c.lineTo(u * 4.8, -u * 4.6); c.stroke();
+      c.fillStyle = bg; c.fillRect(-u * 1.4, -u * 5.2, u * 2.8, u * 1.2); c.fillStyle = fg;
+      c.setLineDash([u * 0.25, u * 0.5]); c.lineWidth = u * 0.3;
+      c.beginPath(); c.moveTo(u * 0.6, u * 1.6); c.lineTo(u * 4.2, -u * 1.4); c.lineTo(u * 0.2, -u * 4.2); c.stroke(); c.setLineDash([]);
+      c.beginPath(); c.arc(u * 1.2, u * 1.1, u * 0.95, 0, Math.PI * 2); c.fill();
+      c.beginPath(); c.arc(-u * 1.6, u * 3.2, u * 2.1, 0, Math.PI * 2); c.fill();
+      c.strokeStyle = bg; c.lineWidth = u * 0.3; c.beginPath(); c.arc(-u * 1.6, u * 3.2, u * 1.1, 0, Math.PI * 2); c.stroke();
+      break;
+    }
     case "lightkeeper": { // a lighthouse throwing its beam
       c.globalAlpha = 0.5;
       c.beginPath(); c.moveTo(0, -u * 3); c.lineTo(u * 5, -u * 4.6); c.lineTo(u * 5, -u * 1.6); c.closePath(); c.fill();
