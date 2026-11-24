@@ -67,7 +67,7 @@ const jsonld = [
   <div class="board detail" style={`--g-ground:${game.ground};--g-bright:${game.bright}`}>
     <nav class="crumbs rise" aria-label="Breadcrumb">
       <a class="crumbs__back" href={`/#${game.slug}`}><Arrow dir="left" /> Back to the arcade</a>
-      <span class="crumbs__tools"><Lights /><StillToggle /></span>
+      <span class="crumbs__tools"><span data-arcade-chip></span><Lights /><StillToggle /></span>
     </nav>
 
     <div class="clip game" style={`--i:0`} data-game={game.slug}>

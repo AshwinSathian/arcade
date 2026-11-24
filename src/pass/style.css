@@ -41,7 +41,7 @@ a { text-decoration-thickness: 1px; text-underline-offset: 3px; }
 .chip.run .tag, .chip.run .cr { display: none; }
 @media (max-width: 520px) { .chip.at .tag { display: none; } }
 /* In the hall's top bar the tag gives way first, so the bar never runs into the title. */
-@media (min-width: 521px) and (max-width: 1240px) { .chip.in .tag { display: none; } }
+@media (max-width: 1240px) { .chip.in .tag { display: none; } }
 
 .coin { width: 28px; height: 28px; flex: none; filter: drop-shadow(0 1px 1px rgb(0 0 0 / 0.5)); }
 .coin.big { width: 40px; height: 40px; }

@@ -12,7 +12,7 @@ const jsonld = [{ "@context": "https://schema.org", "@type": "WebPage", name: he
   <div class="board doc">
     <nav class="doc__crumbs" aria-label="Breadcrumb">
       <a class="doc__back" href="/"><Arrow dir="left" /> Back to the hall</a>
-      <Lights />
+      <span class="doc__tools"><span class="doc__card" data-arcade-chip></span><Lights /></span>
     </nav>
     <header class="tile doc__head">
       <h1>{heading}</h1>
@@ -26,6 +26,7 @@ const jsonld = [{ "@context": "https://schema.org", "@type": "WebPage", name: he
   .doc__crumbs { grid-column: 1 / -1; display: flex; justify-content: space-between; align-items: center; padding: 4px 4px 8px; }
   .doc__back { display: inline-flex; align-items: center; gap: 8px; min-height: 44px; font-weight: 600; text-decoration: none; }
   .doc__back :global(svg) { width: 16px; }
+  .doc__tools { display: flex; gap: 8px; align-items: center; }
   .doc__head { grid-column: 1 / -1; background: var(--band); color: var(--band-ink); padding: clamp(28px, 5vw, 64px); display: grid; gap: 20px; }
   .doc__head h1 { font-size: var(--t-display); letter-spacing: -0.045em; max-width: 14ch; }
   .doc__head p { font-size: var(--t-lg); line-height: 1.2; max-width: 34ch; color: var(--band-muted); }
