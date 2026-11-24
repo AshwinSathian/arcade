@@ -92,7 +92,8 @@ The card is base64url JSON in one cookie. The pass treats it as input: it clamps
 | `arcade_best_*` | cookie | Written by the games, read here |
 | `arcade_card` | cookie | The player card: tag, tokens, plays per machine, bests per mode, streak, receipt. Written by the pass |
 | `arcade_via` | cookie | The machine the hall just sent you to, for two minutes |
-| `arcade:run:*`, `arcade:hi:*` | sessionStorage | The run in progress and whether a machine has greeted you, per tab |
+| `arcade:run:*` | sessionStorage | The run in progress, per tab |
+| `arcade:hi:*` | localStorage | The machine has greeted you, so it doesn't again in this browser |
 | `arcade:open:*` | localStorage | Ids of runs not yet ended, at most 20. A duplicated tab copies sessionStorage, run and all; only the first tab to end the run finds its id and is paid |
 
 There is no analytics and no server state. [/privacy](https://arcade.ashwinsathian.com/privacy) lists all of this for players.

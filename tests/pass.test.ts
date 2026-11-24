@@ -63,6 +63,13 @@ test("the refill clock starts from the spend that drops you below 3", () => {
   assert.equal(refillIn(c, T0), 15 * MIN);
 });
 
+test("reading a card at or above the floor leaves it as it is", () => {
+  // Every read refills, so stamping the clock here made an idle page's card change by the second.
+  const c = newCard(), before = JSON.stringify(c);
+  refill(c, T0 + 5 * MIN);
+  assert.equal(JSON.stringify(c), before);
+});
+
 test("start: a token loads a credit; plays are used before tokens; none left is refused", () => {
   const c = newCard();
   c.tok = 1;

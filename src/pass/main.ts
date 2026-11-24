@@ -165,10 +165,11 @@ declare global {
   const via = jar("arcade_via");
   if (via) setCookie("arcade_via", "", 0);
   const auto = /[?&](autoplay|bot)\b/.test(location.search);
-  const seen = (() => { try { return sessionStorage.getItem(`arcade:hi:${slug}`); } catch { return "1"; } })();
+  // Once per browser: the flag outlives the tab, so a new tab or a reload goes straight to the game.
+  const seen = (() => { try { return localStorage.getItem(`arcade:hi:${slug}`); } catch { return "1"; } })();
   const greet = () => {
     if (slug && !auto && via !== slug && !seen) {
-      try { sessionStorage.setItem(`arcade:hi:${slug}`, "1"); } catch { /* fine */ }
+      try { localStorage.setItem(`arcade:hi:${slug}`, "1"); } catch { /* fine */ }
       ui.welcome(fresh);
     } else if (fresh && !slug) ui.sheet(true);
   };

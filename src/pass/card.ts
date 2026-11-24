@@ -107,9 +107,10 @@ export function add(c: Card, n: number) {
   return fit;
 }
 
-/** Below the floor, one token comes back every 15 minutes. At or above it, the clock waits. */
+/** Below the floor, one token comes back every 15 minutes. At or above it, the clock waits, and the card is left
+ *  as it is: reading a card must not change it. The clock starts from the spend that drops you below (see insert). */
 export function refill(c: Card, now: number): Card {
-  if (c.tok >= FLOOR) { c.at = now; return c; }
+  if (c.tok >= FLOOR) return c;
   const n = Math.floor((now - c.at) / EVERY);
   if (n <= 0) return c;
   c.tok = Math.min(FLOOR, c.tok + n);
@@ -130,7 +131,8 @@ export function daily(c: Card, now: number): { card: Card; paid: number } {
 }
 
 /** Spends a token on a credit of plays for one machine. The caller checks there is a token. */
-export function insert(c: Card, slug: string, plays: number) {
+export function insert(c: Card, slug: string, plays: number, now: number) {
+  if (c.tok === FLOOR) c.at = now; // dropping below the floor starts the refill clock
   c.tok -= 1;
   c.cr[slug] = Math.min(9, (c.cr[slug] ?? 0) + plays);
 }

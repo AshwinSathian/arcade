@@ -95,10 +95,18 @@ try {
   assert.equal(await p.locator("#keys").textContent(), "1", "with no greeting open, the game hears its keys");
   await p.screenshot({ path: ".shots/pass-chip.png" });
 
-  // 5. A fresh visitor sees the welcome dialog.
+  // 5. A fresh visitor sees the welcome dialog, once per browser: not again in a new tab or after a reload.
   p = await open();
   await p.waitForTimeout(500);
   await p.screenshot({ path: ".shots/pass-welcome.png" });
+  const welcomed = async (q: Page) => { await q.keyboard.press("2"); return (await q.locator("#keys").textContent()) === "0"; };
+  {
+    const q = await p.context().newPage();
+    await q.goto(`${base}/game.html`);
+    await q.waitForFunction(() => window.arcadePass?.ready);
+    assert.equal(await welcomed(q), false, "a second tab greets again");
+    await q.close();
+  }
   // The welcome is a modal on screen, so the game waits for it; once it closes, the very next key is the game's,
   // and focus is back on the page rather than left in the pass.
   const keys = () => p.locator("#keys").textContent();
@@ -108,6 +116,29 @@ try {
   await p.keyboard.press("2");
   assert.equal(await keys(), "1", "a key right after the welcome closes reaches the game");
   assert.equal(await p.evaluate(() => document.activeElement?.tagName), "BODY");
+
+  // 5c. An idle page, or ?autoplay, leaves the card alone: reading it is not a change, and nobody is greeted.
+  p = await open();
+  await p.keyboard.press("Escape");
+  const k0 = JSON.stringify(await card(p));
+  await p.waitForTimeout(2500);
+  assert.equal(JSON.stringify(await card(p)), k0, "the card changed while the page sat idle");
+  {
+    const q = await p.context().newPage();
+    await q.goto(`${base}/game.html?autoplay`);
+    await q.waitForFunction(() => window.arcadePass?.ready);
+    const a0 = JSON.stringify(await card(q));
+    await q.waitForTimeout(2500);
+    assert.equal(JSON.stringify(await card(q)), a0, "?autoplay: the card changed");
+    await q.close();
+  }
+  {
+    const ctx = await browser.newContext(), q = await ctx.newPage();
+    await q.goto(`${base}/game.html?autoplay`);
+    await q.waitForFunction(() => window.arcadePass?.ready);
+    assert.equal(await welcomed(q), false, "?autoplay greeted a fresh visitor");
+    await ctx.close();
+  }
 
   // 6. No pass at all: the game still runs, with no errors.
   p = await open(true);
