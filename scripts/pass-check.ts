@@ -99,6 +99,15 @@ try {
   p = await open();
   await p.waitForTimeout(500);
   await p.screenshot({ path: ".shots/pass-welcome.png" });
+  // The welcome is a modal on screen, so the game waits for it; once it closes, the very next key is the game's,
+  // and focus is back on the page rather than left in the pass.
+  const keys = () => p.locator("#keys").textContent();
+  await p.keyboard.press("2");
+  assert.equal(await keys(), "0", "the open welcome keeps keys from the game");
+  await p.keyboard.press("Escape");
+  await p.keyboard.press("2");
+  assert.equal(await keys(), "1", "a key right after the welcome closes reaches the game");
+  assert.equal(await p.evaluate(() => document.activeElement?.tagName), "BODY");
 
   // 6. No pass at all: the game still runs, with no errors.
   p = await open(true);
