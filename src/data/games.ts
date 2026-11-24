@@ -5,6 +5,7 @@ import lightkeeperPoster from "../assets/posters/lightkeeper.png";
 import minefieldPoster from "../assets/posters/minefield.png";
 import nonetPoster from "../assets/posters/nonet.png";
 import noughtsPoster from "../assets/posters/noughts.png";
+import pinfallPoster from "../assets/posters/pinfall.png";
 import rallyPoster from "../assets/posters/rally.png";
 import spillwayPoster from "../assets/posters/spillway.png";
 import swishPoster from "../assets/posters/swish.png";
@@ -21,6 +22,8 @@ import nonetDesktop from "../assets/shots/nonet-desktop.jpg";
 import nonetPhone from "../assets/shots/nonet-phone.jpg";
 import noughtsDesktop from "../assets/shots/noughts-desktop.jpg";
 import noughtsPhone from "../assets/shots/noughts-phone.jpg";
+import pinfallDesktop from "../assets/shots/pinfall-desktop.jpg";
+import pinfallPhone from "../assets/shots/pinfall-phone.jpg";
 import rallyDesktop from "../assets/shots/rally-desktop.png";
 import rallyPhone from "../assets/shots/rally-phone.png";
 import spillwayDesktop from "../assets/shots/spillway-desktop.jpg";
@@ -248,6 +251,36 @@ export const games: Game[] = [
     clipAlt: "Noughts playing Fading on its blackboard theme: crosses and noughts are drawn in, the oldest cross turns pale and is wiped, and three crosses along the bottom are struck through.",
     desktop: { src: noughtsDesktop, alt: "Noughts on a desktop reviewing a Classic game against the bot: move 5 is marked as the mistake that decided it, with the better square dashed." },
     phone: { src: noughtsPhone, alt: "Noughts on a phone, an Ultimate game with the grid you must play in outlined." },
+  },
+  {
+    slug: "pinfall",
+    name: "Pinfall",
+    kind: "Ten-pin bowling",
+    noun: "3D bowling game",
+    genre: ["Sports", "Simulation"],
+    line: "A 3D ten-pin bowling game: set your spin, pull back to aim and watch real pin physics on a lane whose oil wears as you play.",
+    about: [
+      "Pinfall is ten-pin bowling seen from behind the ball, in a timber bowling hall. Drag the ball sideways to choose where you stand, set the spin, then pull back and let go: the length of the pull is the speed and its lean is the aim. The ball skids on the oil, hooks on the dry boards and hits ten pins that fall under a rigid-body solver, so a light hit leaves the 10 pin and a ball on the nose can split the rack. The oil wears where the ball runs, so a line that strikes early in a game hooks sooner later on. Day and Night follow your device's light or dark setting; at night the hall goes to blacklight and the pins glow.",
+      "Game is ten frames with standard scoring for one to four players on one device, on one of four oil patterns. Daily is one game on the day's lane, the same for everyone, and the result can be sent as a link: whoever opens it bowls the same lane with your ball rolling beside theirs. Spares is ten leaves, from the 10 pin to the 7-10, one ball each.",
+    ],
+    modes: ["Game", "Daily", "Spares", "Challenge"],
+    controls: "Mouse, touch, or keyboard (Z X, Q E, arrow keys and Space)",
+    kb: 41,
+    sizeNote: "One HTML file of about 41 KB compressed, plus a 35 KB font, with no image, model or audio files",
+    stack: "TypeScript, WebGL 2, Web Audio, Cloudflare Workers",
+    highlights: [
+      { title: "Pins fall because the solver says so", detail: "Ball and pins are rigid bodies built from spheres, solved at 480 Hz with friction. Hook, carry and splits all come out of it; nothing is scripted." },
+      { title: "A lane that wears", detail: "Oil is a 39 by 64 field. Each ball lifts oil from its track and carries some down the lane, and the lane's reflection shows where it has worn." },
+      { title: "The same throw in every browser", detail: "The solver avoids functions whose last bits differ between engines, so a Daily link of six integers per ball replays to the same score anywhere." },
+      { title: "Sound from contacts", detail: "Every impact the solver logs is played through small banks of tuned sines for maple pins, the ball and the deck." },
+    ],
+    url: "https://pinfall.ashwinsathian.com",
+    ground: "#100c16",
+    bright: "#ff5ad1",
+    poster: pinfallPoster,
+    clipAlt: "A ball of Pinfall under blacklight: the ball rolls down a glowing lane and the camera swings low to the pin deck as the pins scatter.",
+    desktop: { src: pinfallDesktop, alt: "Pinfall on a desktop at night: pins flying off the deck under blacklight, with pink stripes glowing." },
+    phone: { src: pinfallPhone, alt: "Pinfall on a phone in daylight: pins scattering on a maple pin deck." },
   },
   {
     slug: "rally",

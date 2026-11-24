@@ -101,6 +101,13 @@ const games: Record<string, Shot> = {
       await wait(p, 3200);
     },
   },
+  pinfall: {
+    // The game's own bot under blacklight: one ball down the lane, the hit from the deck, the sweep and back.
+    url: 'https://pinfall.ashwinsathian.com/?autoplay&start=game&seed=7&theme=night&nohint', start: 1.5, dur: 9,
+    async play(p) {
+      await wait(p, 12000);
+    },
+  },
   rally: {
     // ?autoplay hands the near paddle to the game's own bot.
     url: 'https://rally.ashwinsathian.com/?autoplay=2', start: 1.5, dur: 9,

@@ -2,7 +2,7 @@
 
 # The Arcade
 
-**Ten browser games in a 3D arcade you can walk along, drawn live in WebGL 2 with no 3D library.**
+**Eleven browser games in a 3D arcade you can walk along, drawn live in WebGL 2 with no 3D library.**
 
 [**arcade.ashwinsathian.com**](https://arcade.ashwinsathian.com)
 
@@ -15,7 +15,7 @@
 
 </div>
 
-The Arcade is the front door to ten small games: Clover, Coil, Lightkeeper, Minefield, Nonet, Noughts, Rally, Spillway, Swish and Typester. Each game runs on its own subdomain. This repository is the room they stand in.
+The Arcade is the front door to eleven small games: Clover, Coil, Lightkeeper, Minefield, Nonet, Noughts, Pinfall, Rally, Spillway, Swish and Typester. Each game runs on its own subdomain. This repository is the room they stand in.
 
 ## What it does
 
