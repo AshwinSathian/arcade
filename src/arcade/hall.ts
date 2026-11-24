@@ -1,7 +1,7 @@
 // The renderer: a shadow map from the sun, the floor's reflection, an MSAA HDR pass, bloom, and a lens.
 // Owns the camera on its rail and the pointer, and tells the page when the visitor moves to another machine.
 import { type GL, type Mesh, type Prog, type Target, type V3, type M4, program, upload, target, texture, perspective, lookAt, mul, invert, xform, ortho, norm, mix, clamp, smooth, hex, translate, m4 } from "./core";
-import { vsMain, fsMain, vsDepth, fsDepth, vsBeam, fsBeam, vsQuad, fsDown, fsUp, fsComposite, NL, NF } from "./shaders";
+import { vsMain, fsMain, vsDepth, fsDepth, vsBeam, fsBeam, vsQuad, fsDown, fsUp, fsComposite, lightsFor } from "./shaders";
 import { build, room, beams, token, SPACING, ART_W, ART_H, type Part } from "./scene";
 import { neon, changer } from "./art";
 import type { Best } from "./bests";
@@ -65,7 +65,7 @@ export class Hall {
   calm = false;
   private artCanvas!: HTMLCanvasElement;
   coarse = matchMedia("(pointer: coarse)").matches;
-  private t0 = performance.now(); private last = 0; private slow = 0; private raf = 0; private visible = true;
+  private t0 = performance.now(); private last = 0; private slow = 0; private steady = 0; private lvl = 0; private minLvl = 0; private raised = false; private raf = 0; private visible = true;
   private probe: CanvasRenderingContext2D;
   private hoverIdx = -1;
 
@@ -86,7 +86,7 @@ export class Hall {
   private init(games: HallGame[]) {
     const gl = this.gl;
     this.P = {
-      main: program(gl, vsMain, fsMain), depth: program(gl, vsDepth, fsDepth), beam: program(gl, vsBeam, fsBeam),
+      main: program(gl, vsMain, fsMain(games.length)), depth: program(gl, vsDepth, fsDepth), beam: program(gl, vsBeam, fsBeam),
       down: program(gl, vsQuad, fsDown), up: program(gl, vsQuad, fsUp), comp: program(gl, vsQuad, fsComposite),
     };
     this.blank = texture(gl, null, false);
@@ -417,9 +417,13 @@ export class Hall {
     const dt = Math.min(0.05, this.last ? (now - this.last) / 1000 : 0.016);
     this.last = now;
     if (!this.visible || document.hidden) return;
-    // Step down the resolution if frames run long for a couple of seconds.
-    if (dt > 0.026) this.slow += dt; else this.slow = Math.max(0, this.slow - dt * 0.5);
-    if (this.slow > 2 && this.scale > 0.55) { this.scale *= 0.8; this.slow = 0; this.w = 0; }
+    // Step down the resolution if frames run long for a couple of seconds, and try a step back up after 20 smooth
+    // seconds, so a slow start (shaders compiling, clips decoding) doesn't cost the rest of the visit. A level that
+    // runs long again after a step up is not tried again.
+    if (dt > 0.026) { this.slow += dt; this.steady = 0; } else { this.slow = Math.max(0, this.slow - dt * 0.5); this.steady += dt; }
+    if (this.slow > 2 && this.lvl < 3) { if (this.raised) this.minLvl = this.lvl + 1; this.lvl++; this.raised = false; }
+    else if (this.steady > 20 && this.lvl > this.minLvl) { this.lvl--; this.raised = true; }
+    if (this.scale !== 0.8 ** this.lvl) { this.scale = 0.8 ** this.lvl; this.slow = this.steady = 0; this.w = 0; }
     this.resize();
 
     // Springs: camera rail, night, zoom, pointer.
@@ -482,9 +486,11 @@ export class Hall {
     const n = this.night;
 
     // Lights: a screen light per machine, a downlight per machine at night, the neon.
-    const LP = new Float32Array(NL * 4), LC = new Float32Array(NL * 4);
+    const NL = lightsFor(this.cabs.length), LP = new Float32Array(NL * 4), LC = new Float32Array(NL * 4);
     let nl = 0;
-    const add = (p: V3, kind: number, c: V3, r: number) => { if (nl >= NL) return; LP.set([...p, kind], nl * 4); LC.set([...c, r], nl * 4); nl++; };
+    const add = (p: V3, kind: number, c: V3, r: number) => {
+      if (nl >= NL) { if (import.meta.env.DEV) throw new Error(`more than ${NL} lights: size lightsFor() for the new kind`); return; }
+      LP.set([...p, kind], nl * 4); LC.set([...c, r], nl * 4); nl++; };
     const flick = (x: number, seed: number) => (x <= 0 ? 0 : x >= 1 ? 1 : x * (Math.sin(t * 61 + seed * 13) > -0.2 ? 1 : 0.25));
     this.cabs.forEach((cab, i) => {
       const p = cab.part.lightAt, gain = cab.power * mix(2.2, 3.2, n);
@@ -498,8 +504,8 @@ export class Hall {
     const sun: V3 = [mix(3.4, 0.0, n), mix(3.1, 0.0, n), mix(2.7, 0.0, n)];
     const sky: V3 = [mix(0.4, 0.008, n), mix(0.44, 0.009, n), mix(0.5, 0.02, n)];
     const gnd: V3 = [mix(0.2, 0.006, n), mix(0.18, 0.005, n), mix(0.16, 0.008, n)];
-    const foot = new Float32Array(NF * 4);
-    this.cabs.slice(0, NF).forEach((c, i) => foot.set([c.part.foot[0] + i * SPACING, c.part.foot[1] + c.part.z, c.part.foot[2], c.part.foot[3]], i * 4));
+    const foot = new Float32Array(this.cabs.length * 4);
+    this.cabs.forEach((c, i) => foot.set([c.part.foot[0] + i * SPACING, c.part.foot[1] + c.part.z, c.part.foot[2], c.part.foot[3]], i * 4));
 
     const M = this.P.main;
     gl.useProgram(M.p);

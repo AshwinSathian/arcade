@@ -130,7 +130,7 @@ export function insert(c: Card, slug: string, now: number): { card: Card; ok: bo
   refill(c, now);
   const m = machines[slug];
   if (!m || c.tok < 1) return { card: c, ok: false };
-  load(c, slug, m.plays);
+  load(c, slug, m.plays, now);
   note(c, now, slug, -1, "Token in");
   return { card: c, ok: true };
 }

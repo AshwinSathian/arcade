@@ -2,15 +2,16 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
-import { parse, serialise, refill, refillIn, daily, cleanTag, today, type Card } from "../src/pass/card.ts";
+import { parse, serialise, MAX, refill, refillIn, daily, cleanTag, today, type Card } from "../src/pass/card.ts";
 import { machines, start, end, insert } from "../src/pass/economy.ts";
 import { ADJ, NOUN } from "../src/pass/tags.ts";
 
 const slugs = [...readFileSync(new URL("../src/data/games.ts", import.meta.url), "utf8").matchAll(/^\s{4}slug: "([a-z]+)",$/gm)].map((m) => m[1]);
+const modes = Object.fromEntries(Object.entries(machines).map(([s, m]) => [s, m.modes]));
 const DAY = 86_400_000, MIN = 60_000;
 const T0 = 20_000 * DAY + 10 * 3600_000; // a fixed morning, UTC
 const rand = () => 0.42;
-const newCard = (now = T0) => parse(undefined, slugs, now, rand).card;
+const newCard = (now = T0) => parse(undefined, modes, now, rand).card;
 const enc = (o: unknown) => Buffer.from(JSON.stringify(o)).toString("base64url");
 const run = (mode: string, at: number) => ({ mode, at });
 
@@ -20,7 +21,7 @@ test("twelve games, each with a machine", () => {
 });
 
 test("fresh card: 12 tokens, a two-word tag, today already claimed", () => {
-  const { card, fresh } = parse(undefined, slugs, T0, rand);
+  const { card, fresh } = parse(undefined, modes, T0, rand);
   assert.ok(fresh);
   assert.equal(card.tok, 12);
   const [a, n] = card.tag.split(" ");
@@ -60,6 +61,13 @@ test("the refill clock starts from the spend that drops you below 3", () => {
   start(c, "pinfall", "game", {}, T0);
   assert.equal(c.tok, 2);
   assert.equal(refillIn(c, T0), 15 * MIN);
+});
+
+test("reading a card at or above the floor leaves it as it is", () => {
+  // Every read refills, so stamping the clock here made an idle page's card change by the second.
+  const c = newCard(), before = JSON.stringify(c);
+  refill(c, T0 + 5 * MIN);
+  assert.equal(JSON.stringify(c), before);
 });
 
 test("start: a token loads a credit; plays are used before tokens; none left is refused", () => {
@@ -157,7 +165,7 @@ test("insert: a token for a credit of plays", () => {
 
 test("malformed cookies give a sane card and never throw", () => {
   for (const raw of ["%E0", "{", "null", "[]", enc({ v: 2 }), "x".repeat(5000)]) {
-    const { card } = parse(raw, slugs, T0, rand);
+    const { card } = parse(raw, modes, T0, rand);
     assert.equal(card.tok, 12, raw.slice(0, 20));
   }
   const evil = enc({
@@ -165,7 +173,7 @@ test("malformed cookies give a sane card and never throw", () => {
     cr: { coil: 2, evil: 5, "__proto__": 3 }, b: { "coil.classic": "9", "nope.x": 1 },
     log: Array.from({ length: 500 }, () => [1, "coil", 1, "<b>hi</b>"]), seen: ["coil", 3, "evil"],
   });
-  const { card, fresh } = parse(evil, slugs, T0, rand);
+  const { card, fresh } = parse(evil, modes, T0, rand);
   assert.equal(fresh, false);
   assert.equal(card.tok, 99);
   assert.match(card.tag, /^[A-Za-z0-9 '-]{2,20}$/);
@@ -175,7 +183,7 @@ test("malformed cookies give a sane card and never throw", () => {
   assert.ok(!card.log[0][3].includes("<"));
   assert.deepEqual(card.seen, ["coil"]);
   assert.ok(card.day <= today(T0) && card.at >= 0);
-  const keep = parse(enc({ v: 1, tag: "Velvet Otter", tok: "lots" }), slugs, T0, rand).card;
+  const keep = parse(enc({ v: 1, tag: "Velvet Otter", tok: "lots" }), modes, T0, rand).card;
   assert.deepEqual([keep.tag, keep.tok], ["Velvet Otter", 0]);
 });
 
@@ -189,20 +197,46 @@ test("tags: own names are cleaned to letters, digits, spaces, apostrophes and hy
 
 test("a full card still fits in a cookie", () => {
   const c: Card = newCard();
-  for (const s of slugs) { c.cr[s] = 3; c.paid[s] = [today(T0), 20]; c.dd[s] = today(T0); c.seen.push(s); for (const m of ["classic", "daily", "expert"]) c.b[`${s}.${m}`] = 123456789; }
-  for (let k = 0; k < 12; k++) c.log.unshift([T0 / 1000, "lightkeeper", 4, "New best"]);
-  assert.ok(serialise(c).length <= 3200, String(serialise(c).length));
-  assert.match(serialise(c), /^[A-Za-z0-9_-]+$/);
-  assert.ok(parse(serialise(c), slugs, T0, rand).card.log.length >= 1);
+  for (const s of slugs) { c.cr[s] = 9; c.paid[s] = [today(T0), 999]; c.dd[s] = today(T0); c.seen.push(s); for (const m of machines[s].modes) c.b[`${s}.${m}`] = 1e9; }
+  for (let k = 0; k < 12; k++) c.log.unshift([T0 / 1000, "lightkeeper", 99, "x".repeat(24)]);
+  const s = serialise(c);
+  assert.ok(s.length <= MAX, String(s.length));
+  assert.match(s, /^[A-Za-z0-9_-]+$/);
+  const back = parse(s, modes, T0, rand).card;
+  assert.deepEqual(back.b, c.b, "every best on every machine fits; only the receipt is trimmed");
+  assert.ok(back.log.length >= 1);
 });
 
 test("only plain keys survive parsing, so a hostile cookie can never stop the card being written", () => {
   const raw = enc({ v: 1, tag: "Neon Heron", tok: 5, b: { "clover.☃": 5, "clover.garden": 900, "noughts.classic.bot": 3, "coil": 4 }, cr: { "coil.x": 2, coil: 2 }, dd: { "glide☃": 1 } });
-  const { card } = parse(raw, slugs, T0, rand);
+  const { card } = parse(raw, modes, T0, rand);
   assert.deepEqual(card.b, { "clover.garden": 900, "noughts.classic.bot": 3 });
   assert.deepEqual(card.cr, { coil: 2 });
   assert.deepEqual(card.dd, {});
   assert.doesNotThrow(() => serialise(card));
+});
+
+test("a forged cookie full of made-up bests is cut back to real machines and modes, and still saves", () => {
+  // Shaped like a best but not a mode the machine has: before, 214 of these filled a 4 KB cookie that re-serialised
+  // to 6,124 characters, which the browser refuses to store, so the card could never be written again.
+  const al = "abcdefghijklmnopqrstuvwxyz", b: Record<string, number> = { "coil.classic": 1e12, "coil.blitz": -4, "coil.zen": 77.6 };
+  for (const x of al) for (const y of al) b[`coil.${x}${y}`] = 1e9;
+  const raw = enc({ v: 1, tag: "Neon Heron", tok: 5, b, log: Array.from({ length: 12 }, () => [1, "coil", 1, "y".repeat(24)]) });
+  const { card } = parse(raw, modes, T0, rand);
+  assert.deepEqual(card.b, { "coil.classic": 1e9, "coil.zen": 78 });
+  assert.ok(serialise(card).length <= MAX);
+});
+
+test("serialise never goes over MAX: the receipt goes first, then the smallest bests", () => {
+  const c = newCard();
+  for (let i = 0; i < 400; i++) c.b[`coil.k${i}`] = i; // more than any parsed card can hold
+  c.b["coil.classic"] = 1e9;
+  const s = serialise(c), back = JSON.parse(Buffer.from(s, "base64url").toString());
+  assert.ok(s.length <= MAX, String(s.length));
+  assert.deepEqual(back.log, []);
+  assert.equal(back.b["coil.classic"], 1e9);
+  assert.equal(back.b["coil.k0"], undefined);
+  assert.equal(Object.keys(c.b).length, 401, "the card itself is untouched");
 });
 
 test("holding the Best bot to a draw pays 1, not the top", () => {
