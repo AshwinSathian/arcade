@@ -1,6 +1,6 @@
 # games.ashwinsathian.com
 
-The front door to nine browser games: [Coil](https://coil.ashwinsathian.com) (snake), [Lightkeeper](https://lightkeeper.ashwinsathian.com) (pinball), [Minefield](https://minefield.ashwinsathian.com) (Minesweeper), [Nonet](https://nonet.ashwinsathian.com) (sudoku), [Noughts](https://noughts.ashwinsathian.com) (noughts and crosses), [Rally](https://rally.ashwinsathian.com) (table tennis), [Spillway](https://spillway.ashwinsathian.com) (3D endless runner), [Swish](https://swish.ashwinsathian.com) (free throws) and [Typester](https://typester.ashwinsathian.com) (typing). Each game lives in its own repository and on its own subdomain; this site links to them.
+The front door to ten browser games: [Clover](https://clover.ashwinsathian.com) (maze chase), [Coil](https://coil.ashwinsathian.com) (snake), [Lightkeeper](https://lightkeeper.ashwinsathian.com) (pinball), [Minefield](https://minefield.ashwinsathian.com) (Minesweeper), [Nonet](https://nonet.ashwinsathian.com) (sudoku), [Noughts](https://noughts.ashwinsathian.com) (noughts and crosses), [Rally](https://rally.ashwinsathian.com) (table tennis), [Spillway](https://spillway.ashwinsathian.com) (3D endless runner), [Swish](https://swish.ashwinsathian.com) (free throws) and [Typester](https://typester.ashwinsathian.com) (typing). Each game lives in its own repository and on its own subdomain; this site links to them.
 
 ![The home page](public/og/index.jpg)
 
