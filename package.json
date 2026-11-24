@@ -31,7 +31,7 @@
     "dev": "astro dev --port 4330",
     "build": "astro check && astro build",
     "preview": "wrangler dev --port 8799",
-    "test": "npm run build && node --test tests/*.test.mjs",
+    "test": "npm run build && node --test tests/*.test.mjs tests/*.test.ts",
     "deploy": "npm run build && wrangler deploy",
     "deploy:redirect": "wrangler deploy --config worker/redirect.jsonc",
     "capture": "node scripts/capture.ts",
