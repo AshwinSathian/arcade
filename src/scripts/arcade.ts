@@ -1,7 +1,7 @@
 // The home page: the card and the row drive the hall, and the hall drives them back.
 // Without WebGL 2 the cards and the row still work over the photograph of the hall.
 import { Hall, type HallGame } from "../arcade/hall";
-import type { Best } from "../arcade/art";
+import { parseBests } from "../arcade/bests";
 import { sfx, setSound, ambience } from "../arcade/sound";
 
 const root = document.documentElement;
@@ -23,21 +23,10 @@ const store = {
 };
 const playHref = (i: number) => cards[i].querySelector<HTMLAnchorElement>(".card__play")!.href;
 
+let hall: Hall | undefined;
+
 // ---------- bests: each game shares the player's best in a cookie on .ashwinsathian.com ----------
-function readBests(): (Best | undefined)[] {
-  const jar = new Map(document.cookie.split(/;\s*/).map((c) => { const k = c.indexOf("="); return [c.slice(0, k), c.slice(k + 1)] as const; }));
-  return games.map((g) => {
-    const raw = jar.get(`arcade_best_${g.slug}`);
-    if (!raw) return undefined;
-    try {
-      const o = JSON.parse(decodeURIComponent(raw));
-      // Written by our own games, but a cookie is still input: strings only, short, printable.
-      const clean = (s: unknown, n: number) => (typeof s === "string" ? s.replace(/[^\p{L}\p{N}\p{P}\p{Zs}]/gu, "").trim().slice(0, n) : "");
-      const v = clean(o?.v, 12), l = clean(o?.l, 14);
-      return v ? { v, l } : undefined;
-    } catch { return undefined; }
-  });
-}
+const readBests = () => parseBests(document.cookie, games.map((g) => g.slug));
 function applyBests() {
   readBests().forEach((b, i) => {
     games[i].best = b;
@@ -61,7 +50,6 @@ applyLast();
 
 const fromHash = games.findIndex((g) => `#${g.slug}` === location.hash);
 let focus = fromHash >= 0 ? fromHash : Math.max(0, lastIdx());
-let hall: Hall | undefined;
 
 // ---------- the free part of the hall: the camera frames the machine there, clear of the card ----------
 function measure() {
@@ -142,6 +130,7 @@ addEventListener("pageshow", (e) => {
   hall?.leave();
   applyBests();
   applyLast();
+  syncAmbience();
 });
 
 document.addEventListener("keydown", (e) => {
@@ -199,20 +188,27 @@ function wake() {
     clearInterval(stepTimer);
     delete root.dataset.attract;
     note.hidden = true;
+    cardBox.setAttribute("aria-live", "polite");
     if (hall) hall.calm = false;
   }
   clearTimeout(idleTimer);
   idleTimer = window.setTimeout(attract, IDLE);
 }
 function attract() {
-  const quiet = reduced.matches || root.hasAttribute("data-still") || document.hidden || !hallInView || root.hasAttribute("data-entering");
+  // Never while someone is on a control in the hall: moving on would hide what they are focused on.
+  const busy = hallEl.contains(document.activeElement) && document.activeElement !== canvas;
+  const quiet = reduced.matches || root.hasAttribute("data-still") || document.hidden || !hallInView || root.hasAttribute("data-entering") || busy;
   if (!hall || quiet) { idleTimer = window.setTimeout(attract, IDLE); return; }
   root.dataset.attract = "";
   note.hidden = false;
+  // Cards changing by themselves are not news: keep a screen reader quiet until the visitor takes over.
+  cardBox.setAttribute("aria-live", "off");
   hall.calm = true;
   stepTimer = window.setInterval(() => show(focus + 1, "attract"), STEP);
 }
-for (const t of ["pointerdown", "pointermove", "keydown", "wheel", "touchstart", "scroll"]) addEventListener(t, wake, { capture: true, passive: true });
+for (const t of ["pointerdown", "pointermove", "keydown", "wheel", "touchstart"]) addEventListener(t, wake, { capture: true, passive: true });
+// Scrolling the page wakes it too, but not the row strip scrolling itself on each step, so no capture here.
+document.addEventListener("scroll", wake, { passive: true });
 
 // ---------- a first-visit hint on touch screens: the hall moves under a swipe ----------
 const coach = document.querySelector<HTMLElement>("[data-coach]")!;

@@ -3,7 +3,8 @@
 import { type GL, type Mesh, type Prog, type Target, type V3, type M4, program, upload, target, texture, perspective, lookAt, mul, invert, xform, ortho, norm, mix, clamp, smooth, hex, translate, m4 } from "./core";
 import { vsMain, fsMain, vsDepth, fsDepth, vsBeam, fsBeam, vsQuad, fsDown, fsUp, fsComposite, NL, NF } from "./shaders";
 import { build, room, beams, SPACING, ART_W, ART_H, type Part } from "./scene";
-import { neon, vending, type Best } from "./art";
+import { neon, vending } from "./art";
+import type { Best } from "./bests";
 
 export type HallGame = { slug: string; name: string; kind: string; ground: string; bright: string; poster: string; clip: string; best?: Best };
 /** The part of the canvas the page leaves free, as fractions of its width and height from the top left. */
@@ -529,7 +530,7 @@ export class Hall {
     this.cabs.forEach((cab, i) => {
       gl.uniformMatrix4fv(u.uModel, false, cab.model);
       gl.uniform3fv(u.uGround, cab.ground); gl.uniform3fv(u.uBright, cab.bright);
-      const focusGlow = (i === this.focus ? 0.25 : 0) + (i === this.lastPlayed ? 0.35 + 0.25 * Math.sin(performance.now() / 420) : 0);
+      const focusGlow = (i === this.focus ? 0.25 : 0) + (i === this.lastPlayed ? 0.35 + (this.reduced || this.still ? 0 : 0.25 * Math.sin(performance.now() / 420)) : 0);
       gl.uniform1f(u.uGlow, mix(0.18, 1, n) * (0.4 + 0.6 * order(i)) + focusGlow);
       gl.uniform1f(u.uHover, cab.hover);
       gl.activeTexture(gl.TEXTURE0); gl.bindTexture(gl.TEXTURE_2D, cab.art);
