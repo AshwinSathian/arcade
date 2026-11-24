@@ -10,7 +10,8 @@
     "test": "npm run build && node --test tests/*.test.mjs",
     "capture": "node scripts/capture.ts",
     "og": "node scripts/og.ts",
-    "deploy": "npm run build && wrangler deploy"
+    "deploy": "npm run build && wrangler deploy",
+    "hall": "node scripts/hall.ts"
   },
   "dependencies": {
     "@astrojs/sitemap": "^3.7.6",

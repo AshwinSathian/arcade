@@ -1,4 +1,4 @@
-// Everything the pages do, in one small file: clips, shimmers, warm-up of links, the weight meter, the picker.
+// Everything every page does, in one small file: clips, shimmers, warm-up of links, the lights.
 const root = document.documentElement;
 const conn = (navigator as Navigator & { connection?: { saveData?: boolean; effectiveType?: string } }).connection;
 const frugal = !!conn?.saveData || /(^|-)2g$/.test(conn?.effectiveType ?? "");
@@ -119,52 +119,21 @@ document.addEventListener("click", (e) => {
 });
 addEventListener("pageshow", clearNav);
 
-// ---------- the picker: a different game each press, never the same twice running ----------
-const pick = document.querySelector<HTMLAnchorElement>("[data-pick]");
-const pickName = document.querySelector<HTMLElement>("[data-pick-name]");
-const again = document.querySelector<HTMLButtonElement>("[data-pick-again]");
-if (pick && pickName && again) {
-  const choices = [...document.querySelectorAll<HTMLAnchorElement>(".game__play")].map((a) => ({ url: a.href, name: a.closest(".game")!.querySelector(".game__name")!.textContent! }));
-  let last = choices.findIndex((c) => c.url === pick.href);
-  const roll = () => {
-    let n = Math.floor(Math.random() * (choices.length - 1));
-    if (n >= last) n++; // never the same game twice running
-    last = n;
-    pick.href = choices[n].url;
-    pickName.textContent = pick.querySelector("[data-pick-label]")!.textContent = choices[n].name;
-    pickName.classList.remove("roll");
-    void pickName.offsetWidth; // restart the animation
-    pickName.classList.add("roll");
-  };
-  roll();
-  pickName.classList.remove("roll");
-  again.hidden = false;
-  again.addEventListener("click", () => {
-    // Announce picks the visitor asked for, not the silent first one.
-    pickName.setAttribute("aria-live", "polite");
-    roll();
-  });
+// ---------- lights: Auto follows the system; Day and Night stick, on every page ----------
+const LIGHTS = "games:lights";
+const system = matchMedia("(prefers-color-scheme: dark)");
+const radios = [...document.querySelectorAll<HTMLInputElement>("[data-lights-switch] input")];
+function applyLights() {
+  const pick = root.dataset.lights ?? "auto";
+  const night = pick === "night" || (pick === "auto" && system.matches);
+  root.dataset.theme = night ? "night" : "day";
+  document.querySelectorAll<HTMLMetaElement>('meta[name="theme-color"]').forEach((m) => (m.content = night ? "#141412" : "#dfdedb"));
+  radios.forEach((r) => (r.checked = r.value === pick));
 }
-
-// ---------- the weight meter: what this visit has actually downloaded, read from the browser's own timings ----------
-const meter = document.querySelector<HTMLElement>("[data-weight]");
-if (meter && "performance" in window) {
-  const kb = (n: number) => `${Math.max(1, Math.round(n / 1024))} KB`;
-  const read = () => {
-    const nav = performance.getEntriesByType("navigation")[0] as PerformanceNavigationTiming | undefined;
-    if (!nav) return;
-    const res = performance.getEntriesByType("resource") as PerformanceResourceTiming[];
-    const sum = (k: "transferSize" | "encodedBodySize") => [nav, ...res].reduce((t, r) => t + (r[k] || 0), 0);
-    const wire = sum("transferSize");
-    const paint = performance.getEntriesByName("first-contentful-paint")[0]?.startTime;
-    const when = paint ? ` First paint after ${Math.round(paint)} ms.` : "";
-    meter.textContent = wire > 2048
-      ? `This visit so far: ${kb(wire)} over the network, clips included.${when}`
-      : `This visit came from your browser’s cache: ${kb(sum("encodedBodySize"))}, nothing new downloaded.${when}`;
-  };
-  addEventListener("load", () => {
-    read();
-    // Clips keep arriving as tiles come into view.
-    new PerformanceObserver(read).observe({ type: "resource" });
-  });
-}
+radios.forEach((r) => r.addEventListener("change", () => {
+  root.dataset.lights = r.value;
+  try { r.value === "auto" ? localStorage.removeItem(LIGHTS) : localStorage.setItem(LIGHTS, r.value); } catch { /* storage blocked: this page still switches */ }
+  applyLights();
+}));
+system.addEventListener("change", applyLights);
+applyLights();

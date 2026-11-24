@@ -10,7 +10,6 @@ export function getStaticPaths() {
 }
 const { card } = Astro.params;
 const game: Game | undefined = games.find((g) => g.slug === card);
-const posters = await Promise.all(games.map((g) => getImage({ src: g.poster, width: 400, format: "webp" })));
 const one = game && (await getImage({ src: game.poster, width: 720, format: "webp" }));
 ---
 <!doctype html>
@@ -29,8 +28,8 @@ const one = game && (await getImage({ src: game.poster, width: 720, format: "web
     </div>
   ) : (
     <div class="card all">
-      <div class="txt"><h1>Ten small games for your browser</h1><p class="site">games.ashwinsathian.com</p></div>
-      {games.map((g, i) => <figure style={`--g:${g.ground};--b:${g.bright}`}><img src={posters[i].src} alt="" /><figcaption>{g.name}</figcaption></figure>)}
+      <img class="hall" src="/hall/night.webp" alt="" />
+      <div class="txt"><h1>The Arcade</h1><p>Ten small games for your browser</p><p class="site">games.ashwinsathian.com</p></div>
     </div>
   )}
 </body>
@@ -47,11 +46,10 @@ const one = game && (await getImage({ src: game.poster, width: 720, format: "web
   .one h1 { font-size: 150px; color: var(--b); font-weight: 800; letter-spacing: -0.05em; }
   .one .line { font-size: 34px; line-height: 1.15; }
   .one img { width: 420px; height: 606px; object-fit: cover; border-radius: 8px; }
-  .all { grid-template-columns: 1.6fr repeat(5, 1fr); grid-template-rows: 1fr 1fr; }
-  /* Ten games in ten slots, five to a row. */
-  .all .txt { grid-row: span 2; background: #26251e; color: #dfdedb; }
-  .all h1 { font-size: 58px; line-height: 0.95; letter-spacing: -0.04em; }
-  figure { margin: 0; position: relative; border-radius: 8px; overflow: hidden; background: var(--g); }
-  figure img { width: 100%; height: 100%; object-fit: cover; }
-  figcaption { position: absolute; left: 0; right: 0; bottom: 0; padding: 10px 14px; background: var(--g); color: var(--b); font-weight: 700; font-size: 24px; }
+  /* The hall at night, photographed from the live page, with the name over its dark left side. */
+  .all { position: relative; padding: 0; display: block; background: #0b0a0f; }
+  .all .hall { position: absolute; inset: 0; width: 1200px; height: 630px; object-fit: cover; object-position: 70% 50%; }
+  .all .txt { position: absolute; left: 0; top: 0; bottom: 0; width: 560px; padding: 48px; color: #f4f1ea; background: linear-gradient(90deg, rgb(11 10 15 / 0.92) 40%, transparent); border-radius: 0; }
+  .all h1 { font-size: 104px; line-height: 0.9; letter-spacing: -0.05em; font-weight: 800; }
+  .all .txt p:not(.site) { font-size: 34px; line-height: 1.1; font-weight: 600; max-width: 12ch; color: #ffcf3d; }
 </style>
