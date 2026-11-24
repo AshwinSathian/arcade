@@ -1,0 +1,10 @@
+{
+  "$schema": "../node_modules/wrangler/config-schema.json",
+  // Deployed under the old Worker's name, so it takes over games.ashwinsathian.com in place.
+  "name": "games",
+  "account_id": "5e8cabf1f94e15e681dfe58d4164a8ed",
+  "compatibility_date": "2026-11-01",
+  "main": "./redirect.js",
+  "workers_dev": false,
+  "routes": [{ "pattern": "games.ashwinsathian.com", "custom_domain": true }]
+}

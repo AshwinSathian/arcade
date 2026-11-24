@@ -4,8 +4,11 @@ import { type GL, type Mesh, type Prog, type Target, type V3, type M4, program, 
 import { vsMain, fsMain, vsDepth, fsDepth, vsBeam, fsBeam, vsQuad, fsDown, fsUp, fsComposite, NL, NF } from "./shaders";
 import { build, room, beams, SPACING, ART_W, ART_H, type Part } from "./scene";
 import { neon, vending } from "./art";
+import type { Best } from "./bests";
 
-export type HallGame = { slug: string; name: string; kind: string; ground: string; bright: string; poster: string; clip: string };
+export type HallGame = { slug: string; name: string; kind: string; ground: string; bright: string; poster: string; clip: string; best?: Best };
+/** The part of the canvas the page leaves free, as fractions of its width and height from the top left. */
+export type Frame = { l: number; t: number; r: number; b: number };
 type Cab = {
   g: HallGame; part: Part; body: Mesh; screen: Mesh; model: M4; art: WebGLTexture; scr: WebGLTexture;
   crop: [number, number, number, number]; video?: HTMLVideoElement; fresh: boolean; glow: V3; glowTo: V3; lastSample: number;
@@ -37,6 +40,13 @@ export class Hall {
   private vp: M4 = m4();
   still = false; frugal = false; reduced = false;
   onFocus: (i: number) => void = () => {};
+  free: Frame = { l: 0, t: 0, r: 1, b: 1 };
+  /** The machine played last on this device, which glows; -1 for none. */
+  lastPlayed = -1;
+  /** Attract mode: the camera moves on by itself, so it glides more slowly. */
+  calm = false;
+  private artCanvas!: HTMLCanvasElement;
+  coarse = matchMedia("(pointer: coarse)").matches;
   private t0 = performance.now(); private last = 0; private slow = 0; private raf = 0; private visible = true;
   private probe: CanvasRenderingContext2D;
   private hoverIdx = -1;
@@ -62,7 +72,7 @@ export class Hall {
       down: program(gl, vsQuad, fsDown), up: program(gl, vsQuad, fsUp), comp: program(gl, vsQuad, fsComposite),
     };
     this.blank = texture(gl, null, false);
-    const art = document.createElement("canvas");
+    const art = (this.artCanvas = document.createElement("canvas"));
     art.width = ART_W; art.height = ART_H;
     const c = art.getContext("2d")!;
     games.forEach((g, i) => {
@@ -95,6 +105,19 @@ export class Hall {
     this.signTex = texture(gl, sc);
     this.makeShadow(r.x0, r.x1);
     this.bindInput();
+  }
+
+  /** Repaint one machine's art, for a best that arrived after the page opened. */
+  setBest(i: number, best: Best | undefined) {
+    const cab = this.cabs[i], gl = this.gl;
+    if (JSON.stringify(cab.g.best) === JSON.stringify(best)) return;
+    cab.g = { ...cab.g, best };
+    const c = this.artCanvas.getContext("2d")!;
+    c.clearRect(0, 0, ART_W, ART_H);
+    cab.part.art(c, cab.g);
+    gl.bindTexture(gl.TEXTURE_2D, cab.art);
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.SRGB8_ALPHA8, gl.RGBA, gl.UNSIGNED_BYTE, this.artCanvas);
+    gl.generateMipmap(gl.TEXTURE_2D);
   }
 
   private upload(cab: Cab, src: TexImageSource) {
@@ -160,7 +183,8 @@ export class Hall {
     const gl = this.gl;
     const dpr = Math.min(devicePixelRatio || 1, 2) * this.scale;
     let w = Math.round(this.canvas.clientWidth * dpr), h = Math.round(this.canvas.clientHeight * dpr);
-    const cap = 3.2e6 / (w * h); // keep the pixel count in reach of a laptop
+    // Keep the pixel count in reach of a laptop, and lower on a phone or tablet, where the GPU shares a battery.
+    const cap = (this.coarse ? 1.9e6 : 3.2e6) / (w * h);
     if (cap < 1) { w = Math.round(w * Math.sqrt(cap)); h = Math.round(h * Math.sqrt(cap)); }
     if (w === this.w && h === this.h) return;
     this.w = w; this.h = h;
@@ -189,12 +213,18 @@ export class Hall {
 
   // ---------- camera ----------
   private view(f: number, t: number) {
-    const a = this.w / this.h, k = smooth(1.7, 0.6, a); // 0 on a wide screen, 1 on a phone held upright
+    // The camera frames the machine in the free part of the canvas, not the whole of it:
+    // beside the card on a wide screen, above it on a tall one.
+    const a = this.w / this.h, fr = this.free, fw = fr.r - fr.l, fh = fr.b - fr.t;
+    const k = smooth(1.5, 0.55, (a * fw) / fh); // 0 when the free part is wide, 1 when it is tall
     const x = f * SPACING;
     const drift = this.still || this.reduced ? 0 : 1;
-    const eye: V3 = [x + mix(-1.55, -0.5, k) + this.ptrS[0] * 0.18 + Math.sin(t * 0.21) * 0.035 * drift, mix(1.62, 1.7, k) - this.ptrS[1] * 0.07 + Math.sin(t * 0.17) * 0.012 * drift, mix(4.5, 4.6, k)];
-    const at: V3 = [x + mix(-0.55, 0.02, k), mix(1.2, 1.1, k), 0];
-    let fov = mix(40, 66, k) * Math.PI / 180;
+    const eye: V3 = [x + mix(-1.5, -0.5, k) + this.ptrS[0] * 0.18 + Math.sin(t * 0.21) * 0.035 * drift, mix(1.62, 1.7, k) - this.ptrS[1] * 0.07 + Math.sin(t * 0.17) * 0.012 * drift, mix(4.5, 4.7, k)];
+    const at: V3 = [x - mix(0.12, 0, k), mix(1.18, 1.1, k), 0];
+    const dist = Math.hypot(eye[0] - at[0], eye[1] - at[1], eye[2] - at[2]);
+    // About 2.5 m of hall top to bottom in the free part, and at least 2 m across it.
+    const half = Math.max(1.25 / (dist * fh), 1.0 / (dist * fw * a));
+    let fov = clamp(2 * Math.atan(half), 0.5, 1.4);
     if (this.zoom > 0) {
       const cab = this.cabs[this.focus], z = ease(this.zoom), s = cab.part.screenAt, n = cab.part.screenN;
       const sc: V3 = [s[0] + this.focus * SPACING, s[1], s[2] + cab.part.z];
@@ -203,8 +233,8 @@ export class Hall {
       for (let j = 0; j < 3; j++) { eye[j] = mix(eye[j], target[j], z); at[j] = mix(at[j], sc[j], z); }
       fov = mix(fov, 40 * Math.PI / 180, z);
     }
-    const shift = -mix(0.06, 0.34, k) * (1 - ease(this.zoom));
-    return { eye, at, fov, shift };
+    const off = 1 - ease(this.zoom);
+    return { eye, at, fov, shift: (fr.t + fr.b - 1) * off, shiftX: (1 - fr.l - fr.r) * off };
   }
 
   // ---------- input ----------
@@ -338,7 +368,7 @@ export class Hall {
 
     // Springs: camera rail, night, zoom, pointer.
     if (!this.dragging) {
-      const k = 38, d = 2 * Math.sqrt(k) * 1.05;
+      const k = this.calm ? 9 : 38, d = 2 * Math.sqrt(k) * 1.05;
       this.vel += (k * (this.focus - this.pos) - d * this.vel) * dt;
       this.pos += this.vel * dt;
     }
@@ -364,8 +394,8 @@ export class Hall {
       cab.power = this.reduced ? 1 : on < 1 ? on * (0.75 + 0.25 * Math.sin(on * 40)) : 1;
     }
 
-    const { eye, at, fov, shift } = this.view(this.pos, t);
-    const proj = perspective(fov, this.w / this.h, 0.05, 60, shift);
+    const { eye, at, fov, shift, shiftX } = this.view(this.pos, t);
+    const proj = perspective(fov, this.w / this.h, 0.05, 60, shift, shiftX);
     this.vp = mul(proj, lookAt(eye, at));
     const n = this.night;
 
@@ -500,7 +530,7 @@ export class Hall {
     this.cabs.forEach((cab, i) => {
       gl.uniformMatrix4fv(u.uModel, false, cab.model);
       gl.uniform3fv(u.uGround, cab.ground); gl.uniform3fv(u.uBright, cab.bright);
-      const focusGlow = i === this.focus ? 0.25 : 0;
+      const focusGlow = (i === this.focus ? 0.25 : 0) + (i === this.lastPlayed ? 0.35 + (this.reduced || this.still ? 0 : 0.25 * Math.sin(performance.now() / 420)) : 0);
       gl.uniform1f(u.uGlow, mix(0.18, 1, n) * (0.4 + 0.6 * order(i)) + focusGlow);
       gl.uniform1f(u.uHover, cab.hover);
       gl.activeTexture(gl.TEXTURE0); gl.bindTexture(gl.TEXTURE_2D, cab.art);

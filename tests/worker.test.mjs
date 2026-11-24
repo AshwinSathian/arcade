@@ -27,3 +27,10 @@ test("open and suffix ranges", async () => {
 test("unsatisfiable range: 416", async () => {
   assert.equal((await get("bytes=1000-")).status, 416);
 });
+
+import redirect from "../worker/redirect.js";
+test("the old address: any path and query move permanently to the same place on the arcade", async () => {
+  const r = await redirect.fetch(new Request("https://games.ashwinsathian.com/coil?x=1"));
+  assert.equal(r.status, 301);
+  assert.equal(r.headers.get("Location"), "https://arcade.ashwinsathian.com/coil?x=1");
+});

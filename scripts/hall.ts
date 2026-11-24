@@ -17,7 +17,8 @@ const browser = await chromium.launch({ args: ['--use-angle=metal', '--enable-gp
 for (const [theme, scheme] of [['day', 'light'], ['night', 'dark']] as const) {
   const page = await browser.newPage({ viewport: { width: 1600, height: 1000 }, colorScheme: scheme });
   await page.goto(`${base}/#spillway`, { waitUntil: 'load' });
-  await page.addStyleTag({ content: '.hall__top, .hall__cards, .hall__row, .hall__hint { display: none !important; }' });
+  // Hidden but still laid out, so the camera frames the room exactly as a visitor sees it behind the interface.
+  await page.addStyleTag({ content: '.hall__top, .hall__cards, .hall__row, .hall__hint, .coach, .attract { visibility: hidden !important; }' });
   await page.waitForFunction(() => document.documentElement.hasAttribute('data-hall-live'));
   await page.waitForTimeout(5000);
   const png = await page.locator('.hall').screenshot();

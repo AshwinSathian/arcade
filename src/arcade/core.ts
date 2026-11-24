@@ -10,9 +10,9 @@ export function mul(a: M4, b: M4, o: M4 = new Float32Array(16)): M4 {
   }
   return o;
 }
-export function perspective(fovY: number, aspect: number, near: number, far: number, shiftY = 0): M4 {
+export function perspective(fovY: number, aspect: number, near: number, far: number, shiftY = 0, shiftX = 0): M4 {
   const f = 1 / Math.tan(fovY / 2), m = new Float32Array(16);
-  m[0] = f / aspect; m[5] = f; m[9] = shiftY; m[10] = (far + near) / (near - far); m[11] = -1; m[14] = (2 * far * near) / (near - far);
+  m[0] = f / aspect; m[5] = f; m[8] = shiftX; m[9] = shiftY; m[10] = (far + near) / (near - far); m[11] = -1; m[14] = (2 * far * near) / (near - far);
   return m;
 }
 export function ortho(l: number, r: number, b: number, t: number, n: number, f: number): M4 {

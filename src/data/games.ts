@@ -51,7 +51,6 @@ export type Game = {
   stack: string;
   highlights: { title: string; detail: string }[];
   url: string;
-  repo: string;
   post?: { title: string; url: string };
   /** The game's own colours: the tile ground and its one bright. */
   ground: string;
@@ -88,7 +87,6 @@ export const games: Game[] = [
       { title: "Grass with no instance buffer", detail: "Thousands of blades are one instanced draw, shaped in the vertex shader from the instance number and a 19 by 21 state texture." },
     ],
     url: "https://clover.ashwinsathian.com",
-    repo: "https://github.com/AshwinSathian/clover",
     ground: "#14201a",
     bright: "#8fdc72",
     poster: cloverPoster,
@@ -120,7 +118,6 @@ export const games: Game[] = [
       { title: "Two worlds, day and night", detail: "Retro glazed tile or a polished Modern floor, in real-time 3D. Day and night follow your system until you choose." },
     ],
     url: "https://coil.ashwinsathian.com",
-    repo: "https://github.com/AshwinSathian/coil",
     post: { title: "Coil’s leaderboard never asks the browser for a score", url: writing("coils-leaderboard-never-asks-the-browser-for-a-score") },
     ground: "#1c1915",
     bright: "#ffc23a",
@@ -152,7 +149,6 @@ export const games: Game[] = [
       { title: "Built for every screen", detail: "Phones get the whole table; wide screens get a tilted cabinet view with the score beside it." },
     ],
     url: "https://lightkeeper.ashwinsathian.com",
-    repo: "https://github.com/AshwinSathian/lightkeeper",
     post: { title: "A pinball replay is a promise about the last bit of every float", url: writing("a-pinball-replay-is-a-promise-about-the-last-bit-of-every-float") },
     ground: "#070d18",
     bright: "#f7b23b",
@@ -184,7 +180,6 @@ export const games: Game[] = [
       { title: "Loss review", detail: "After a mine, it says whether a safe move was open, or that the guess was forced and what the odds were." },
     ],
     url: "https://minefield.ashwinsathian.com",
-    repo: "https://github.com/AshwinSathian/minefield",
     post: { title: "A no-guess Minesweeper board is only as honest as its solver", url: writing("a-no-guess-minesweeper-board-is-only-as-honest-as-its-solver") },
     ground: "#121417",
     bright: "#e8743f",
@@ -216,7 +211,6 @@ export const games: Game[] = [
       { title: "A Daily with no server", detail: "The Daily is generated on your device from the date, so it is the same everywhere and works offline." },
     ],
     url: "https://nonet.ashwinsathian.com",
-    repo: "https://github.com/AshwinSathian/nonet",
     post: { title: "A computer can’t tell you how hard a sudoku is", url: writing("a-computer-cant-tell-you-how-hard-a-sudoku-is") },
     ground: "#18202b",
     bright: "#8fb0ff",
@@ -248,7 +242,6 @@ export const games: Game[] = [
       { title: "Online rooms", detail: "Each room is a Durable Object that checks every move with the same rules file the browser plays by. Reload or lose signal and your seat waits for you." },
     ],
     url: "https://noughts.ashwinsathian.com",
-    repo: "https://github.com/AshwinSathian/noughts",
     ground: "#1b2420",
     bright: "#ff8a7b",
     poster: noughtsPoster,
@@ -279,7 +272,6 @@ export const games: Game[] = [
       { title: "Slow-motion finish", detail: "The last two seconds of a game play back in slow motion before the result." },
     ],
     url: "https://rally.ashwinsathian.com",
-    repo: "https://github.com/AshwinSathian/rally",
     ground: "#0b1220",
     bright: "#ff8d3a",
     poster: rallyPoster,
@@ -310,7 +302,6 @@ export const games: Game[] = [
       { title: "Water on a phone budget", detail: "Reflections and bloom fit in ordinary 8-bit render targets, and resolution and effects step down if frames run long." },
     ],
     url: "https://spillway.ashwinsathian.com",
-    repo: "https://github.com/AshwinSathian/spillway",
     ground: "#10222c",
     bright: "#ff6f52",
     poster: spillwayPoster,
@@ -341,7 +332,6 @@ export const games: Game[] = [
       { title: "A ball with no mesh", detail: "The ball is ray-traced in a fragment shader, and the net is a small cloth simulation that the ball pushes through." },
     ],
     url: "https://swish.ashwinsathian.com",
-    repo: "https://github.com/AshwinSathian/swish",
     ground: "#0e171f",
     bright: "#37c5b4",
     poster: swishPoster,
@@ -372,7 +362,6 @@ export const games: Game[] = [
       { title: "Typing plays a tune", detail: "Each correct letter is the next note of a pentatonic scale, synthesized with Web Audio, an octave up from ×3." },
     ],
     url: "https://typester.ashwinsathian.com",
-    repo: "https://github.com/AshwinSathian/typester",
     ground: "#15162a",
     bright: "#a59bff",
     poster: typesterPoster,
@@ -384,9 +373,10 @@ export const games: Game[] = [
 
 export const bySlug = (slug: string) => games.find((g) => g.slug === slug)!;
 export const site = {
-  url: "https://games.ashwinsathian.com",
-  name: "Games by Ashwin Sathian",
+  url: "https://arcade.ashwinsathian.com",
+  name: "The Arcade by Ashwin Sathian",
   author: "Ashwin Sathian",
   authorUrl: "https://ashwinsathian.com",
   github: "https://github.com/AshwinSathian",
+  repo: "https://github.com/AshwinSathian/arcade",
 };

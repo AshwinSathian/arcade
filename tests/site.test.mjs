@@ -21,7 +21,7 @@ for (const page of pages.filter((p) => p !== "404.html")) {
     assert.ok(title.length >= 20 && title.length <= 90, `title length ${title.length}: ${title}`);
     const desc = meta(html, "name", "description") ?? "";
     assert.ok(desc.length >= 80 && desc.length <= 200, `description length ${desc.length}`);
-    assert.match(html, /<link rel="canonical" href="https:\/\/games\.ashwinsathian\.com\/?[a-z]*"/);
+    assert.match(html, /<link rel="canonical" href="https:\/\/arcade\.ashwinsathian\.com\/?[a-z]*"/);
     const card = meta(html, "property", "og:image");
     assert.ok(existsSync(new URL(`../public/og/${card.split("/og/")[1]}`, import.meta.url)), `missing card ${card}`);
     assert.equal(html.match(/<h1[\s>]/g)?.length, 1);
@@ -90,10 +90,18 @@ test("sitemap lists the pages and leaves the cards out", () => {
   const xml = read("sitemap-0.xml");
   for (const s of slugs) assert.match(xml, new RegExp(`/${s}</loc>`));
   assert.doesNotMatch(xml, /\/cards\//);
-  assert.match(read("robots.txt"), /Sitemap: https:\/\/games\.ashwinsathian\.com\/sitemap-index\.xml/);
+  assert.match(read("robots.txt"), /Sitemap: https:\/\/arcade\.ashwinsathian\.com\/sitemap-index\.xml/);
 });
 
 test("llms.txt names every game with its link", () => {
   const txt = read("llms.txt");
   for (const s of slugs) assert.match(txt, new RegExp(`https://${s}\\.ashwinsathian\\.com`));
+});
+
+test("no page links to a game's repository, which are private, nor to the old address", () => {
+  for (const page of [...pages, "llms.txt"]) {
+    const html = read(page);
+    assert.doesNotMatch(html, /github\.com\/AshwinSathian\/(clover|coil|lightkeeper|minefield|nonet|noughts|rally|spillway|swish|typester)\b/, page);
+    assert.doesNotMatch(html, /games\.ashwinsathian\.com/, page);
+  }
 });
