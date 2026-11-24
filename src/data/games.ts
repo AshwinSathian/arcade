@@ -1,4 +1,5 @@
 import type { ImageMetadata } from "astro";
+import cloverPoster from "../assets/posters/clover.png";
 import coilPoster from "../assets/posters/coil.png";
 import lightkeeperPoster from "../assets/posters/lightkeeper.png";
 import minefieldPoster from "../assets/posters/minefield.png";
@@ -8,6 +9,8 @@ import rallyPoster from "../assets/posters/rally.png";
 import spillwayPoster from "../assets/posters/spillway.png";
 import swishPoster from "../assets/posters/swish.png";
 import typesterPoster from "../assets/posters/typester.png";
+import cloverDesktop from "../assets/shots/clover-desktop.jpg";
+import cloverPhone from "../assets/shots/clover-phone.jpg";
 import coilDesktop from "../assets/shots/coil-desktop.png";
 import coilPhone from "../assets/shots/coil-phone.png";
 import lightkeeperDesktop from "../assets/shots/lightkeeper-desktop.jpg";
@@ -62,6 +65,37 @@ export type Game = {
 const writing = (slug: string) => `https://ashwinsathian.com/writing/${slug}`;
 
 export const games: Game[] = [
+  {
+    slug: "clover",
+    name: "Clover",
+    kind: "Maze chase",
+    noun: "3D maze game",
+    genre: ["Arcade", "Maze"],
+    line: "A top-down 3D maze game: cut the long grass in a hedge maze with a robot mower while four geese try to catch it.",
+    about: [
+      "Clover is a maze game seen from above. You steer a robot mower through a hedge maze and cut every patch of long grass to finish the lawn. Four geese live in the pond in the middle, and one that reaches your mower ends it. Each breed hunts its own way: one comes straight at you, one heads for the junction in front of you, one walks your trail and one grazes until you come close. Drive over a four-leaf clover and they panic for a few seconds, and any goose you drive into then flies back to the pond. Day and Night follow your device's light or dark setting; at night the lanterns and the mower's headlights light the maze.",
+      "Garden is lawn after lawn with three mowers, each one a new maze and a little faster. Daily is one maze for the day, the same for everyone, and the result can be sent as a link: whoever opens it races a ghost of your mower. Calm has no geese at all.",
+    ],
+    modes: ["Garden", "Daily", "Calm", "Ghost race"],
+    controls: "Swipe, arrow keys, WASD or a gamepad",
+    kb: 35,
+    sizeNote: "One HTML file of about 35 KB compressed, plus a 36 KB font, with no image, model or audio files",
+    stack: "TypeScript, WebGL 2, Web Audio, Cloudflare Workers",
+    highlights: [
+      { title: "A new maze from a seed", detail: "Every lawn is generated, and the tests check 10,000 seeds for symmetry, connectivity and no dead ends." },
+      { title: "A whole run in a link", detail: "The game runs on whole numbers at 120 ticks a second, so a Daily run is its list of turns. The receiver's browser replays it for the score and races it as a ghost." },
+      { title: "Geese that read the maze", detail: "Each goose turns by real path distance to its own target: you, the junction ahead of you, your trail or the nearest long grass." },
+      { title: "Grass with no instance buffer", detail: "Thousands of blades are one instanced draw, shaped in the vertex shader from the instance number and a 19 by 21 state texture." },
+    ],
+    url: "https://clover.ashwinsathian.com",
+    repo: "https://github.com/AshwinSathian/clover",
+    ground: "#14201a",
+    bright: "#8fdc72",
+    poster: cloverPoster,
+    clipAlt: "A game of Clover that turns from night to day and back: a yellow robot mower cuts long grass in a hedge maze seen from above while geese walk the paths and the lanterns go off and on.",
+    desktop: { src: cloverDesktop, alt: "Clover on a laptop by day: a hedge maze from above with cut lawn, patches of long grass, a pond in the middle and the score card on the left." },
+    phone: { src: cloverPhone, alt: "Clover on a phone at night: the maze lit by lanterns and the mower's headlights, with the score along the top." },
+  },
   {
     slug: "coil",
     name: "Coil",

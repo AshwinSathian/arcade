@@ -12,6 +12,8 @@
 # Pages: fresh for a minute, then served from cache while it revalidates. Back/forward and repeat visits cost no wait.
 /
   Cache-Control: public, max-age=60, stale-while-revalidate=600
+/clover
+  Cache-Control: public, max-age=60, stale-while-revalidate=600
 /coil
   Cache-Control: public, max-age=60, stale-while-revalidate=600
 /lightkeeper

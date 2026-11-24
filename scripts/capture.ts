@@ -15,6 +15,17 @@ type Shot = { url: string; scheme?: 'light' | 'dark'; start: number; dur: number
 const wait = (p: Page, ms: number) => p.waitForTimeout(ms);
 
 const games: Record<string, Shot> = {
+  clover: {
+    // The game's own bot at night, switching to day and back so the loop closes on the same sky.
+    url: 'https://clover.ashwinsathian.com/?autoplay&start=garden&seed=9&nohint&warp=8&theme=night', start: 2, dur: 9,
+    async play(p) {
+      await wait(p, 4500);
+      await p.keyboard.press('t');
+      await wait(p, 4000);
+      await p.keyboard.press('t');
+      await wait(p, 4000);
+    },
+  },
   coil: {
     // An autopilot Gates run from its link, switching to Modern and back so the loop closes on Retro.
     url: `https://coil.ashwinsathian.com/?hq#r=${execFileSync('node', ['scripts/demo-replay.ts', 'gates', '1400'], { cwd: '../coil' }).toString().split(' ')[0]}`,

@@ -29,7 +29,7 @@ const one = game && (await getImage({ src: game.poster, width: 720, format: "web
     </div>
   ) : (
     <div class="card all">
-      <div class="txt"><h1>Nine small games for your browser</h1><p class="site">games.ashwinsathian.com</p></div>
+      <div class="txt"><h1>Ten small games for your browser</h1><p class="site">games.ashwinsathian.com</p></div>
       {games.map((g, i) => <figure style={`--g:${g.ground};--b:${g.bright}`}><img src={posters[i].src} alt="" /><figcaption>{g.name}</figcaption></figure>)}
     </div>
   )}
@@ -48,8 +48,7 @@ const one = game && (await getImage({ src: game.poster, width: 720, format: "web
   .one .line { font-size: 34px; line-height: 1.15; }
   .one img { width: 420px; height: 606px; object-fit: cover; border-radius: 8px; }
   .all { grid-template-columns: 1.6fr repeat(5, 1fr); grid-template-rows: 1fr 1fr; }
-  /* Nine games in ten slots: the first stands two rows tall. */
-  .all figure:first-of-type { grid-row: span 2; }
+  /* Ten games in ten slots, five to a row. */
   .all .txt { grid-row: span 2; background: #26251e; color: #dfdedb; }
   .all h1 { font-size: 58px; line-height: 0.95; letter-spacing: -0.04em; }
   figure { margin: 0; position: relative; border-radius: 8px; overflow: hidden; background: var(--g); }
