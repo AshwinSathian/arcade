@@ -2,7 +2,7 @@
 // Every function draws into the rectangle it is given, so one painter serves an upright, a table and a pinball.
 export type Rect = [number, number, number, number];
 import type { Best } from "./bests";
-export type ArtGame = { slug: string; name: string; kind: string; ground: string; bright: string; best?: Best };
+export type ArtGame = { slug: string; name: string; kind: string; ground: string; bright: string; best?: Best; tag?: string; credit?: number; price?: string };
 type C = CanvasRenderingContext2D;
 
 const FONT = "Bricolage, system-ui, sans-serif";
@@ -161,8 +161,10 @@ export function marquee(c: C, g: ArtGame, [x, y, w, h]: Rect) {
   const size = fit(c, g.name, 800, tw, square ? h * 0.22 : h * 0.46);
   const base = square ? y + h * 0.78 : y + h * 0.56;
   c.fillText(g.name, tx, base);
-  // The player's own best, when the game has shared one; otherwise what the machine is.
-  const sub = g.best ? `YOUR BEST  ${g.best.v}${g.best.l ? `  ·  ${g.best.l.toUpperCase()}` : ""}` : `${g.kind.toUpperCase()}  ·  FREE PLAY`;
+  // Credit loaded and the player's own best, signed with their tag; otherwise what the machine is and what it costs.
+  const parts = g.best ? [`YOUR BEST  ${g.best.v}`, g.tag?.toUpperCase()] : [g.kind.toUpperCase(), g.price?.toUpperCase() ?? "1 TOKEN"];
+  if (g.credit) parts.unshift(`CREDIT ${g.credit}`);
+  const sub = parts.filter(Boolean).join("  ·  ");
   c.fillStyle = g.best ? shade(g.bright, 0.55) : "#f4f1ea";
   fit(c, sub, 700, tw, size * 0.24);
   c.fillText(sub, tx, base + size * 0.36);
@@ -217,7 +219,7 @@ export function neon(c: C, w: number, h: number) {
     c.shadowBlur = 0; c.lineWidth = size * 0.018; c.strokeStyle = "#fff"; c.strokeText(text, px, py);
   };
   tube("ARCADE", w / 2, h * 0.4, h * 0.5, "#ff3d8b", 800);
-  tube("FREE PLAY ALL NIGHT", w / 2, h * 0.82, h * 0.15, "#3df0ff");
+  tube("ONE TOKEN · ONE MORE GO", w / 2, h * 0.82, h * 0.15, "#3df0ff");
   c.restore();
 }
 
@@ -232,30 +234,39 @@ export function top(c: C, g: ArtGame, [x, y, w, h]: Rect) {
   fit(c, g.name.toUpperCase(), 800, w * 0.6, h * 0.05); c.fillText(g.name.toUpperCase(), x + w / 2, y + h * 0.95);
 }
 
-/** A drinks machine for the corner, its cans in the games' colours. Always lit. */
-export function vending(c: C, [x, y, w, h]: Rect, colours: string[]) {
-  c.fillStyle = "#0c0d10"; c.fillRect(x, y, w, h);
-  const gx = x + w * 0.06, gw = w * 0.62, gy = y + h * 0.12, gh = h * 0.7;
-  const glow = c.createLinearGradient(gx, 0, gx + gw, 0);
-  glow.addColorStop(0, "#2a2f3a"); glow.addColorStop(0.5, "#454c5c"); glow.addColorStop(1, "#2a2f3a");
-  c.fillStyle = glow; c.fillRect(gx, gy, gw, gh);
-  const rows = 6, cols = 5, cw = gw / cols, rh = gh / rows;
-  for (let r = 0; r < rows; r++) {
-    c.fillStyle = "#15171c"; c.fillRect(gx, gy + (r + 1) * rh - rh * 0.08, gw, rh * 0.08);
-    for (let k = 0; k < cols; k++) {
-      const col = colours[(r * cols + k * 3) % colours.length];
-      const px = gx + k * cw + cw * 0.2, py = gy + r * rh + rh * 0.14, pw = cw * 0.6, ph = rh * 0.74;
-      c.fillStyle = col; c.beginPath(); c.roundRect(px, py, pw, ph, pw * 0.18); c.fill();
-      c.fillStyle = "rgba(255,255,255,0.35)"; c.fillRect(px + pw * 0.18, py + ph * 0.1, pw * 0.14, ph * 0.8);
-      c.fillStyle = "rgba(0,0,0,0.25)"; c.fillRect(px, py + ph * 0.42, pw, ph * 0.16);
+/** The change machine in the corner: brass and red, a window of token stacks, and the hopper's lamp. Always lit. */
+export function changer(c: C, [x, y, w, h]: Rect) {
+  const body = c.createLinearGradient(x, 0, x + w, 0);
+  body.addColorStop(0, "#4a0d12"); body.addColorStop(0.5, "#7a1620"); body.addColorStop(1, "#4a0d12");
+  c.fillStyle = body; c.fillRect(x, y, w, h);
+  // The header: TOKENS in gold on a brass band.
+  const band = c.createLinearGradient(0, y, 0, y + h * 0.11);
+  band.addColorStop(0, "#ffe07a"); band.addColorStop(1, "#c98a12");
+  c.fillStyle = band; c.fillRect(x, y, w, h * 0.11);
+  c.fillStyle = "#3a1600"; c.textAlign = "center"; c.textBaseline = "middle";
+  fit(c, "TOKENS", 800, w * 0.8, h * 0.075); c.fillText("TOKENS", x + w / 2, y + h * 0.058);
+  // A window full of token stacks, catching the light.
+  const gx = x + w * 0.08, gw = w * 0.84, gy = y + h * 0.16, gh = h * 0.38;
+  c.fillStyle = "#14080a"; c.fillRect(gx, gy, gw, gh);
+  const r = gw / 16;
+  for (let col = 0; col < 7; col++) {
+    const cx = gx + gw * (0.1 + col * 0.133), n = 6 + ((col * 5) % 7);
+    for (let k = 0; k < n; k++) {
+      const cy = gy + gh - r * 0.7 - k * r * 0.42;
+      c.fillStyle = k % 2 ? "#c98a12" : "#f6c53d"; c.beginPath(); c.ellipse(cx, cy, r, r * 0.38, 0, 0, 6.3); c.fill();
     }
+    c.fillStyle = "#fff2b8"; c.beginPath(); c.ellipse(cx, gy + gh - r * 0.7 - (n - 1) * r * 0.42, r * 0.7, r * 0.22, 0, 0, 6.3); c.fill();
   }
-  c.fillStyle = "#ffcf3d"; c.fillRect(x, y, w, h * 0.09);
-  c.fillStyle = "#241a00"; c.textAlign = "center"; c.textBaseline = "middle";
-  fit(c, "COLD DRINKS", 800, w * 0.8, h * 0.06); c.fillText("COLD DRINKS", x + w / 2, y + h * 0.047);
-  const kx = x + w * 0.74, kw = w * 0.2;
-  c.fillStyle = "#1d2027"; c.fillRect(kx, gy, kw, gh);
-  c.fillStyle = "#3df0a0"; c.fillRect(kx + kw * 0.1, gy + kw * 0.12, kw * 0.8, kw * 0.32);
-  for (let r = 0; r < 4; r++) for (let k = 0; k < 3; k++) { c.fillStyle = "#c8c4ba"; c.fillRect(kx + kw * (0.12 + k * 0.28), gy + kw * (0.65 + r * 0.32), kw * 0.2, kw * 0.2); }
-  c.fillStyle = "#050506"; c.fillRect(gx, y + h * 0.86, gw, h * 0.1);
+  c.fillStyle = "rgba(255,255,255,0.08)"; c.fillRect(gx + gw * 0.06, gy, gw * 0.1, gh);
+  // The display and the buttons.
+  c.fillStyle = "#081008"; c.fillRect(x + w * 0.12, y + h * 0.59, w * 0.76, h * 0.07);
+  c.fillStyle = "#57ff9a"; fit(c, "DAILY TOKENS", 700, w * 0.66, h * 0.04); c.fillText("DAILY TOKENS", x + w / 2, y + h * 0.626);
+  for (let k = 0; k < 3; k++) {
+    c.fillStyle = ["#f6c53d", "#f4f1ea", "#57ff9a"][k];
+    c.beginPath(); c.arc(x + w * (0.3 + k * 0.2), y + h * 0.72, w * 0.045, 0, 6.3); c.fill();
+  }
+  // The chute above the tray, and a brass plate.
+  c.fillStyle = "#050506"; c.fillRect(x + w * 0.15, y + h * 0.8, w * 0.45, h * 0.1);
+  c.fillStyle = "#c98a12"; c.fillRect(x + w * 0.66, y + h * 0.8, w * 0.2, h * 0.1);
+  c.fillStyle = "#3a1600"; fit(c, "CHANGE", 800, w * 0.18, h * 0.03); c.fillText("CHANGE", x + w * 0.76, y + h * 0.85);
 }

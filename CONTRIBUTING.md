@@ -14,6 +14,14 @@ Open an issue with the bug template. The most useful reports name the device, br
 4. Run `npm test` before you open a pull request. It runs `astro check`, builds the site and enforces the byte budgets, the font subset, the Content Security Policy and the link rules. Never weaken a test to make it pass.
 5. For anything visual, attach before and after screenshots at a phone width, a tablet width and a desktop width, in Day and in Night. `npm run shoot` takes them for you.
 
+## Adding a game
+
+A new game joins the arcade in both repositories:
+
+1. Here: add it to `src/data/games.ts` (copy, colours, poster, shots) and give it a machine in `src/pass/economy.ts` (plays per token, modes, free modes, tiers, what pays). `npm test` fails until every game has a machine.
+2. In the game: load `https://arcade.ashwinsathian.com/pass.js` with `data-game="<slug>"` and a `data-corner` clear of its HUD, before its own script. Dispatch `arcade:start` at the point a run is committed to and `arcade:end` with the result, or with `quit: true` when a run is abandoned. Add `https://arcade.ashwinsathian.com` to `script-src` and `font-src` if it has a CSP.
+3. Record its clip with `npm run capture`, and check a run costs a play and pays in a browser.
+
 ## Writing
 
 Copy on the site is British English, plain and specific. Every character must be in the subset font in `src/fonts`; the test names any page that needs a glyph outside it.

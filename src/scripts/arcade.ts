@@ -33,10 +33,38 @@ function applyBests() {
     const p = cards[i].querySelector<HTMLElement>("[data-best]")!;
     p.hidden = !b;
     if (b) p.textContent = `Your best: ${b.v}${b.l ? ` (${b.l})` : ""}`;
-    hall?.setBest(i, b);
+    hall?.setArt(i, { best: b });
   });
 }
 applyBests();
+
+// ---------- the player card, from the arcade pass (/pass.js, loaded in the head) ----------
+const pass = () => window.arcadePass;
+const clock = (ms: number) => { const s = Math.ceil(ms / 1000); return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, "0")}`; };
+let outTimer = 0;
+function applyCard() {
+  const p = pass();
+  if (!p) return;
+  const c = p.card();
+  games.forEach((g, i) => {
+    const pr = p.price(g.slug), cr = c.cr[g.slug] ?? 0;
+    const el = cards[i].querySelector<HTMLElement>("[data-price]")!;
+    el.hidden = false;
+    el.textContent = cr ? `Credit ${cr} · ${pr.line}` : pr.line;
+    hall?.setArt(i, { tag: c.tag, credit: cr, price: `1 token · ${pr.plays} ${pr.plays === 1 ? "play" : "plays"}` });
+  });
+  // With no token and no credit on this machine, Play says when the next token comes.
+  clearInterval(outTimer);
+  cards.forEach((card, i) => {
+    const a = card.querySelector<HTMLAnchorElement>(".card__play")!;
+    const out = c.tok < 1 && !(c.cr[games[i].slug] > 0);
+    a.toggleAttribute("aria-disabled", out);
+    if (out) a.setAttribute("aria-disabled", "true");
+    a.firstChild!.textContent = out ? `Out of tokens · ${clock(p.refillIn())} ` : `Play ${games[i].name} `;
+  });
+  if (c.tok < 1) outTimer = window.setInterval(applyCard, 1000);
+}
+addEventListener("arcade:card", applyCard);
 
 // ---------- the machine played last on this device ----------
 const lastIdx = () => games.findIndex((g) => g.slug === store.get("games:last"));
@@ -47,6 +75,7 @@ function applyLast() {
   if (hall) hall.lastPlayed = l;
 }
 applyLast();
+if (pass()) applyCard(); else addEventListener("load", applyCard, { once: true });
 
 const fromHash = games.findIndex((g) => `#${g.slug}` === location.hash);
 let focus = fromHash >= 0 ? fromHash : Math.max(0, lastIdx());
@@ -100,16 +129,22 @@ document.querySelectorAll<HTMLButtonElement>("[data-step]").forEach((b) => b.add
 document.querySelector<HTMLButtonElement>("[data-coin]")!.addEventListener("click", () => {
   let n = Math.floor(Math.random() * (games.length - 1));
   if (n >= focus) n++; // never the machine you are at
-  sfx.coin();
+  sfx.tick();
   setTimeout(() => show(n), 260);
 });
 
 // ---------- playing: the camera flies into the screen, then the game opens ----------
 async function play(i: number) {
+  const p = pass(), slug = games[i].slug;
+  // A credit already on the machine plays at once; otherwise a token goes in, at the coin door.
+  const loaded = !p || p.plays(slug) > 0;
+  if (p && !loaded && !p.insert(slug)) { p.open(); return; }
+  p?.handoff(slug);
   store.set("games:last", games[i].slug);
   sfx.enter();
   ambience.stop();
   root.dataset.entering = "";
+  if (hall && !loaded) await hall.insert();
   if (hall && !reduced.matches) await hall.enter();
   location.href = playHref(i);
 }
@@ -117,7 +152,7 @@ document.addEventListener("click", (e) => {
   const a = (e.target as Element).closest<HTMLAnchorElement>(".card__play");
   if (!a) return;
   const i = cards.indexOf(a.closest<HTMLElement>("[data-card]")!);
-  // A modified click opens the game the usual way, but still counts as played.
+  // A modified click opens the game the usual way, where its own cabinet takes the token; it still counts as played.
   if (e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) { store.set("games:last", games[i].slug); return; }
   e.preventDefault();
   play(i);
@@ -130,6 +165,7 @@ addEventListener("pageshow", (e) => {
   hall?.leave();
   applyBests();
   applyLast();
+  applyCard();
   syncAmbience();
 });
 
@@ -248,12 +284,20 @@ async function boot() {
     }
   }).observe(root, { attributes: true, attributeFilter: ["data-theme", "data-still"] });
   hall.onFocus = (i) => show(i, "hall");
+  hall.onClink = (k) => (k === "slot" ? sfx.drop() : sfx.clink());
+  // The change machine in the corner: the camera turns to it, and the player card opens.
+  hall.onChanger = () => { hall!.lookAtChanger(true); pass()?.open(); pass()?.onClose(() => hall!.lookAtChanger(false)); };
+  applyBests();
+  applyCard();
   canvas.addEventListener("webglcontextlost", () => delete root.dataset.hallLive);
   sync();
   measure();
   hall.start();
   requestAnimationFrame(() => requestAnimationFrame(() => (root.dataset.hallLive = "")));
   wake();
+  // The day's tokens: the change machine pays them out where you can see it.
+  const paid = pass()?.daily ?? 0;
+  if (paid && !reduced.matches) setTimeout(() => hall!.dispense(paid), 1200);
   if (coarse.matches && !store.get("games:swiped")) setTimeout(() => { coach.hidden = false; setTimeout(coachDone, 7000); }, 1400);
 }
 boot();

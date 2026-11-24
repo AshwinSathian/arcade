@@ -2,11 +2,12 @@
 // Owns the camera on its rail and the pointer, and tells the page when the visitor moves to another machine.
 import { type GL, type Mesh, type Prog, type Target, type V3, type M4, program, upload, target, texture, perspective, lookAt, mul, invert, xform, ortho, norm, mix, clamp, smooth, hex, translate, m4 } from "./core";
 import { vsMain, fsMain, vsDepth, fsDepth, vsBeam, fsBeam, vsQuad, fsDown, fsUp, fsComposite, NL, NF } from "./shaders";
-import { build, room, beams, SPACING, ART_W, ART_H, type Part } from "./scene";
-import { neon, vending } from "./art";
+import { build, room, beams, token, SPACING, ART_W, ART_H, type Part } from "./scene";
+import { neon, changer } from "./art";
 import type { Best } from "./bests";
 
-export type HallGame = { slug: string; name: string; kind: string; ground: string; bright: string; poster: string; clip: string; best?: Best };
+/** tag, credit and price are the player card's, lettered on the marquee alongside the best. */
+export type HallGame = { slug: string; name: string; kind: string; ground: string; bright: string; poster: string; clip: string; best?: Best; tag?: string; credit?: number; price?: string };
 /** The part of the canvas the page leaves free, as fractions of its width and height from the top left. */
 export type Frame = { l: number; t: number; r: number; b: number };
 type Cab = {
@@ -17,6 +18,13 @@ type Cab = {
 
 const SUN = norm([-0.45, 0.62, -0.64]);
 const ease = (t: number) => (t < 0.5 ? 4 * t * t * t : 1 - (-2 * t + 2) ** 3 / 2);
+/** A token's pose: where it is, how far it has turned about the vertical, and how far it has tipped flat. */
+const pose = (p: V3, spin: number, tip: number): M4 => {
+  const cy = Math.cos(spin), sy = Math.sin(spin), cx = Math.cos(tip), sx = Math.sin(tip);
+  // translate · rotY(spin) · rotX(tip), column-major
+  return new Float32Array([cy, 0, -sy, 0, sy * sx, cx, cy * sx, 0, sy * cx, -sx, cy * cx, 0, p[0], p[1], p[2], 1]);
+};
+type Drop = { p: V3; v: V3; spin: number; w: number; tip: number; rest: boolean };
 
 export class Hall {
   gl: GL;
@@ -32,6 +40,16 @@ export class Hall {
   private samples: number;
   private w = 0; private h = 0; private scale = 1;
   private signAt: V3 = [0, 0, 0];
+  private tok!: Mesh;
+  private changer!: { at: V3; tray: V3; min: V3; max: V3 };
+  // Putting a token in: the camera stoops to the coin door (ins), a token goes in (coin, seconds since it set off).
+  private ins = 0; private insTo = 0; private coin = -1; private insDone?: () => void; private flash = 0;
+  // The change machine: the camera turns to it (visit) while the day's tokens drop into its tray.
+  private visit = 0; private visitTo = 0; private drops: Drop[] = []; private pending = 0;
+  /** Called when a token lands in a slot, and as each paid token drops, for the page's sounds. */
+  onClink: (kind: "slot" | "tray") => void = () => {};
+  /** Called when the change machine is clicked or tapped. */
+  onChanger: () => void = () => {};
   // Camera rail: pos is where the camera is (in machines), focus where it is going.
   focus = 0; private pos = 0; private vel = 0; private dragging = false;
   private night = 0; nightTo = 0;
@@ -94,6 +112,8 @@ export class Hall {
     });
     const r = room(games.length);
     this.signAt = r.signAt;
+    this.changer = r.changer;
+    this.tok = upload(gl, token());
     this.floor = upload(gl, r.floor); this.walls = upload(gl, r.walls); this.cans = upload(gl, r.cans); this.sign = upload(gl, r.sign);
     const b = beams(games.length, r.H, r.runs, r.wy0, r.wy1, SUN);
     this.cones = upload(gl, b.cones); this.shafts = upload(gl, b.shafts);
@@ -101,17 +121,18 @@ export class Hall {
     sc.width = 1024; sc.height = 1024;
     const scx = sc.getContext("2d")!;
     neon(scx, 1024, 256);
-    vending(scx, [0, 256, 512, 768], games.map((g) => g.bright));
+    changer(scx, [0, 256, 512, 768]);
     this.signTex = texture(gl, sc);
     this.makeShadow(r.x0, r.x1);
     this.bindInput();
   }
 
-  /** Repaint one machine's art, for a best that arrived after the page opened. */
-  setBest(i: number, best: Best | undefined) {
+  /** Repaint one machine's art when its best, the player's tag, its credit or its price changes. */
+  setArt(i: number, patch: Partial<Pick<HallGame, "best" | "tag" | "credit" | "price">>) {
     const cab = this.cabs[i], gl = this.gl;
-    if (JSON.stringify(cab.g.best) === JSON.stringify(best)) return;
-    cab.g = { ...cab.g, best };
+    const next = { ...cab.g, ...patch };
+    if (JSON.stringify([next.best, next.tag, next.credit, next.price]) === JSON.stringify([cab.g.best, cab.g.tag, cab.g.credit, cab.g.price])) return;
+    cab.g = next;
     const c = this.artCanvas.getContext("2d")!;
     c.clearRect(0, 0, ART_W, ART_H);
     cab.part.art(c, cab.g);
@@ -225,6 +246,21 @@ export class Hall {
     // About 2.5 m of hall top to bottom in the free part, and at least 2 m across it.
     const half = Math.max(1.25 / (dist * fh), 1.0 / (dist * fw * a));
     let fov = clamp(2 * Math.atan(half), 0.5, 1.4);
+    // Stooping to the coin door: close, low and a little to the left, looking at the slot.
+    if (this.ins > 0) {
+      const cab = this.cabs[this.focus], d = cab.part.doorAt, z = ease(this.ins);
+      const door: V3 = [d[0] + this.focus * SPACING, d[1], d[2] + cab.part.z];
+      const e: V3 = [door[0] - 0.45, door[1] + 0.42, door[2] + 1.35];
+      for (let j = 0; j < 3; j++) { eye[j] = mix(eye[j], e[j], z); at[j] = mix(at[j], door[j] + (j === 1 ? 0.06 : 0), z); }
+      fov = mix(fov, 0.7, z);
+    }
+    // Turning to the change machine in the corner.
+    if (this.visit > 0) {
+      const c = this.changer.at, z = ease(this.visit);
+      const e: V3 = [c[0] + 1.25, 1.5, c[2] + 2.4];
+      for (let j = 0; j < 3; j++) { eye[j] = mix(eye[j], e[j], z); at[j] = mix(at[j], [c[0] + 0.05, 0.92, c[2]][j], z); }
+      fov = mix(fov, 0.78, z);
+    }
     if (this.zoom > 0) {
       const cab = this.cabs[this.focus], z = ease(this.zoom), s = cab.part.screenAt, n = cab.part.screenN;
       const sc: V3 = [s[0] + this.focus * SPACING, s[1], s[2] + cab.part.z];
@@ -251,7 +287,7 @@ export class Hall {
       this.ptr = [((e.clientX - r.left) / r.width) * 2 - 1, ((e.clientY - r.top) / r.height) * 2 - 1];
       if (e.pointerType === "mouse") {
         this.hoverIdx = this.dragging ? -1 : this.pick(e.clientX, e.clientY);
-        cv.style.cursor = this.dragging ? "grabbing" : this.hoverIdx >= 0 ? "pointer" : "grab";
+        cv.style.cursor = this.dragging ? "grabbing" : this.hoverIdx >= 0 || this.hoverIdx === -2 ? "pointer" : "grab";
       }
       if (!this.dragging || e.pointerId !== id) return;
       const dx = e.clientX - downX;
@@ -268,6 +304,7 @@ export class Hall {
       if (moved < 6) {
         const hit = this.pick(e.clientX, e.clientY);
         if (hit >= 0) { if (hit === this.focus) cv.dispatchEvent(new CustomEvent("arcade:play")); else this.go(hit, true); }
+        else if (hit === -2) this.onChanger();
         return;
       }
       // A flick carries on a little before it settles on a machine.
@@ -296,7 +333,7 @@ export class Hall {
     const a = xform(inv, [nx, ny, -1]), b = xform(inv, [nx, ny, 1]);
     const d = norm([b[0] - a[0], b[1] - a[1], b[2] - a[2]]);
     let best = -1, bt = Infinity;
-    this.cabs.forEach((c, i) => {
+    const hit = (c: { min: V3; max: V3 }, i: number) => {
       let t0 = 0, t1 = Infinity;
       for (let k = 0; k < 3; k++) {
         const inv = 1 / (d[k] || 1e-9);
@@ -305,7 +342,9 @@ export class Hall {
         t0 = Math.max(t0, ta); t1 = Math.min(t1, tb);
       }
       if (t0 <= t1 && t0 < bt) { bt = t0; best = i; }
-    });
+    };
+    this.cabs.forEach(hit);
+    hit(this.changer, -2);
     return best;
   }
 
@@ -325,7 +364,24 @@ export class Hall {
     return new Promise((r) => (this.zoomDone = r));
   }
   /** Back out, for a page restored from the back-forward cache. */
-  leave() { this.zoom = this.zoomTo = 0; }
+  leave() { this.zoom = this.zoomTo = 0; this.ins = this.insTo = 0; this.coin = -1; this.visit = this.visitTo = 0; this.pending = 0; }
+
+  /** Stoop to the machine's coin door and drop a token in; resolves once it is in. Play then rises into the screen. */
+  insert(): Promise<void> {
+    if (this.reduced) { this.onClink("slot"); return Promise.resolve(); }
+    this.insTo = 1; this.coin = -0.42; // the token sets off as the camera arrives
+    this.visitTo = 0; this.pending = 0;
+    return new Promise((r) => (this.insDone = r));
+  }
+
+  /** Turn to the change machine and drop n tokens into its tray, then turn back. */
+  dispense(n: number): Promise<void> {
+    if (this.reduced) return Promise.resolve();
+    this.visitTo = 1; this.pending = Math.min(9, Math.max(1, n));
+    return new Promise((r) => setTimeout(() => { this.visitTo = 0; r(); }, 2900));
+  }
+  /** Look at the change machine (true) or back at the row (false). */
+  lookAtChanger(on: boolean) { this.visitTo = on ? 1 : 0; if (this.reduced) this.visit = this.visitTo; }
 
   start() {
     const loop = (now: number) => { this.raf = requestAnimationFrame(loop); this.frame(now); };
@@ -376,6 +432,32 @@ export class Hall {
     if (this.zoomTo > this.zoom) {
       this.zoom = Math.min(1, this.zoom + dt / 0.75);
       if (this.zoom >= 1 && this.zoomDone) { this.zoomDone(); this.zoomDone = undefined; }
+    }
+    this.ins += clamp(this.insTo - this.ins, -dt / 0.5, dt / 0.5);
+    if (this.coin > -1) {
+      this.coin += dt;
+      if (this.coin >= 0.55 && this.insDone) { this.onClink("slot"); this.flash = 1; const r = this.insDone; this.insDone = undefined; setTimeout(r, 160); }
+    }
+    this.flash = Math.max(0, this.flash - dt * 1.6);
+    this.visit += clamp(this.visitTo - this.visit, -dt / 0.7, dt / 0.7);
+    // The day's tokens leave the chute one by one once the camera has turned, and settle in the tray.
+    if (this.pending > 0 && this.visit > 0.85 && Math.random() < dt * 9) {
+      const c = this.changer.tray;
+      this.drops.push({ p: [c[0] + (Math.random() - 0.5) * 0.04, c[1] + 0.32, c[2] - 0.05], v: [(Math.random() - 0.5) * 0.5, 0.2, 0.45 + Math.random() * 0.2], spin: Math.random() * 6, w: 14 + Math.random() * 10, tip: 0, rest: false });
+      this.pending--;
+    }
+    for (const d of this.drops) {
+      if (d.rest) continue;
+      d.v[1] -= 9.8 * dt;
+      for (let j = 0; j < 3; j++) d.p[j] += d.v[j] * dt;
+      const c = this.changer.tray;
+      d.p[0] = clamp(d.p[0], c[0] - 0.13, c[0] + 0.13); d.p[2] = clamp(d.p[2], c[2] - 0.055, c[2] + 0.055);
+      d.spin += d.w * dt; d.tip = Math.min(Math.PI / 2, d.tip + dt * 5);
+      if (d.p[1] <= c[1] - 0.017) {
+        d.p[1] = c[1] - 0.017;
+        if (Math.abs(d.v[1]) > 0.6) { d.v[1] *= -0.3; d.v[0] *= 0.5; d.v[2] *= 0.3; d.w *= 0.5; this.onClink("tray"); }
+        else { d.rest = true; d.tip = Math.PI / 2; }
+      }
     }
     const pk = 1 - Math.exp(-dt * 4);
     this.ptrS = this.ptrS.map((v, j) => v + ((this.reduced ? 0 : this.ptr[j]) - v) * pk);
@@ -530,7 +612,7 @@ export class Hall {
     this.cabs.forEach((cab, i) => {
       gl.uniformMatrix4fv(u.uModel, false, cab.model);
       gl.uniform3fv(u.uGround, cab.ground); gl.uniform3fv(u.uBright, cab.bright);
-      const focusGlow = (i === this.focus ? 0.25 : 0) + (i === this.lastPlayed ? 0.35 + (this.reduced || this.still ? 0 : 0.25 * Math.sin(performance.now() / 420)) : 0);
+      const focusGlow = (i === this.focus ? 0.25 + this.flash * 1.5 : 0) + (i === this.lastPlayed ? 0.35 + (this.reduced || this.still ? 0 : 0.25 * Math.sin(performance.now() / 420)) : 0);
       gl.uniform1f(u.uGlow, mix(0.18, 1, n) * (0.4 + 0.6 * order(i)) + focusGlow);
       gl.uniform1f(u.uHover, cab.hover);
       gl.activeTexture(gl.TEXTURE0); gl.bindTexture(gl.TEXTURE_2D, cab.art);
@@ -540,6 +622,15 @@ export class Hall {
       gl.uniform4fv(u.uCrop, cab.crop); gl.uniform1f(u.uPower, cab.power);
       draw(cab.screen);
     });
+    // Tokens: one on its way into a slot, and any the change machine has paid out.
+    gl.uniform1f(u.uPower, 0); gl.uniform1f(u.uHover, 0); gl.uniform1f(u.uGlow, 0.4 + this.flash);
+    if (this.coin >= 0 && this.coin < 0.55) {
+      const cab = this.cabs[this.focus], d = cab.part.doorAt, k = this.coin / 0.55, e = k * k;
+      const p: V3 = [d[0] + this.focus * SPACING + (1 - e) * 0.04, d[1] + (1 - k) * 0.16 + Math.sin(k * Math.PI) * 0.05, d[2] + cab.part.z + (1 - e) * 0.32];
+      gl.uniformMatrix4fv(u.uModel, false, pose(p, (1 - k) * 9, 0));
+      draw(this.tok);
+    }
+    for (const d of this.drops) { gl.uniformMatrix4fv(u.uModel, false, pose(d.p, d.spin, d.tip)); draw(this.tok); }
   }
 
   /** Where the machine in focus sits on screen, in CSS pixels, for anything the page wants to pin to it. */

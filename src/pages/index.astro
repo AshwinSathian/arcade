@@ -39,6 +39,7 @@ const jsonld = [
     <header class="hall__top">
       <h1 id="title" class="hall__mark"><span>The Arcade</span> <a class="link" href={site.authorUrl}>by {site.author}</a></h1>
       <div class="hall__tools">
+        <span class="hall__card" data-arcade-chip></span>
         <Lights />
         <button class="still-toggle hall__sound" type="button" aria-pressed="true" aria-label="Sound" data-sound hidden><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2 6h2.5L8 3v10L4.5 10H2z" fill="currentColor" /><path class="on" d="M10.5 5.5a3.5 3.5 0 0 1 0 5M12.5 3.5a6.3 6.3 0 0 1 0 9" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" /><path class="off" d="m10.5 6 4 4m0-4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" /></svg><span class="hall__label">Sound</span></button>
         <StillToggle />
@@ -52,6 +53,7 @@ const jsonld = [
           <h2 id={`n-${g.slug}`} class="card__name">{g.name}</h2>
           <p class="card__line">{g.line}</p>
           <p class="card__best" data-best hidden></p>
+          <p class="card__price" data-price hidden></p>
           <p class="card__acts">
             <a class="card__play" href={g.url} data-play>Play {g.name} <Arrow /></a>
             <a class="card__about link" href={`/${g.slug}`}>About<span class="card__about-name">{` ${g.name}`}</span></a>
@@ -68,7 +70,7 @@ const jsonld = [
         ))}
       </ol>
       <button class="row__step" type="button" data-step="1" aria-label="Next machine"><Arrow dir="right" /></button>
-      <button class="row__coin" type="button" data-coin>Insert coin</button>
+      <button class="row__coin" type="button" data-coin>Surprise me</button>
     </nav>
     <p class="hall__hint" aria-hidden="true">Drag or use the arrow keys to walk the row. Enter plays.</p>
     <p class="coach" data-coach hidden aria-hidden="true"><span class="coach__dot"></span>Swipe to walk the row</p>
@@ -77,7 +79,7 @@ const jsonld = [
 
   <section class="about" aria-labelledby="about-h">
     <h2 id="about-h">Twelve small games, one room</h2>
-    <p>Snake, pinball, Minesweeper, sudoku, noughts and crosses, table tennis, air hockey, ten-pin bowling, a 3D endless runner, free throws, a hedge maze chase and a typing race. Every screen in the hall is playing a real recording of its game. Each one opens in a tab on a phone or a laptop, with nothing to install and no account to make.</p>
+    <p>Snake, pinball, Minesweeper, sudoku, noughts and crosses, table tennis, air hockey, ten-pin bowling, a 3D endless runner, free throws, a hedge maze chase and a typing race. Every screen in the hall is playing a real recording of its game. Each machine takes tokens: you start with 12, good runs pay some back, and your cup refills while you are away. <a class="link" href="/tokens">How the arcade works</a></p>
     <p class="about__small">The hall is drawn live in WebGL 2: the machines, their art and the room are built in the browser when the page opens, and the floor reflects whatever the screens are showing. Day and Night follow your system until you pick one.</p>
   </section>
 
@@ -122,6 +124,7 @@ const jsonld = [
   /* A 44 px target without moving the line. */
   .hall__mark a { font-size: var(--t-sm); font-weight: 600; letter-spacing: 0; padding: 16px 0; margin: -16px 0; }
   .hall__tools { display: flex; align-items: center; gap: 8px; }
+  .hall__tools > .hall__card { display: contents; }
   .card, .hall__row ol, .hall__tools > :global(*), .row__step {
     background: color-mix(in srgb, var(--bg) 74%, transparent);
     backdrop-filter: blur(18px) saturate(1.4); -webkit-backdrop-filter: blur(18px) saturate(1.4);
@@ -141,6 +144,9 @@ const jsonld = [
   .card__kind > :not(.card__last) { opacity: 0.8; }
   .card__last { padding: 3px 9px; border-radius: 999px; background: var(--g-bright); color: #101010; font-size: 0.75rem; font-weight: 700; }
   .card__best { font-size: var(--t-sm); font-weight: 650; color: var(--g-bright); }
+  .card__price { font-size: var(--t-sm); font-weight: 650; display: flex; align-items: center; gap: 8px; }
+  .card__price::before { content: ""; width: 14px; height: 14px; border-radius: 50%; flex: none; background: radial-gradient(circle at 35% 30%, #fff2b8, #f6c53d 45%, #a86a06); box-shadow: 0 0 0 1px rgb(0 0 0 / 0.25); }
+  .card__play[aria-disabled="true"] { filter: grayscale(1); opacity: 0.7; }
   :global(html[data-theme="day"]) .card__best { color: color-mix(in srgb, var(--g-ground) 85%, black); }
   .card__name { font-size: clamp(2.75rem, 2rem + 3vw, 4.5rem); font-weight: 800; letter-spacing: -0.05em; line-height: 0.9; color: var(--g-bright); text-shadow: 0 0 28px color-mix(in srgb, var(--g-bright) 45%, transparent); }
   :global(html[data-theme="day"]) .card__name { color: var(--g-ground); text-shadow: none; }
@@ -178,7 +184,7 @@ const jsonld = [
   }
   .row__step :global(svg) { width: 16px; height: 16px; }
   .row__step:active, .row__coin:active { transform: scale(0.92); }
-  .row__coin { padding: 0 20px; font: 700 var(--t-sm) / 1 var(--font); background: #ffcf3d; color: #241a00; box-shadow: 0 0 24px -4px #ffcf3d; }
+  .row__coin { padding: 0 20px; font: 700 var(--t-sm) / 1 var(--font); background: color-mix(in srgb, currentColor 12%, transparent); }
   .hall__hint { position: absolute; right: calc(var(--edge) + 8px); bottom: calc(84px + env(safe-area-inset-bottom)); font-size: var(--t-sm); opacity: 0.7; }
   :global(html:not([data-hall-live])) .hall__hint { display: none; }
 

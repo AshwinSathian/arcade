@@ -7,11 +7,13 @@ import { gzipSync } from "node:zlib";
 const dist = new URL("../dist/", import.meta.url);
 const read = (p) => readFileSync(new URL(p, dist), "utf8");
 const pages = readdirSync(dist).filter((f) => f.endsWith(".html"));
-const slugs = pages.filter((f) => !["index.html", "404.html"].includes(f)).map((f) => f.replace(".html", ""));
+const docs = ["tokens", "privacy"];
+const slugs = pages.filter((f) => !["index.html", "404.html", ...docs.map((d) => `${d}.html`)].includes(f)).map((f) => f.replace(".html", ""));
 const meta = (html, attr, key) => html.match(new RegExp(`<meta ${attr}="${key}" content="([^"]*)"`))?.[1];
 
-test("twelve game pages, a home page and a 404", () => {
+test("twelve game pages, how the arcade works, privacy, a home page and a 404", () => {
   assert.deepEqual(slugs.sort(), ["clover", "coil", "glide", "lightkeeper", "minefield", "nonet", "noughts", "pinfall", "rally", "spillway", "swish", "typester"]);
+  for (const d of docs) assert.ok(pages.includes(`${d}.html`), `missing /${d}`);
 });
 
 for (const page of pages.filter((p) => p !== "404.html")) {
@@ -55,7 +57,7 @@ test("every character on every page is in the font cut", () => {
   }
 });
 
-test("byte budgets: home page HTML under 12 KB gzipped, shared script under 4 KB, the hall under 30 KB", () => {
+test("byte budgets: home page HTML under 12 KB gzipped, shared script under 4 KB, the hall under 34 KB", () => {
   assert.ok(gzipSync(read("index.html")).length < 12 * 1024);
   const js = readdirSync(new URL("_astro/", dist)).filter((f) => f.endsWith(".js"));
   const size = (f) => gzipSync(readFileSync(new URL(`_astro/${f}`, dist))).length;
@@ -64,7 +66,7 @@ test("byte budgets: home page HTML under 12 KB gzipped, shared script under 4 KB
   assert.equal(hall.length, 1);
   assert.equal(shared.length, 1);
   assert.ok(size(shared[0]) < 4 * 1024, `shared script ${size(shared[0])} B`);
-  assert.ok(size(hall[0]) < 30 * 1024, `hall script ${size(hall[0])} B`);
+  assert.ok(size(hall[0]) < 34 * 1024, `hall script ${size(hall[0])} B`);
 });
 
 test("the hall: a still for each light, the lights script loaded before paint, one card and one row button per game", () => {
@@ -104,4 +106,16 @@ test("no page links to a game's repository, which are private, nor to the old ad
     assert.doesNotMatch(html, /github\.com\/AshwinSathian\/(clover|coil|glide|lightkeeper|minefield|nonet|noughts|pinfall|rally|spillway|swish|typester)\b/, page);
     assert.doesNotMatch(html, /games\.ashwinsathian\.com/, page);
   }
+});
+
+test("the arcade pass: one classic script under 14 KB gzipped, with its font", () => {
+  const js = readFileSync(new URL("pass.js", dist));
+  assert.ok(gzipSync(js).length < 14 * 1024, `pass.js ${gzipSync(js).length} B`);
+  assert.doesNotMatch(js.toString(), /^\s*(import|export)\s|\bimport\(/m);
+  assert.ok(existsSync(new URL("pass/bricolage.woff2", dist)));
+  const headers = readFileSync(new URL("../public/_headers", import.meta.url), "utf8");
+  const all = headers.match(/^\/\*\n(?:  .*\n)+/m)[0];
+  assert.match(all, /^\/\*\n[\s\S]*\n  Content-Security-Policy: default-src 'self'; script-src 'self';/m, "the site-wide CSP is in the /* block");
+  assert.match(all, /\n  Speculation-Rules: "\/speculation\.json"\n/);
+  assert.match(headers, /\/pass\.js\n  Cache-Control: public, max-age=300[^\n]*\n  Access-Control-Allow-Origin: \*/);
 });

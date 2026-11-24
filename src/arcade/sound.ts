@@ -37,6 +37,10 @@ export const sfx = {
   tick: () => { tone(1900, 0, 0.035, "square", 0.05); tone(950, 0.004, 0.05, "triangle", 0.06); },
   coin: () => { tone(1568, 0, 0.12, "triangle", 0.18); tone(2093, 0.07, 0.5, "triangle", 0.16); tone(4186, 0.07, 0.3, "sine", 0.04); },
   enter: () => { noise(0, 0.6, 0.22, 300, 4000); tone(220, 0.05, 0.55, "sawtooth", 0.05, 880); },
+  /** A token dropping through a coin mech: a bright clink, then the rattle down the chute. */
+  drop: () => { tone(3520, 0, 0.06, "triangle", 0.14); tone(2637, 0.05, 0.08, "triangle", 0.1); noise(0.08, 0.22, 0.05, 1800, 600); tone(110, 0.28, 0.12, "sine", 0.12); },
+  /** A token landing in the change machine's tray. */
+  clink: () => { const f = 2400 + Math.random() * 1600; tone(f, 0, 0.09, "triangle", 0.09); tone(f * 1.5, 0.01, 0.05, "sine", 0.04); },
   lights: (on: boolean) => { for (let k = 0; k < 4; k++) tone(on ? 7000 - k * 900 : 3000, k * 0.09 + Math.random() * 0.03, 0.05, "square", 0.025); tone(on ? 110 : 90, 0, 0.6, "sine", 0.07); },
 };
 

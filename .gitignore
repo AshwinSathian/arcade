@@ -5,3 +5,5 @@ dist
 .taste-skill
 .DS_Store
 .shots
+public/pass.js
+public/pass/

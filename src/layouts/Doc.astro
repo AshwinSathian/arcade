@@ -1,0 +1,44 @@
+---
+// A page of reading about the arcade itself: how tokens work, what is kept and where.
+import Base from "./Base.astro";
+import Arrow from "../components/Arrow.astro";
+import Lights from "../components/Lights.astro";
+import { site } from "../data/games";
+interface Props { title: string; description: string; heading: string; lede: string }
+const { title, description, heading, lede } = Astro.props;
+const jsonld = [{ "@context": "https://schema.org", "@type": "WebPage", name: heading, description, url: new URL(Astro.url.pathname.replace(/\.html$/, ""), site.url).href, isPartOf: { "@id": `${site.url}/#site` }, inLanguage: "en-GB" }];
+---
+<Base {title} {description} og="index" ogAlt="The Arcade at night: a row of twelve game cabinets under downlights, each screen playing its game, with a pink ARCADE neon on the wall." {jsonld}>
+  <div class="board doc">
+    <nav class="doc__crumbs" aria-label="Breadcrumb">
+      <a class="doc__back" href="/"><Arrow dir="left" /> Back to the hall</a>
+      <span class="doc__tools"><span class="doc__card" data-arcade-chip></span><Lights /></span>
+    </nav>
+    <header class="tile doc__head">
+      <h1>{heading}</h1>
+      <p>{lede}</p>
+    </header>
+    <slot />
+  </div>
+</Base>
+<style>
+  .doc { align-items: start; }
+  .doc__crumbs { grid-column: 1 / -1; display: flex; justify-content: space-between; align-items: center; padding: 4px 4px 8px; }
+  .doc__back { display: inline-flex; align-items: center; gap: 8px; min-height: 44px; font-weight: 600; text-decoration: none; }
+  .doc__back :global(svg) { width: 16px; }
+  .doc__tools { display: flex; gap: 8px; align-items: center; }
+  .doc__head { grid-column: 1 / -1; background: var(--band); color: var(--band-ink); padding: clamp(28px, 5vw, 64px); display: grid; gap: 20px; }
+  .doc__head h1 { font-size: var(--t-display); letter-spacing: -0.045em; max-width: 14ch; }
+  .doc__head p { font-size: var(--t-lg); line-height: 1.2; max-width: 34ch; color: var(--band-muted); }
+  .doc :global(.part) { grid-column: span 6; display: grid; gap: 14px; align-content: start; padding: 32px; }
+  .doc :global(.part--wide) { grid-column: 1 / -1; }
+  .doc :global(.part h2) { font-size: var(--t-lg); letter-spacing: -0.02em; }
+  .doc :global(.part p), .doc :global(.part li) { max-width: 62ch; }
+  .doc :global(.part ul) { display: grid; gap: 8px; padding-left: 1.2em; list-style: disc; }
+  .doc :global(table) { width: 100%; border-collapse: collapse; font-size: var(--t-sm); }
+  .doc :global(th), .doc :global(td) { text-align: left; vertical-align: top; padding: 10px 12px 10px 0; border-bottom: 1px solid var(--surface-2); }
+  .doc :global(th) { color: var(--muted); font-weight: 600; }
+  .doc :global(td:first-child) { font-weight: 650; white-space: nowrap; }
+  .doc :global(.scroll) { overflow-x: auto; }
+  @media (max-width: 900px) { .doc :global(.part) { grid-column: 1 / -1; padding: 24px; } }
+</style>

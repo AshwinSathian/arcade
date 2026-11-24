@@ -1,0 +1,60 @@
+---
+import Doc from "../layouts/Doc.astro";
+import { games } from "../data/games";
+---
+<Doc
+  title="Privacy in the arcade: what is kept, where, and for how long"
+  description="The arcade keeps your player card in one cookie and your settings in your browser. No analytics, no ads and no tracking. Here is every cookie and storage key."
+  heading="What the arcade keeps"
+  lede="Your player card, your bests and your settings, all in this browser. No analytics, no ads and nothing that follows you around the web."
+>
+  <section class="tile part part--wide" aria-labelledby="cookies-h">
+    <h2 id="cookies-h">Cookies</h2>
+    <p>These are shared by the hall and every machine on an ashwinsathian.com address. Your browser sends them along with each visit, and no server reads or stores them.</p>
+    <div class="scroll">
+      <table>
+        <thead><tr><th scope="col">Name</th><th scope="col">What it holds</th><th scope="col">Kept for</th></tr></thead>
+        <tbody>
+          <tr><td>arcade_card</td><td>Your player card: your tag, tokens, the plays loaded on each machine, your best result per mode, your daily streak and the last 12 lines of your receipt.</td><td>400 days from your last visit</td></tr>
+          <tr><td>arcade_via</td><td>The machine you just walked to from the hall, so it doesn't greet you a second time.</td><td>2 minutes</td></tr>
+          <tr><td>arcade_best_&lt;game&gt;</td><td>Your headline best in that game, written by the game and lettered on its marquee in the hall.</td><td>1 year</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="tile part" aria-labelledby="local-h">
+    <h2 id="local-h">Kept on this device only</h2>
+    <ul>
+      <li>The hall remembers Day or Night, sound, paused clips, the machine you played last and whether you have seen the swipe hint, in local storage under keys starting games:.</li>
+      <li>Each game keeps its own saves and settings in local storage on its own address. Other sites can't read them.</li>
+      <li>While a tab is open, the pass notes the run in progress and whether that machine has greeted you, in session storage. Both go when the tab closes.</li>
+    </ul>
+  </section>
+
+  <section class="tile part" aria-labelledby="send-h">
+    <h2 id="send-h">When a game talks to a server</h2>
+    <p>Only when you choose a feature that needs one:</p>
+    <ul>
+      <li>Coil's Daily leaderboard stores the name you enter, your run and a random player id.</li>
+      <li>Online matches in Noughts and Glide pass your moves through a server on that game's own address.</li>
+      <li>Online matches in Rally connect your browser directly to the other player's, using public relays to find each other.</li>
+    </ul>
+    <p>Your player card is never part of any of these.</p>
+  </section>
+
+  <section class="tile part" aria-labelledby="banner-h">
+    <h2 id="banner-h">Why there is no cookie banner</h2>
+    <p>The arcade only uses cookies to do what you ask it to: keep your tokens, your tag and your bests between machines. There is nothing for advertising or measurement to consent to, so instead of a banner, this page tells you exactly what is kept.</p>
+  </section>
+
+  <section class="tile part" aria-labelledby="forget-h">
+    <h2 id="forget-h">Removing it</h2>
+    <p>Open your player card and choose Move or forget this card, then Forget my card. That deletes it from this browser and starts a new card with 3 tokens. Clearing cookies and site data for ashwinsathian.com in your browser's settings removes everything on this page.</p>
+  </section>
+
+  <section class="tile part" aria-labelledby="ask-h">
+    <h2 id="ask-h">Questions</h2>
+    <p>Open an issue on the <a class="link" href="https://github.com/AshwinSathian/arcade/issues">arcade's repository</a>. The {games.length} games and the hall are made by one person, and there is no company behind them.</p>
+  </section>
+</Doc>
