@@ -40,7 +40,12 @@ a { text-decoration-thickness: 1px; text-underline-offset: 3px; }
 /* Mid-run: just the token and the count, dimmed, and not a target for stray taps. */
 .chip.run { opacity: 0.5; pointer-events: none; padding-right: 10px; }
 .chip.run .tag, .chip.run .cr { display: none; }
-@media (max-width: 520px) { .chip.at .tag { display: none; } }
+/* Inside a game the chip keeps to a token and a count, so it covers as little of the game's own screen as it can;
+   the tag shows when you point at it or tab to it. */
+.chip.at { height: 36px; padding-right: 12px; gap: 6px; }
+.chip.at .coin { width: 24px; height: 24px; }
+.chip.at .tag { display: none; }
+.chip.at:hover .tag, .chip.at:focus-visible .tag { display: inline; }
 /* In the hall's top bar the tag gives way first, so the bar never runs into the title. */
 @media (max-width: 1240px) { .chip.in .tag { display: none; } }
 
