@@ -16,7 +16,6 @@ export const GET: APIRoute = () => {
       "",
       `- Play: ${g.url}`,
       `- About: ${site.url}/${g.slug}`,
-      ...(g.post ? [`- Engineering write-up: ${g.post.url}`] : []),
       `- Modes: ${g.modes.join(", ")}`,
       `- Controls: ${g.controls}`,
       `- Size: ${g.sizeNote}`,

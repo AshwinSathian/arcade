@@ -57,7 +57,6 @@ export type Game = {
   stack: string;
   highlights: { title: string; detail: string }[];
   url: string;
-  post?: { title: string; url: string };
   /** The game's own colours: the tile ground and its one bright. */
   ground: string;
   bright: string;
@@ -66,8 +65,6 @@ export type Game = {
   desktop: Shot;
   phone: Shot;
 };
-
-const writing = (slug: string) => `https://ashwinsathian.com/writing/${slug}`;
 
 export const games: Game[] = [
   {
@@ -124,7 +121,6 @@ export const games: Game[] = [
       { title: "Two worlds, day and night", detail: "Retro glazed tile or a polished Modern floor, in real-time 3D. Day and night follow your system until you choose." },
     ],
     url: "https://coil.ashwinsathian.com",
-    post: { title: "Coil’s leaderboard never asks the browser for a score", url: writing("coils-leaderboard-never-asks-the-browser-for-a-score") },
     ground: "#1c1915",
     bright: "#ffc23a",
     poster: coilPoster,
@@ -171,7 +167,7 @@ export const games: Game[] = [
     line: "A pinball table of a lighthouse on a night sea, with multiball, timed watches and replays.",
     about: [
       "Lightkeeper is a full pinball table: three pop bumpers, slingshots, a spinner orbit, a ramp, drop targets and a lamp room that locks three balls for multiball. Three timed watches, Fog, Squall and Rescue, lead to Long Night, where every shot scores 50,000.",
-      "The physics runs at a fixed 480 steps a second and is deterministic, so every game can be watched again at 1×, 2× or 4× or shared as a link. All the art is painted with WebGL 2 when the page opens; there are no image files.",
+      "The physics runs at a fixed 480 steps a second and is deterministic, so every game can be watched again at 1×, 2× or 4× or shared as a link. All the art is painted in code when the page opens, at your screen's resolution, and WebGL 2 puts it together; there are no image files.",
     ],
     modes: ["3 balls", "3 minutes", "Practice"],
     controls: "Touch the left or right half, Z and / on a keyboard, or a gamepad",
@@ -185,7 +181,6 @@ export const games: Game[] = [
       { title: "Built for every screen", detail: "Phones get the whole table; wide screens get a tilted cabinet view with the score beside it." },
     ],
     url: "https://lightkeeper.ashwinsathian.com",
-    post: { title: "A pinball replay is a promise about the last bit of every float", url: writing("a-pinball-replay-is-a-promise-about-the-last-bit-of-every-float") },
     ground: "#070d18",
     bright: "#f7b23b",
     poster: lightkeeperPoster,
@@ -216,7 +211,6 @@ export const games: Game[] = [
       { title: "Loss review", detail: "After a mine, it says whether a safe move was open, or that the guess was forced and what the odds were." },
     ],
     url: "https://minefield.ashwinsathian.com",
-    post: { title: "A no-guess Minesweeper board is only as honest as its solver", url: writing("a-no-guess-minesweeper-board-is-only-as-honest-as-its-solver") },
     ground: "#121417",
     bright: "#e8743f",
     poster: minefieldPoster,
@@ -247,7 +241,6 @@ export const games: Game[] = [
       { title: "A Daily with no server", detail: "The Daily is generated on your device from the date, so it is the same everywhere and works offline." },
     ],
     url: "https://nonet.ashwinsathian.com",
-    post: { title: "A computer can’t tell you how hard a sudoku is", url: writing("a-computer-cant-tell-you-how-hard-a-sudoku-is") },
     ground: "#18202b",
     bright: "#8fb0ff",
     poster: nonetPoster,
