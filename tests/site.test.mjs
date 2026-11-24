@@ -105,3 +105,12 @@ test("no page links to a game's repository, which are private, nor to the old ad
     assert.doesNotMatch(html, /games\.ashwinsathian\.com/, page);
   }
 });
+
+test("the arcade pass: one classic script under 14 KB gzipped, with its font", () => {
+  const js = readFileSync(new URL("pass.js", dist));
+  assert.ok(gzipSync(js).length < 14 * 1024, `pass.js ${gzipSync(js).length} B`);
+  assert.doesNotMatch(js.toString(), /^\s*(import|export)\s|\bimport\(/m);
+  assert.ok(existsSync(new URL("pass/bricolage.woff2", dist)));
+  const headers = readFileSync(new URL("../public/_headers", import.meta.url), "utf8");
+  assert.match(headers, /\/pass\.js\n  Cache-Control: public, max-age=300[^\n]*\n  Access-Control-Allow-Origin: \*/);
+});

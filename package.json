@@ -28,8 +28,8 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "astro dev --port 4330",
-    "build": "astro check && astro build",
+    "dev": "node scripts/pass.ts --watch & astro dev --port 4330",
+    "build": "npm run pass && astro check && astro build",
     "preview": "wrangler dev --port 8799",
     "test": "npm run build && node --test tests/*.test.mjs tests/*.test.ts",
     "deploy": "npm run build && wrangler deploy",
@@ -37,7 +37,8 @@
     "capture": "node scripts/capture.ts",
     "hall": "node scripts/hall.ts",
     "og": "node scripts/og.ts",
-    "shoot": "node scripts/shoot.ts"
+    "shoot": "node scripts/shoot.ts",
+    "pass": "node scripts/pass.ts"
   },
   "dependencies": {
     "@astrojs/sitemap": "^3.7.6",
