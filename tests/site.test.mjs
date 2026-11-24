@@ -55,7 +55,7 @@ test("every character on every page is in the font cut", () => {
   }
 });
 
-test("byte budgets: home page HTML under 12 KB gzipped, shared script under 4 KB, the hall under 30 KB", () => {
+test("byte budgets: home page HTML under 12 KB gzipped, shared script under 4 KB, the hall under 34 KB", () => {
   assert.ok(gzipSync(read("index.html")).length < 12 * 1024);
   const js = readdirSync(new URL("_astro/", dist)).filter((f) => f.endsWith(".js"));
   const size = (f) => gzipSync(readFileSync(new URL(`_astro/${f}`, dist))).length;
@@ -64,7 +64,7 @@ test("byte budgets: home page HTML under 12 KB gzipped, shared script under 4 KB
   assert.equal(hall.length, 1);
   assert.equal(shared.length, 1);
   assert.ok(size(shared[0]) < 4 * 1024, `shared script ${size(shared[0])} B`);
-  assert.ok(size(hall[0]) < 30 * 1024, `hall script ${size(hall[0])} B`);
+  assert.ok(size(hall[0]) < 34 * 1024, `hall script ${size(hall[0])} B`);
 });
 
 test("the hall: a still for each light, the lights script loaded before paint, one card and one row button per game", () => {

@@ -175,6 +175,8 @@ void main() {
     albedo = vec3(0.05, 0.05, 0.055); rough = 0.8;
   } else if (m == 15) { // downlight lens
     albedo = vec3(0.9); emit = vec3(5.0, 4.2, 3.4) * uGlow;
+  } else if (m == 16) { // a brass token, catching the light as it turns
+    albedo = vec3(1.0, 0.74, 0.25); metal = 1.0; rough = 0.22; emit = vec3(0.9, 0.6, 0.12) * (0.3 + uGlow);
   }
   vec3 col = light(vPos, N, V, albedo, metal, rough, ao, spec) + emit;
   if (m == 10 && uReflOn > 0.5) {

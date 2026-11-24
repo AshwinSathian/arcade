@@ -4,7 +4,8 @@ import { Geo, norm, type V3, type M4, m4, translate } from "./core";
 import { marquee, side, panel, top, type ArtGame, type Rect } from "./art";
 
 export type Kind = "upright" | "table" | "pinball";
-export type Part = { geo: Geo; screen: Geo; art: (c: CanvasRenderingContext2D, g: ArtGame) => void; screenAt: V3; screenN: V3; screenAspect: number; foot: [number, number, number, number]; lightAt: V3; lightKind: number; z: number };
+/** doorAt is the coin slot a token goes into, in the machine's own frame; tokens always enter facing +z. */
+export type Part = { geo: Geo; screen: Geo; art: (c: CanvasRenderingContext2D, g: ArtGame) => void; screenAt: V3; screenN: V3; screenAspect: number; foot: [number, number, number, number]; lightAt: V3; lightKind: number; z: number; doorAt: V3 };
 
 export const ART_W = 1024, ART_H = 1344;
 export const SPACING = 1.08;
@@ -77,6 +78,7 @@ function upright(slug: string): Part {
   g.box([0, 0.5, 0.306], [0.3, 0.38, 0.012], 2);
   g.box([-0.07, 0.6, 0.314], [0.045, 0.07, 0.008], 8);
   g.box([0.07, 0.6, 0.314], [0.045, 0.07, 0.008], 8);
+  g.box([0, 0.69, 0.314], [0.07, 0.03, 0.008], 6); // the coin slot's chrome plate
   g.box([0, 0.04, 0.304], [W, 0.08, 0.008], 6);
   // Controls on the panel.
   const [p4, p5] = [pr[4], pr[5]];
@@ -98,7 +100,7 @@ function upright(slug: string): Part {
     geo: g, screen, z: 0,
     art: (c, gm) => { marquee(c, gm, R.marquee); side(c, gm, R.sideA, true); side(c, gm, R.sideB, false); panel(c, gm, R.panel); },
     screenAt: [0, mid[1], mid[0]], screenN: sn, screenAspect: (2 * sx) / len,
-    foot: [0, 0.01, W / 2, 0.37], lightAt: [0, mid[1], mid[0] + 0.45], lightKind: 2,
+    foot: [0, 0.01, W / 2, 0.37], lightAt: [0, mid[1], mid[0] + 0.45], lightKind: 2, doorAt: [0, 0.69, 0.32],
   };
 }
 
@@ -125,6 +127,8 @@ function table(slug: string): Part {
     g.cyl([0.06, 0, 0], 0.017, 0.012, 16, 7); g.cyl([0.12, 0, 0], 0.017, 0.012, 16, slug === "noughts" ? 9 : 7);
     g.pop();
   }
+  // A coin slot in the near control panel's face.
+  g.box([0, yt - 0.05, D / 2 + 0.123], [0.05, 0.035, 0.006], 8);
   const screen = new Geo();
   const sx = 0.2, sz = 0.27, ys = yt + 0.003;
   screen.poly([[-sx, ys, -sz], [sx, ys, -sz], [sx, ys, sz], [-sx, ys, sz]], [0, 1, 0], 4, (p) => [(p[0] + sx) / (2 * sx), (p[2] + sz) / (2 * sz)]);
@@ -132,7 +136,7 @@ function table(slug: string): Part {
     geo: g, screen, z: 0.02,
     art: (c, gm) => { top(c, gm, R.top); marquee(c, gm, R.apron); side(c, gm, R.sideA, true); side(c, gm, R.sideB, false); },
     screenAt: [0, ys, 0], screenN: [0, 1, 0], screenAspect: sx / sz,
-    foot: [0, 0, W / 2, D / 2 + 0.1], lightAt: [0, ys + 0.35, 0.1], lightKind: 0,
+    foot: [0, 0, W / 2, D / 2 + 0.1], lightAt: [0, ys + 0.35, 0.1], lightKind: 0, doorAt: [0, yt - 0.05, D / 2 + 0.13],
   };
 }
 
@@ -170,7 +174,7 @@ function pinball(): Part {
     geo: g, screen, z: -0.14,
     art: (c, gm) => { marquee(c, gm, R.back); side(c, gm, R.sideA, true); side(c, gm, R.sideB, false); },
     screenAt: [0, yAt(0), (f0 + b0) / 2], screenN: n, screenAspect: 0.62,
-    foot: [0, 0, W / 2, L], lightAt: [0, 1.4, 0.1], lightKind: 0,
+    foot: [0, 0, W / 2, L], lightAt: [0, 1.4, 0.1], lightKind: 0, doorAt: [-0.05, 0.83, L + 0.02],
   };
 }
 
@@ -212,7 +216,13 @@ export function room(n: number) {
   const vx = x0 + 0.75, vw = 0.92, vh = 1.86, vd = 0.78, vz = WALL_Z + vd / 2 + 0.06;
   sign.box([vx, vh / 2 + 0.04, vz], [vw, vh, vd], [9, 9, 9, -1, 5, 9], (p, f) => (f === 4 ? [(p[0] - vx + vw / 2) / vw * 0.5, 0.25 + (1 - (p[1] - 0.04) / vh) * 0.75] : [0, 0]));
   sign.box([vx, 0.02, vz], [vw - 0.06, 0.04, vd - 0.06], 2);
-  return { floor, walls: g, cans, sign, runs, wy0, wy1, signAt: [sx, 2.12 + sh / 2, WALL_Z + 0.3] as V3, x0, x1, H };
+  // The change machine's tray, in chrome, where the day's tokens land.
+  const tray = [vx - 0.115, 0.25, vz + vd / 2 + 0.07] as V3; // under the chute painted on the front
+  sign.box([tray[0], tray[1] - 0.03, tray[2]], [0.3, 0.02, 0.14], 6);
+  sign.box([tray[0], tray[1] - 0.03, tray[2] + 0.07], [0.3, 0.02, 0.01], 6); // a low lip, so the tokens show
+  for (const e of [-1, 1]) sign.box([tray[0] + e * 0.15, tray[1] - 0.03, tray[2]], [0.01, 0.02, 0.14], 6);
+  const changer = { at: [vx, 1.0, vz + vd / 2] as V3, tray, min: [vx - vw / 2, 0, vz - vd / 2] as V3, max: [vx + vw / 2, vh + 0.04, vz + vd / 2 + 0.15] as V3 };
+  return { floor, walls: g, cans, sign, runs, wy0, wy1, signAt: [sx, 2.12 + sh / 2, WALL_Z + 0.3] as V3, x0, x1, H, changer };
 }
 
 /** Beams: a cone under each can at night, and by day a slab of sun from each window. */
@@ -242,4 +252,14 @@ export function beams(n: number, H: number, runs: [number, number][], wy0: numbe
     }
   }
   return { cones, shafts };
+}
+
+/** A brass token, standing on its edge facing +z: what the hall puts in a slot and pays out at the change machine. */
+export function token() {
+  const g = new Geo();
+  g.push(new Float32Array([1, 0, 0, 0, 0, 0, 1, 0, 0, -1, 0, 0, 0, 0, 0, 1])); // stand the coin up: its axis along z
+  g.cyl([0, -0.002, 0], 0.022, 0.004, 28, 16);
+  g.poly(Array.from({ length: 28 }, (_, k) => [Math.cos(k / 28 * 6.283) * 0.022, -0.002, Math.sin(k / 28 * 6.283) * 0.022] as V3), [0, -1, 0], 16);
+  g.pop();
+  return g;
 }
