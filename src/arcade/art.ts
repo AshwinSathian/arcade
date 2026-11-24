@@ -78,6 +78,17 @@ export function motif(c: C, slug: string, x: number, y: number, s: number, fg: s
       c.beginPath(); c.moveTo(-u * 4, -u * 4); c.lineTo(-u * 0.6, -u * 0.6); c.moveTo(-u * 0.6, -u * 4); c.lineTo(-u * 4, -u * 0.6); c.stroke();
       break;
     }
+    case "pinfall": { // a pin with two stripes, and the dotted hook of the ball coming in
+      c.setLineDash([u * 0.2, u * 0.55]); c.lineWidth = u * 0.35;
+      c.beginPath(); c.moveTo(-u * 4.4, u * 4.6); c.quadraticCurveTo(-u * 3.6, -u * 0.2, -u * 1.2, -u * 2.6); c.stroke(); c.setLineDash([]);
+      const prof = [[0, 0.5], [0.4, 0.75], [1.4, 1.15], [2.2, 1.2], [3.2, 0.95], [4.4, 0.5], [5.2, 0.46], [6.2, 0.62], [7, 0.55], [7.6, 0]];
+      c.beginPath();
+      prof.forEach(([h, r], k) => (k ? c.lineTo(u * (1.3 + r), u * (4.2 - h)) : c.moveTo(u * (1.3 + r), u * (4.2 - h))));
+      [...prof].reverse().forEach(([h, r]) => c.lineTo(u * (1.3 - r), u * (4.2 - h)));
+      c.closePath(); c.fill();
+      c.fillStyle = bg; c.fillRect(u * 0.6, -u * 0.55, u * 1.4, u * 0.22); c.fillRect(u * 0.6, -u * 1.05, u * 1.4, u * 0.22);
+      break;
+    }
     case "rally": { // a bat and a ball on its arc
       c.save(); c.rotate(-0.5);
       c.beginPath(); c.ellipse(-u * 1.2, -u * 0.6, u * 2.5, u * 2.8, 0, 0, Math.PI * 2); c.fill();

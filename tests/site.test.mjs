@@ -10,8 +10,8 @@ const pages = readdirSync(dist).filter((f) => f.endsWith(".html"));
 const slugs = pages.filter((f) => !["index.html", "404.html"].includes(f)).map((f) => f.replace(".html", ""));
 const meta = (html, attr, key) => html.match(new RegExp(`<meta ${attr}="${key}" content="([^"]*)"`))?.[1];
 
-test("ten game pages, a home page and a 404", () => {
-  assert.deepEqual(slugs.sort(), ["clover", "coil", "lightkeeper", "minefield", "nonet", "noughts", "rally", "spillway", "swish", "typester"]);
+test("eleven game pages, a home page and a 404", () => {
+  assert.deepEqual(slugs.sort(), ["clover", "coil", "lightkeeper", "minefield", "nonet", "noughts", "pinfall", "rally", "spillway", "swish", "typester"]);
 });
 
 for (const page of pages.filter((p) => p !== "404.html")) {
@@ -101,7 +101,7 @@ test("llms.txt names every game with its link", () => {
 test("no page links to a game's repository, which are private, nor to the old address", () => {
   for (const page of [...pages, "llms.txt"]) {
     const html = read(page);
-    assert.doesNotMatch(html, /github\.com\/AshwinSathian\/(clover|coil|lightkeeper|minefield|nonet|noughts|rally|spillway|swish|typester)\b/, page);
+    assert.doesNotMatch(html, /github\.com\/AshwinSathian\/(clover|coil|lightkeeper|minefield|nonet|noughts|pinfall|rally|spillway|swish|typester)\b/, page);
     assert.doesNotMatch(html, /games\.ashwinsathian\.com/, page);
   }
 });

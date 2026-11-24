@@ -11,8 +11,8 @@ const posters = await Promise.all(games.map((g) => getImage({ src: g.poster, wid
 const hall = games.map((g, i) => ({ slug: g.slug, name: g.name, kind: g.kind, ground: g.ground, bright: g.bright, poster: posters[i].src, clip: `/media/${g.slug}.mp4` }));
 const pad = (n: number) => String(n).padStart(2, "0");
 
-const title = "The Arcade: ten free browser games by Ashwin Sathian";
-const description = "Ten small games in a 3D arcade that opens in a browser tab on phone, tablet or desktop. Free, with no install, no sign-up and no ads, and nine are one HTML file under 60 KB.";
+const title = "The Arcade: eleven free browser games by Ashwin Sathian";
+const description = "Eleven small games in a 3D arcade that opens in a browser tab on phone, tablet or desktop. Free, with no install, no sign-up and no ads, and ten are one HTML file under 60 KB.";
 const jsonld = [
   {
     "@context": "https://schema.org",
@@ -33,7 +33,7 @@ const jsonld = [
   },
 ];
 ---
-<Base {title} {description} og="index" ogAlt="The Arcade at night: a row of ten game cabinets under downlights, each screen playing its game, with a pink ARCADE neon on the wall." {jsonld}>
+<Base {title} {description} og="index" ogAlt="The Arcade at night: a row of eleven game cabinets under downlights, each screen playing its game, with a pink ARCADE neon on the wall." {jsonld}>
   <section class="hall" data-hall aria-labelledby="title">
     <canvas class="hall__gl" data-games={JSON.stringify(hall)} aria-hidden="true"></canvas>
     <header class="hall__top">
@@ -76,7 +76,7 @@ const jsonld = [
   </section>
 
   <section class="about" aria-labelledby="about-h">
-    <h2 id="about-h">Ten small games, one room</h2>
+    <h2 id="about-h">Eleven small games, one room</h2>
     <p>Snake, pinball, Minesweeper, sudoku, noughts and crosses, table tennis, a 3D endless runner, free throws, a hedge maze chase and a typing race. Every screen in the hall is playing a real recording of its game. Each one opens in a tab on a phone or a laptop, with nothing to install and no account to make.</p>
     <p class="about__small">The hall is drawn live in WebGL 2: the machines, their art and the room are built in the browser when the page opens, and the floor reflects whatever the screens are showing. Day and Night follow your system until you pick one.</p>
   </section>

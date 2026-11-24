@@ -1,6 +1,6 @@
 // GLSL for the hall: one lit pass for every surface, a depth pass, light beams, and the post chain.
 export const NL = 24; // point and spot lights
-export const NF = 10; // cabinet footprints, for contact shadows on the floor
+export const NF = 11; // cabinet footprints, for contact shadows on the floor
 
 export const vsMain = `#version 300 es
 layout(location=0) in vec3 aPos; layout(location=1) in vec3 aNrm; layout(location=2) in vec4 aAux;
