@@ -1,6 +1,7 @@
 import type { ImageMetadata } from "astro";
 import cloverPoster from "../assets/posters/clover.png";
 import coilPoster from "../assets/posters/coil.png";
+import glidePoster from "../assets/posters/glide.png";
 import lightkeeperPoster from "../assets/posters/lightkeeper.png";
 import minefieldPoster from "../assets/posters/minefield.png";
 import nonetPoster from "../assets/posters/nonet.png";
@@ -14,6 +15,8 @@ import cloverDesktop from "../assets/shots/clover-desktop.jpg";
 import cloverPhone from "../assets/shots/clover-phone.jpg";
 import coilDesktop from "../assets/shots/coil-desktop.png";
 import coilPhone from "../assets/shots/coil-phone.png";
+import glideDesktop from "../assets/shots/glide-desktop.jpg";
+import glidePhone from "../assets/shots/glide-phone.jpg";
 import lightkeeperDesktop from "../assets/shots/lightkeeper-desktop.jpg";
 import lightkeeperPhone from "../assets/shots/lightkeeper-phone.jpg";
 import minefieldDesktop from "../assets/shots/minefield-desktop.png";
@@ -128,6 +131,36 @@ export const games: Game[] = [
     clipAlt: "Coil replaying a Gates run from above: a block snake crosses a tiled night board between stone walls, then the screen ripples into the polished Modern world and turns back tile by tile.",
     desktop: { src: coilDesktop, alt: "Coil on a desktop at night: a block snake on a 3D tiled board with brass walls and lit gates, and the score and replay controls on the right." },
     phone: { src: coilPhone, alt: "Coil on a phone by day: a golden snake on a pale 3D floor between white walls, with replay controls below." },
+  },
+  {
+    slug: "glide",
+    name: "Glide",
+    kind: "Air hockey",
+    noun: "3D air hockey game",
+    genre: ["Sports", "Arcade"],
+    line: "Air hockey in 3D against a bot at three levels, a friend on the same screen, or a friend online from their own phone.",
+    about: [
+      "Glide is air hockey seen from behind your goal. Drag anywhere, or move the mouse, and your mallet chases the point; on a touch screen it sits a finger's width above your fingertip so you can see it. Play the house is first to 7 against a bot at Rookie, Regular or Shark. Same table puts two players on one screen, seen from above, which suits a tablet laid flat. Online gives you a link to send, and the game starts when your friend opens it.",
+      "After every goal the camera drops behind the net and plays the last moments back at half speed. Day is a sunlit room and night a dark one with the table lit from its rails; both follow your device's setting until you pick one.",
+    ],
+    modes: ["Play the house: Rookie", "Play the house: Regular", "Play the house: Shark", "Same table", "Online"],
+    controls: "Drag, move the mouse, or the arrow keys",
+    kb: 33,
+    sizeNote: "One HTML file of about 33 KB compressed, plus a 35 KB font, with no image, model or audio files",
+    stack: "TypeScript, WebGL 2, Web Audio, Cloudflare Workers and Durable Objects",
+    highlights: [
+      { title: "Collisions at the exact moment", detail: "Each 480 Hz step solves for when the puck first touches a mallet, rail or post, so a flicked mallet never passes through it." },
+      { title: "A bot that plays through the physics", detail: "It sees the puck late, runs the sim forward to find where it can meet it, and tries straight and bank shots through the same sim before picking one." },
+      { title: "The puck belongs to whoever's half it's in", detail: "Online, that player's browser runs the puck and hands it over at the centre line, so nobody's hit is ever rolled back." },
+      { title: "Replays from a ring buffer", detail: "Five seconds of positions and contacts are kept, so a replay brings back the sound, ripples and sparks with the puck." },
+    ],
+    url: "https://glide.ashwinsathian.com",
+    ground: "#07090d",
+    bright: "#ff5b3a",
+    poster: glidePoster,
+    clipAlt: "Glide at night: a glowing puck crosses a dark air hockey table between a red and a blue mallet, leaving a pale trail.",
+    desktop: { src: glideDesktop, alt: "Glide on a desktop at night, the table's rails and markings lit, mid-rally against the bot." },
+    phone: { src: glidePhone, alt: "Glide on a phone in daylight, seen from behind the near goal on a white table." },
   },
   {
     slug: "lightkeeper",

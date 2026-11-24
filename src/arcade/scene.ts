@@ -1,4 +1,4 @@
-// The hall: ten machines in a row on a polished floor, a slatted wall with clerestory windows and the neon.
+// The hall: twelve machines in a row on a polished floor, a slatted wall with clerestory windows and the neon.
 // Each game gets the machine that suits how it plays: an upright, a cocktail table, or a pinball table.
 import { Geo, norm, type V3, type M4, m4, translate } from "./core";
 import { marquee, side, panel, top, type ArtGame, type Rect } from "./art";
@@ -174,7 +174,7 @@ function pinball(): Part {
   };
 }
 
-export const kindOf = (slug: string): Kind => (slug === "lightkeeper" ? "pinball" : ["minefield", "nonet", "noughts"].includes(slug) ? "table" : "upright");
+export const kindOf = (slug: string): Kind => (slug === "lightkeeper" ? "pinball" : ["glide", "minefield", "nonet", "noughts"].includes(slug) ? "table" : "upright");
 export const build = (slug: string): Part => {
   const k = kindOf(slug);
   return k === "pinball" ? pinball() : k === "table" ? table(slug) : upright(slug);

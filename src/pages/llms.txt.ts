@@ -6,7 +6,7 @@ export const GET: APIRoute = () => {
   const body = [
     `# ${site.name}`,
     "",
-    `> Eleven free games that run in a web browser on phone, tablet and desktop, made by ${site.author} (${site.authorUrl}). No install, no sign-up, no ads and no analytics. They stand in a 3D arcade drawn live in WebGL 2, whose source is open under the MIT licence: ${site.repo}`,
+    `> Twelve free games that run in a web browser on phone, tablet and desktop, made by ${site.author} (${site.authorUrl}). No install, no sign-up, no ads and no analytics. They stand in a 3D arcade drawn live in WebGL 2, whose source is open under the MIT licence: ${site.repo}`,
     "",
     ...games.flatMap((g) => [
       `## ${g.name} (${g.kind})`,

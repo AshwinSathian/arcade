@@ -42,6 +42,13 @@ const games: Record<string, Shot> = {
       await wait(p, 4600);
     },
   },
+  glide: {
+    // The game's own bot against Shark at night: rallies, a goal and its replay from behind the net.
+    url: 'https://glide.ashwinsathian.com/?autoplay&replay&start=house&level=2&seed=11&theme=night&nohint', start: 3, dur: 9,
+    async play(p) {
+      await wait(p, 12000);
+    },
+  },
   lightkeeper: {
     // The table's attract loop: its own bot keeps the ball in play.
     // Recorded large and cropped to the table: the menu sits around it.
