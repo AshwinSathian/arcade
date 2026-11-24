@@ -22,9 +22,11 @@ The Arcade is the front door to twelve small games: Clover, Coil, Glide, Lightke
 - **A machine for every game.** Uprights for the arcade games, cocktail tables for the three puzzles and a pinball table for Lightkeeper. Every screen plays a real recording of its game, and every marquee, side panel and control panel is painted on a canvas when the page opens, in that game's colours.
 - **A camera that frames for the screen it is on.** It stands at eye height, front left, on a rail along the row. It works out the part of the screen the interface leaves free and frames the machine there: beside the card on a laptop, above it on a phone, between the bars on a phone held sideways.
 - **Day and Night.** These follow the system theme until the visitor picks one, on every page, with no flash on load. By day, sun shafts come through clerestory windows. By night, the downlights come on one by one, the neon lights up, and each screen lights the floor in its clip's colour.
-- **Your own bests on the marquees.** Each game shares the player's best through a cookie on `.ashwinsathian.com`, and the arcade letters it onto that game's marquee.
+- **One player card for every machine.** The first visit gets a tag like Velvet Otter and 12 tokens. A token loads a credit onto a machine, good runs pay tokens back, and the cup refills to 3 while you're away, with daily tokens on top. The card is one cookie on `.ashwinsathian.com`, so a game opened from a link shows the same card and greets you at its coin door. See [How the arcade works](https://arcade.ashwinsathian.com/tokens).
+- **Your own bests on the marquees.** Each game shares the player's best through a cookie on `.ashwinsathian.com`, and the arcade letters it onto that game's marquee with your tag and any credit you have loaded.
 - **An arcade that keeps going without you.** After 40 seconds of quiet it switches to attract mode and walks the row by itself. The machine you played last glows and is where you start next time. A low room hum and distant attract tunes play after your first tap, panned to where each machine stands.
-- **Every way in.** Drag, flick, the arrow keys, a gamepad, the row of buttons, or Insert coin for a random machine. Play flies the camera into the screen, then opens the game.
+- **Every way in.** Drag, flick, the arrow keys, a gamepad, the row of buttons, or Surprise me for a random machine. Play stoops the camera to the coin door, drops a token in the slot, then flies into the screen and opens the game.
+- **A change machine in the corner.** It pays the day's tokens into its tray when you arrive, and opens your card when you tap it.
 
 ## How it is built
 
@@ -40,7 +42,7 @@ The Arcade is the front door to twelve small games: Clover, Coil, Glide, Lightke
 
 ### Budgets, enforced by `npm test`
 
-- Home page HTML under 12 KB gzipped, shared script under 4 KB, the hall under 30 KB.
+- Home page HTML under 12 KB gzipped, shared script under 4 KB, the hall under 34 KB, the arcade pass under 14 KB.
 - Every character on every page is in the subset font.
 - No inline scripts: the Content Security Policy allows script files only.
 - No link to a private repository or to the old address.
@@ -80,6 +82,7 @@ npm test             # astro check, build, then the site and Worker tests
 ```
 src/
   arcade/        the hall: renderer, scene, cabinet art, shaders, sound
+  pass/          the arcade pass: player card, token economy and its UI, built to /pass.js for every machine
   scripts/       page scripts: arcade.ts (home), site.ts (every page)
   pages/         home, one page per game, social cards, llms.txt
   components/    Lights switch, game tiles, footer

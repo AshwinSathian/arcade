@@ -1,8 +1,8 @@
 ---
-// The close: the word "games" built from blocks, one block per game colour, then plain links.
+// The close: the word "arcade" built from blocks, one block per game colour, then plain links.
 import { games, site } from "../data/games";
-const letters = [..."games"];
-const heights = [100, 74, 88, 62, 94];
+const letters = [..."arcade"];
+const heights = [100, 74, 88, 62, 94, 80];
 ---
 <footer class="foot">
   <div class="foot__mark" aria-hidden="true">
@@ -11,9 +11,17 @@ const heights = [100, 74, 88, 62, 94];
     ))}
   </div>
   <div class="foot__cols">
-    <nav aria-label="Games">
-      <h2>The games</h2>
+    <nav aria-label="Machines">
+      <h2>The machines</h2>
       <ul>{games.map((g) => <li><a class="link" href={`/${g.slug}`}>{g.name}</a></li>)}</ul>
+    </nav>
+    <nav aria-label="The arcade">
+      <h2>The arcade</h2>
+      <ul>
+        <li><a class="link" href="/">The hall</a></li>
+        <li><a class="link" href="/tokens">How the arcade works</a></li>
+        <li><a class="link" href="/privacy">Privacy</a></li>
+      </ul>
     </nav>
     <nav aria-label="Elsewhere">
       <h2>Elsewhere</h2>
@@ -23,21 +31,21 @@ const heights = [100, 74, 88, 62, 94];
         <li><a class="link" href={site.github}>GitHub</a></li>
       </ul>
     </nav>
-    <p class="foot__note">Every game here runs on Cloudflare’s edge, and none of them shows ads, asks you to sign up or runs analytics. The arcade itself is <a class="link" href={site.repo}>open source</a> under the MIT licence.</p>
+    <p class="foot__note">Every machine here runs on Cloudflare’s edge, and none of them shows ads, asks you to sign up or runs analytics. Your player card is one cookie in your browser. The arcade itself is <a class="link" href={site.repo}>open source</a> under the MIT licence.</p>
   </div>
   <p class="foot__last"><span>© 2026 {site.author}</span><a class="link" href="/llms.txt">llms.txt</a></p>
 </footer>
 
 <style>
   .foot { padding: 120px var(--edge) calc(24px + env(safe-area-inset-bottom)); }
-  .foot__mark { display: grid; grid-template-columns: repeat(5, 1fr); gap: 4px; align-items: end; height: 34svh; min-height: 200px; }
+  .foot__mark { display: grid; grid-template-columns: repeat(6, 1fr); gap: 4px; align-items: end; height: 34svh; min-height: 200px; }
   .foot__mark span {
     height: var(--h); background: var(--bg); color: var(--fg); border-radius: var(--r);
     display: grid; place-items: end start; padding: 0 0 0 clamp(8px, 1.4vw, 20px);
-    font-weight: 800; font-size: clamp(5rem, 19vw, 18rem); line-height: 0.78; letter-spacing: -0.05em; overflow: hidden;
+    font-weight: 800; font-size: clamp(4rem, 15.5vw, 15rem); line-height: 0.78; letter-spacing: -0.05em; overflow: hidden;
   }
   .foot__cols { display: grid; grid-template-columns: repeat(12, 1fr); gap: var(--gap); margin-top: 56px; }
-  .foot__cols nav { grid-column: span 3; }
+  .foot__cols nav { grid-column: span 2; }
   .foot__cols h2 { font-size: var(--t-body); letter-spacing: 0; line-height: 1.4; color: var(--muted); font-weight: 500; margin-bottom: 10px; }
   .foot__cols li { padding: 4px 0; }
   .foot__note { grid-column: 8 / span 5; color: var(--ink); max-width: 44ch; }
@@ -45,7 +53,7 @@ const heights = [100, 74, 88, 62, 94];
   @media (max-width: 760px) {
     .foot { padding-top: 80px; }
     .foot__mark { height: 22svh; min-height: 140px; }
-    .foot__cols nav { grid-column: span 6; }
+    .foot__cols nav { grid-column: span 4; }
     .foot__note { grid-column: 1 / -1; margin-top: 24px; }
   }
 </style>

@@ -7,11 +7,13 @@ import { gzipSync } from "node:zlib";
 const dist = new URL("../dist/", import.meta.url);
 const read = (p) => readFileSync(new URL(p, dist), "utf8");
 const pages = readdirSync(dist).filter((f) => f.endsWith(".html"));
-const slugs = pages.filter((f) => !["index.html", "404.html"].includes(f)).map((f) => f.replace(".html", ""));
+const docs = ["tokens", "privacy"];
+const slugs = pages.filter((f) => !["index.html", "404.html", ...docs.map((d) => `${d}.html`)].includes(f)).map((f) => f.replace(".html", ""));
 const meta = (html, attr, key) => html.match(new RegExp(`<meta ${attr}="${key}" content="([^"]*)"`))?.[1];
 
-test("twelve game pages, a home page and a 404", () => {
+test("twelve game pages, how the arcade works, privacy, a home page and a 404", () => {
   assert.deepEqual(slugs.sort(), ["clover", "coil", "glide", "lightkeeper", "minefield", "nonet", "noughts", "pinfall", "rally", "spillway", "swish", "typester"]);
+  for (const d of docs) assert.ok(pages.includes(`${d}.html`), `missing /${d}`);
 });
 
 for (const page of pages.filter((p) => p !== "404.html")) {

@@ -12,7 +12,8 @@ The site is static HTML from Astro, served by Cloudflare. The home page adds one
 | `src/arcade/shaders.ts` | One lit shader for every surface (material chosen per vertex), a depth shader, the beam shader and the post chain. |
 | `src/arcade/hall.ts` | The renderer, the camera rail, pointer input, picking, and the video screens. |
 | `src/arcade/sound.ts` | Synthesised effects and the ambient room. |
-| `src/scripts/arcade.ts` | The page side: card, row, keyboard, gamepad, attract mode, last played, bests, sound and hints. |
+| `src/scripts/arcade.ts` | The page side: card, row, keyboard, gamepad, attract mode, last played, bests, prices, sound and hints. |
+| `src/pass/` | The arcade pass, built by `scripts/pass.ts` to `/pass.js`: the player card (`card.ts`), the economy (`economy.ts`), tags (`tags.ts`) and the UI in a closed shadow root (`ui.ts`). The hall and every game load it. |
 
 ## A frame
 
@@ -60,6 +61,25 @@ arcade_best_<slug> = encodeURIComponent(JSON.stringify({ v, l }))
 
 The arcade treats the cookie as input. It accepts strings only, strips anything that is not a letter, number, punctuation or space, cuts both fields to length, and only ever writes them as canvas text or `textContent`. When the visitor comes back from a game through the back button, the page reads the cookies again and repaints that marquee.
 
+## The arcade pass
+
+Every game loads `https://arcade.ashwinsathian.com/pass.js` (a classic script, before its own) and talks to it with two window events:
+
+```ts
+if (!dispatchEvent(new CustomEvent("arcade:start", { cancelable: true, detail: { mode } }))) return; // no token: the pass says why
+dispatchEvent(new CustomEvent("arcade:end", { detail: { mode, score } }));   // fields per machine, in economy.ts
+dispatchEvent(new CustomEvent("arcade:end", { detail: { mode, quit: true } })); // abandoned: pays nothing
+```
+
+- With no pass loaded, `dispatchEvent` returns true and the game plays free. A game never depends on the pass.
+- Games don't dispatch for attract or demo play, `?autoplay`, replays, warm-up throws, resumed runs or online play.
+- The pass prices and pays every machine from one table (`src/pass/economy.ts`). A token loads `plays` plays onto a machine; a run pays 0 to 3 by its result, plus 1 for a new best in that mode, at most 20 tokens per machine per day.
+- The pass stops key events that start inside it from reaching the game, so Enter on "Insert token" never also starts a run.
+- The hall loads the same file and drives it through `window.arcadePass` (`card`, `insert`, `plays`, `price`, `handoff`, `open`). On Play it inserts the token itself and sets `arcade_via`, so the machine skips its greeting.
+- `/pass.js` is cached for five minutes, so a change to the economy reaches every machine without redeploying them.
+
+The card is base64url JSON in one cookie. The pass treats it as input: it clamps numbers, drops unknown machines, cleans the tag to `[A-Za-z0-9 '-]` and cuts the receipt to 12 lines, and every value reaches the page through `textContent`. It is not secure and doesn't try to be: tokens have no value outside the arcade.
+
 ## State kept on the device
 
 | Key | Where | What |
@@ -70,8 +90,11 @@ The arcade treats the cookie as input. It accepts strings only, strips anything 
 | `games:last` | localStorage | Slug of the last game played |
 | `games:swiped` | localStorage | The swipe hint has been seen |
 | `arcade_best_*` | cookie | Written by the games, read here |
+| `arcade_card` | cookie | The player card: tag, tokens, plays per machine, bests per mode, streak, receipt. Written by the pass |
+| `arcade_via` | cookie | The machine the hall just sent you to, for two minutes |
+| `arcade:run:*`, `arcade:hi:*` | sessionStorage | The run in progress and whether a machine has greeted you, per tab |
 
-There is no analytics and no server state.
+There is no analytics and no server state. [/privacy](https://arcade.ashwinsathian.com/privacy) lists all of this for players.
 
 ## Workers
 

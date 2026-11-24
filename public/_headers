@@ -36,6 +36,10 @@
   Cache-Control: public, max-age=60, stale-while-revalidate=600
 /typester
   Cache-Control: public, max-age=60, stale-while-revalidate=600
+/tokens
+  Cache-Control: public, max-age=60, stale-while-revalidate=600
+/privacy
+  Cache-Control: public, max-age=60, stale-while-revalidate=600
 
 # Hashed build output never changes.
 /_astro/*

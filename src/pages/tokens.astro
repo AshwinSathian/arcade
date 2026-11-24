@@ -1,0 +1,69 @@
+---
+import Doc from "../layouts/Doc.astro";
+import { games } from "../data/games";
+import { machines } from "../pass/economy.ts";
+import { WELCOME, FLOOR, CAP } from "../pass/card.ts";
+
+const free: Record<string, string> = { clover: "Calm", coil: "Zen", glide: "Online", lightkeeper: "Practice", minefield: "Custom and shared boards", nonet: "Pasted puzzles", noughts: "Online", rally: "Online", spillway: "Ghost races" };
+---
+<Doc
+  title="How the arcade works: tokens, plays and your player card"
+  description="Every machine in the arcade takes tokens. You start with 12, good runs pay some back, and the cup refills while you are away. Everything stays in your browser."
+  heading="How the arcade works"
+  lede={`Every machine here takes tokens. You start with ${WELCOME}, good runs pay some back, and you never wait long for more.`}
+>
+  <section class="tile part" aria-labelledby="card-h">
+    <h2 id="card-h">Your player card</h2>
+    <p>The first time you come in, the arcade gives you a player card with a tag like Velvet Otter and {WELCOME} tokens. The same card works in the hall and in every machine, including a game you open straight from a link.</p>
+    <p>Tap the token count at the top of the hall, or in the corner of any game, to see the card. The dice gives you a new random tag, and the pencil lets you type your own: 2 to 20 letters, numbers, spaces, apostrophes or hyphens.</p>
+  </section>
+
+  <section class="tile part" aria-labelledby="plays-h">
+    <h2 id="plays-h">Tokens and plays</h2>
+    <p>A token loads a credit onto one machine. Quick games give you more than one play for it, and the plays you don't use stay on that machine for next time. The hall letters any credit you have on the machine's marquee.</p>
+    <p>In the hall, Play puts the token in for you. Opened from a link, a machine greets you at its coin door and waits for you to put one in. Free modes cost nothing and pay nothing.</p>
+  </section>
+
+  <section class="tile part part--wide" aria-labelledby="table-h">
+    <h2 id="table-h">What each machine takes and pays</h2>
+    <div class="scroll">
+      <table>
+        <thead><tr><th scope="col">Machine</th><th scope="col">A token buys</th><th scope="col">What pays</th><th scope="col">Free</th></tr></thead>
+        <tbody>
+          {games.map((g) => { const m = machines[g.slug]; return (
+            <tr><td><a class="link" href={`/${g.slug}`}>{g.name}</a></td><td>{m.plays === 1 ? "1 play" : `${m.plays} plays`}</td><td>{m.pays}</td><td>{free[g.slug] ?? "No"}</td></tr>
+          ); })}
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="tile part" aria-labelledby="pay-h">
+    <h2 id="pay-h">How runs pay</h2>
+    <ul>
+      <li>A run pays 1, 2 or 3 tokens, depending on how well it went. The table above says where each machine starts paying.</li>
+      <li>Beating your own best in that mode pays 1 more.</li>
+      <li>A daily mode pays on your first finished run of the day only.</li>
+      <li>A machine pays out at most 20 tokens a day.</li>
+      <li>Quitting a run, a run under a second and a half, and games for two players on one screen pay nothing.</li>
+      <li>Your cup holds {CAP}. Anything past that is lost.</li>
+    </ul>
+  </section>
+
+  <section class="tile part" aria-labelledby="low-h">
+    <h2 id="low-h">Running low</h2>
+    <p>Below {FLOOR} tokens, your cup fills back up by one every 15 minutes until it holds {FLOOR} again. The card shows how long the next one will take.</p>
+    <p>The first time you open the hall or any machine each day, you get 5 tokens; in the hall, the change machine in the corner pays them into its tray. Come back on consecutive days and you get one more each day, up to 9. Miss a day and the streak starts again.</p>
+  </section>
+
+  <section class="tile part" aria-labelledby="keep-h">
+    <h2 id="keep-h">Where your card lives</h2>
+    <p>Your card is one cookie in this browser, shared by arcade.ashwinsathian.com and the games on their own ashwinsathian.com addresses. It doesn't follow you to another browser or device, and clearing cookies starts a new card.</p>
+    <p>To carry it over, open the card, choose Move or forget this card, and copy its code. Paste the code into the card in the other browser. <a class="link" href="/privacy">Privacy</a> lists everything the arcade keeps.</p>
+  </section>
+
+  <section class="tile part" aria-labelledby="honest-h">
+    <h2 id="honest-h">Tokens are for fun</h2>
+    <p>Tokens can't be bought, sold or swapped for anything. Because the card lives in your browser, anyone determined enough can edit it, and the arcade doesn't try to stop them. It only spoils the game for the person who does it.</p>
+  </section>
+</Doc>

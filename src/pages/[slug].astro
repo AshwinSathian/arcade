@@ -6,6 +6,7 @@ import Arrow from "../components/Arrow.astro";
 import StillToggle from "../components/StillToggle.astro";
 import Lights from "../components/Lights.astro";
 import { games, site, type Game } from "../data/games";
+import { machines } from "../pass/economy.ts";
 
 export function getStaticPaths() {
   return games.map((game, i) => ({ params: { slug: game.slug }, props: { game, i } }));
@@ -13,6 +14,8 @@ export function getStaticPaths() {
 interface Props { game: Game; i: number }
 const { game, i } = Astro.props;
 const others = [...games.slice(i + 1), ...games.slice(0, i)];
+const m = machines[game.slug];
+const price = `1 token for ${m.plays === 1 ? "1 play" : `${m.plays} plays`}. ${m.pays}`;
 const poster = await getImage({ src: game.poster, width: 720, format: "webp", quality: 72 });
 const shot = await getImage({ src: game.desktop.src, width: 1200, format: "webp" });
 
@@ -54,7 +57,7 @@ const jsonld = [
     "@context": "https://schema.org",
     "@type": "BreadcrumbList",
     itemListElement: [
-      { "@type": "ListItem", position: 1, name: "Games", item: site.url },
+      { "@type": "ListItem", position: 1, name: "The Arcade", item: site.url },
       { "@type": "ListItem", position: 2, name: game.name, item: page },
     ],
   },
@@ -90,6 +93,7 @@ const jsonld = [
       <div><dt>Controls</dt><dd>{game.controls}</dd></div>
       <div><dt>Size</dt><dd>{game.sizeNote}</dd></div>
       <div><dt>Made with</dt><dd>{game.stack}</dd></div>
+      <div class="facts__price"><dt>At the machine</dt><dd>{price} <a class="link" href="/tokens">How tokens work</a></dd></div>
     </dl>
 
     <figure class="shot shot--wide">
@@ -112,7 +116,7 @@ const jsonld = [
   </div>
 
   <section class="more" aria-labelledby="more-h">
-    <h2 id="more-h">More games</h2>
+    <h2 id="more-h">More machines</h2>
     <div class="more__row">
       {others.map((g, k) => <GameTile game={g} i={k} heading="h3" />)}
     </div>
@@ -145,6 +149,7 @@ const jsonld = [
   .facts { grid-area: facts; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px 32px; }
   .facts dt { color: var(--muted); font-size: var(--t-sm); margin-bottom: 4px; }
   .facts dd { font-size: var(--t-body); }
+  .facts__price { grid-column: 1 / -1; }
   .shot { margin: 0; border-radius: var(--r); overflow: hidden; background: var(--surface-2); }
   .shot :global(img) { width: 100%; height: 100%; object-fit: cover; }
   .shot--wide { grid-area: wide; aspect-ratio: 16 / 10; }

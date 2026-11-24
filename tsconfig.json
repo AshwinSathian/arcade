@@ -6,7 +6,8 @@
   ],
   "exclude": [
     "dist",
-    "scripts"
+    "scripts",
+    "public/pass.js"
   ],
   "compilerOptions": {
     "allowImportingTsExtensions": true
