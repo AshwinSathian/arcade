@@ -1,6 +1,7 @@
 /* The pass: a night-glass player card that looks the same in every machine. --a is the machine's own bright. */
 :host {
   all: initial;
+  visibility: inherit; /* hidden with its parent, like any other element */
   --a: #ffcf3d; --ag: #141412;
   --ink: #f4f1ea; --mute: #a9a59b; --line: rgb(255 255 255 / 0.1);
   --gold: #f6c53d; --gold-ink: #2a1c00;

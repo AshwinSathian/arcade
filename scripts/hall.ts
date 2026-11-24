@@ -16,6 +16,10 @@ mkdirSync('public/hall', { recursive: true });
 const browser = await chromium.launch({ args: ['--use-angle=metal', '--enable-gpu', '--ignore-gpu-blocklist'] });
 for (const [theme, scheme] of [['day', 'light'], ['night', 'dark']] as const) {
   const page = await browser.newPage({ viewport: { width: 1600, height: 1000 }, colorScheme: scheme });
+  // A player card already claimed today, so neither the welcome nor the day's tokens get in the picture.
+  const now = Date.now(), day = Math.floor(now / 86_400_000);
+  const card = { v: 1, tag: 'Velvet Otter', tok: 12, at: now, day, st: 1, cr: {}, paid: {}, log: [], seen: [], b: {}, dd: {} };
+  await page.context().addCookies([{ name: 'arcade_card', value: Buffer.from(JSON.stringify(card)).toString('base64url'), url: base }]);
   await page.goto(`${base}/#spillway`, { waitUntil: 'load' });
   // Hidden but still laid out, so the camera frames the room exactly as a visitor sees it behind the interface.
   await page.addStyleTag({ content: '.hall__top, .hall__cards, .hall__row, .hall__hint, .coach, .attract { visibility: hidden !important; }' });
