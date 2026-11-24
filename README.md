@@ -8,7 +8,7 @@
 
 [![CI](https://github.com/AshwinSathian/arcade/actions/workflows/ci.yml/badge.svg)](https://github.com/AshwinSathian/arcade/actions/workflows/ci.yml)
 [![Licence: MIT](https://img.shields.io/badge/licence-MIT-blue.svg)](LICENSE)
-![Hall script: 24 KB gzipped](https://img.shields.io/badge/hall%20script-24%20KB%20gzipped-success)
+![Hall script: 25 KB gzipped](https://img.shields.io/badge/hall%20script-25%20KB%20gzipped-success)
 ![No 3D library](https://img.shields.io/badge/3D%20library-none-lightgrey)
 
 ![The arcade at night: a row of cabinets under downlights, each screen playing its game, with a pink ARCADE neon on the wall](public/og/index.jpg)
@@ -33,8 +33,8 @@ The Arcade is the front door to twelve small games: Clover, Coil, Glide, Lightke
 | Layer | What it is |
 | --- | --- |
 | Site | [Astro](https://astro.build) 7, fully static, one page per game plus `llms.txt`, sitemap and social cards |
-| The hall | About 1,700 lines of TypeScript and GLSL in [`src/arcade`](src/arcade), on raw WebGL 2 |
-| Rendering | Shadow map, mirrored floor reflection, 4× MSAA HDR, GGX lighting from 21 lights, contact shadows, light beams, bloom, neutral tone curve |
+| The hall | About 1,900 lines of TypeScript and GLSL in [`src/arcade`](src/arcade), on raw WebGL 2 |
+| Rendering | Shadow map, mirrored floor reflection, 4× MSAA HDR, GGX lighting from 25 lights, contact shadows, light beams, bloom, neutral tone curve |
 | Sound | Web Audio, synthesised: no audio files |
 | Hosting | Cloudflare Workers static assets. One Worker answers byte ranges for the clips, because Safari needs them, and another sends the old address on to the new one |
 
@@ -56,7 +56,7 @@ The Arcade is the front door to twelve small games: Clover, Coil, Glide, Lightke
 | Save-Data | Screens show stills, and no clip is downloaded |
 | Reduced motion | The camera cuts instead of gliding, there is no fly-in and no attract mode |
 | Pause clips | Screens stop, and the idle drift stops |
-| Slow GPU | Resolution steps down while frames run long, and phones start at a lower pixel budget |
+| Slow GPU | Resolution steps down while frames run long and tries one step back up once they settle; phones start at a lower pixel budget |
 
 ## Getting started
 

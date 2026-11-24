@@ -1,7 +1,7 @@
 {
   "name": "arcade",
   "version": "2.0.0",
-  "description": "A 3D arcade for ten browser games, drawn live in WebGL 2 with no 3D library. Day and Night, real gameplay on every screen.",
+  "description": "A 3D arcade for twelve browser games, drawn live in WebGL 2 with no 3D library. Day and Night, real gameplay on every screen.",
   "homepage": "https://arcade.ashwinsathian.com",
   "repository": {
     "type": "git",

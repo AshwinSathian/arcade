@@ -1,6 +1,8 @@
 // GLSL for the hall: one lit pass for every surface, a depth pass, light beams, and the post chain.
-export const NL = 24; // point and spot lights
-export const NF = 12; // cabinet footprints, for contact shadows on the floor
+// The lit pass is sized from the room: a screen light and a downlight per machine plus the neon,
+// and a footprint per machine for contact shadows. 12 machines take 2 * 25 + 12 vec4s, plus about
+// 20 for the rest, well inside the 224 fragment uniform vectors WebGL 2 guarantees everywhere.
+export const lightsFor = (machines: number) => 2 * machines + 1;
 
 export const vsMain = `#version 300 es
 layout(location=0) in vec3 aPos; layout(location=1) in vec3 aNrm; layout(location=2) in vec4 aAux;
@@ -12,7 +14,7 @@ void main() {
   gl_Position = uVP * w;
 }`;
 
-export const fsMain = `#version 300 es
+export const fsMain = (machines: number, NL = lightsFor(machines), NF = machines) => `#version 300 es
 precision highp float; precision highp sampler2DShadow;
 in vec3 vPos; in vec3 vNrm; in vec2 vUv; flat in int vMat; in float vFlag;
 uniform vec3 uCam; uniform float uTime; uniform float uNight;

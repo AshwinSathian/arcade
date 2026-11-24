@@ -34,3 +34,12 @@ test("the old address: any path and query move permanently to the same place on 
   assert.equal(r.status, 301);
   assert.equal(r.headers.get("Location"), "https://arcade.ashwinsathian.com/coil?x=1");
 });
+
+test("with a Content-Length, a range is cut from the stream as it arrives, across chunk edges", async () => {
+  const chunks = [bytes.subarray(0, 300), bytes.subarray(300, 700), bytes.subarray(700)];
+  const streamed = { ASSETS: { fetch: async () => new Response(new ReadableStream({ pull(c) { chunks.length ? c.enqueue(chunks.shift()) : c.close(); } }), { headers: { "Content-Type": "video/mp4", "Content-Length": "1000" } }) } };
+  const r = await worker.fetch(new Request("https://x/media/a.mp4", { headers: { Range: "bytes=250-749" } }), streamed);
+  assert.equal(r.status, 206);
+  assert.equal(r.headers.get("Content-Range"), "bytes 250-749/1000");
+  assert.deepEqual(new Uint8Array(await r.arrayBuffer()), bytes.slice(250, 750));
+});

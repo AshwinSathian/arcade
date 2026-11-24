@@ -28,7 +28,7 @@ import { games } from "../data/games";
     <ul>
       <li>The hall remembers Day or Night, sound, paused clips, the machine you played last and whether you have seen the swipe hint, in local storage under keys starting games:.</li>
       <li>Each game keeps its own saves and settings in local storage on its own address. Other sites can't read them.</li>
-      <li>While a tab is open, the pass notes the run in progress and whether that machine has greeted you, in session storage. Both go when the tab closes.</li>
+      <li>While a tab is open, the pass notes the run in progress and whether that machine has greeted you, in session storage. Both go when the tab closes. A random id for each unfinished run is also kept in local storage on that game's address, so a copied tab can't be paid for the same run twice. It goes when the run ends.</li>
     </ul>
   </section>
 

@@ -34,9 +34,9 @@ flowchart LR
 
 - **Shadows.** Nothing in the room moves, so the sun's shadow map is drawn once at start-up and sampled with eight rotated taps.
 - **Floor.** The hall is drawn a second time, mirrored under the floor, into a half-size target. The floor samples it by screen position at a mip level set by its roughness, with a Fresnel weight, so the reflection blurs where the concrete is matte.
-- **Light.** GGX specular and Lambert diffuse, a hemisphere ambient, an analytic room for reflections, and up to 24 point and spot lights. Each screen is a light whose colour is the average of its clip, sampled from a 4×4 canvas a few times a second. Each machine casts a soft contact shadow on the floor from its footprint.
+- **Light.** GGX specular and Lambert diffuse, a hemisphere ambient, an analytic room for reflections, and a point or spot light for each screen, each downlight and the neon: 25 for twelve machines. The shader's light and footprint arrays are sized from the number of machines when it compiles, so adding a machine can't push a light out. Each screen is a light whose colour is the average of its clip, sampled from a 4×4 canvas a few times a second. Each machine casts a soft contact shadow on the floor from its footprint.
 - **Day and Night** is one number from 0 to 1 that drives the sun, the sky, exposure, bloom, the downlights (which come on in order, with a flicker) and the neon.
-- **Budget.** The canvas is capped at 3.2 million pixels on a laptop and 1.9 million on a touch device. If frames run long for two seconds, the resolution drops by a fifth.
+- **Budget.** The canvas is capped at 3.2 million pixels on a laptop and 1.9 million on a touch device. If frames run long for two seconds, the resolution drops by a fifth, at most three times. After 20 smooth seconds it tries one step back up; a level that runs long again after that is not tried again. A display or battery mode that caps frames at 30 a second looks the same as a slow GPU here and also steps down.
 
 ## The camera
 
@@ -76,9 +76,9 @@ dispatchEvent(new CustomEvent("arcade:end", { detail: { mode, quit: true } })); 
 - The pass prices and pays every machine from one table (`src/pass/economy.ts`). A token loads `plays` plays onto a machine; a run pays 0 to 3 by its result, plus 1 for a new best in that mode, at most 20 tokens per machine per day.
 - The pass stops key events that start inside it from reaching the game, so Enter on "Insert token" never also starts a run.
 - The hall loads the same file and drives it through `window.arcadePass` (`card`, `insert`, `plays`, `price`, `handoff`, `open`). On Play it inserts the token itself and sets `arcade_via`, so the machine skips its greeting.
-- `/pass.js` is cached for five minutes, so a change to the economy reaches every machine without redeploying them.
+- `/pass.js` is fresh for five minutes and then served stale for up to an hour while it revalidates, so a change to the economy reaches every machine within the hour without redeploying them.
 
-The card is base64url JSON in one cookie. The pass treats it as input: it clamps numbers, drops unknown machines, cleans the tag to `[A-Za-z0-9 '-]` and cuts the receipt to 12 lines, and every value reaches the page through `textContent`. It is not secure and doesn't try to be: tokens have no value outside the arcade.
+The card is base64url JSON in one cookie. The pass treats it as input: it clamps numbers, drops any machine or mode the economy table doesn't list, cleans the tag to `[A-Za-z0-9 '-]` and cuts the receipt to 12 lines, and every value reaches the page through `textContent`. Written back, it always fits in 3,200 characters: past the browser's 4 KB limit a cookie write is dropped and the card would stop saving, so the receipt goes first and then the smallest bests. It is not secure and doesn't try to be: tokens have no value outside the arcade.
 
 ## State kept on the device
 
@@ -93,6 +93,7 @@ The card is base64url JSON in one cookie. The pass treats it as input: it clamps
 | `arcade_card` | cookie | The player card: tag, tokens, plays per machine, bests per mode, streak, receipt. Written by the pass |
 | `arcade_via` | cookie | The machine the hall just sent you to, for two minutes |
 | `arcade:run:*`, `arcade:hi:*` | sessionStorage | The run in progress and whether a machine has greeted you, per tab |
+| `arcade:open:*` | localStorage | Ids of runs not yet ended, at most 20. A duplicated tab copies sessionStorage, run and all; only the first tab to end the run finds its id and is paid |
 
 There is no analytics and no server state. [/privacy](https://arcade.ashwinsathian.com/privacy) lists all of this for players.
 

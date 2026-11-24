@@ -42,20 +42,20 @@ export function fresh(now: number, rand: () => number, tag = ""): Card {
   return { v: 1, tag: tag || randomTag(rand), tok: WELCOME, at: now, day: today(now), st: 0, cr: {}, paid: {}, log: [[Math.floor(now / 1000), "hall", WELCOME, "Welcome"]], seen: [], b: {}, dd: {} };
 }
 
-/** Reads a card from its cookie value. Anything malformed gives a fresh card, keeping a valid tag. */
-export function parse(raw: string | undefined, slugs: string[], now: number, rand: () => number): { card: Card; fresh: boolean } {
+/** Reads a card from its cookie value. Anything malformed gives a fresh card, keeping a valid tag.
+ *  `modes` is each machine's mode ids: keys for anything else are dropped, so a forged cookie can't grow the card
+ *  past what a cookie holds (the browser then refuses every write and the card is stuck). */
+export function parse(raw: string | undefined, modes: Record<string, readonly string[]>, now: number, rand: () => number): { card: Card; fresh: boolean } {
   let o: Record<string, unknown> | undefined;
   try { if (raw) o = obj(JSON.parse(atob(raw.replace(/-/g, "+").replace(/_/g, "/")))); } catch { o = undefined; }
   if (!o || o.v !== 1) return { card: fresh(now, rand, cleanTag(o?.tag)), fresh: true };
-  const known = new Set(slugs);
-  // Keys are a machine's slug, or for bests "slug.mode" in lower-case ASCII: anything else is dropped, so a hostile
-  // cookie can't smuggle in characters that would stop the card being written back.
-  const pick = <T>(src: unknown, f: (v: unknown, k: string) => T | undefined, modes = false) => {
+  const known = new Set(Object.keys(modes));
+  const bests = new Set(Object.entries(modes).flatMap(([slug, ms]) => ms.map((m) => `${slug}.${m}`)));
+  const pick = <T>(src: unknown, f: (v: unknown) => T | undefined, keys = known) => {
     const out: Record<string, T> = {};
     for (const [k, v] of Object.entries(obj(src))) {
-      const [slug, mode] = [k.slice(0, k.indexOf(".") >>> 0), k.slice(k.indexOf(".") + 1)];
-      if (modes ? !(k.includes(".") && known.has(slug) && /^[a-z]{1,12}(\.[a-z]{1,12})?$/.test(mode)) : !known.has(k)) continue;
-      const r = f(v, k);
+      if (!keys.has(k)) continue;
+      const r = f(v);
       if (r !== undefined) out[k] = r;
     }
     return out;
@@ -73,7 +73,7 @@ export function parse(raw: string | undefined, slugs: string[], now: number, ran
     log: (Array.isArray(o.log) ? o.log : []).slice(0, LOG).flatMap((r): LogRow[] =>
       Array.isArray(r) && (known.has(r[1]) || r[1] === "hall") ? [[int(r[0], 0, Math.floor(now / 1000), 0), r[1], int(r[2], -CAP, CAP, 0), cleanWhy(r[3])]] : []),
     seen: (Array.isArray(o.seen) ? o.seen : []).filter((s): s is string => typeof s === "string" && known.has(s)),
-    b: pick(o.b, (v) => (typeof v === "number" && Number.isFinite(v) && v >= 0 ? Math.min(Math.round(v), 1e9) : undefined), true),
+    b: pick(o.b, (v) => (typeof v === "number" && Number.isFinite(v) && v >= 0 ? Math.min(Math.round(v), 1e9) : undefined), bests),
     dd: pick(o.dd, (v) => int(v, 0, d0, 0) || undefined),
   };
   return { card, fresh: false };
@@ -82,10 +82,16 @@ export function parse(raw: string | undefined, slugs: string[], now: number, ran
 /** Base64url of the JSON: cookie-safe, and a third smaller than percent-encoding it. Everything in a card is ASCII. */
 const b64 = (o: unknown) => btoa(JSON.stringify(o)).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
 export const MAX = 3200; // of the 4,096 bytes a cookie may hold
+/** Always fits in MAX: past it the browser drops the write and the card stops saving. The receipt goes first,
+ *  oldest row first, then the smallest bests. */
 export function serialise(c: Card): string {
-  const c2 = { ...c, log: c.log.slice(0, LOG) };
+  const c2 = { ...c, log: c.log.slice(0, LOG), b: { ...c.b } };
+  const low = Object.keys(c2.b).sort((x, y) => c2.b[x] - c2.b[y]);
   let s = b64(c2);
-  while (s.length > MAX && c2.log.length) { c2.log.pop(); s = b64(c2); }
+  while (s.length > MAX && (c2.log.length || low.length)) {
+    if (c2.log.length) c2.log.pop(); else delete c2.b[low.shift()!];
+    s = b64(c2);
+  }
   return s;
 }
 

@@ -35,6 +35,7 @@ declare global {
   const slug = me?.dataset.game && machines[me.dataset.game] ? me.dataset.game : undefined;
   const base = new URL("./", me?.src || location.href);
   const slugs = list.map((g) => g.slug);
+  const modes = Object.fromEntries(slugs.map((s) => [s, machines[s]?.modes ?? []]));
   const names = Object.fromEntries(list.map((g) => [g.slug, g.name]));
 
   // ---------- the card cookie, shared by every *.ashwinsathian.com page ----------
@@ -48,7 +49,7 @@ declare global {
   const read = () => {
     const raw = jar("arcade_card");
     if (!raw && mem) return refill(mem, Date.now());
-    const r = parse(raw, slugs, Date.now(), Math.random);
+    const r = parse(raw, modes, Date.now(), Math.random);
     fresh ||= r.fresh;
     return refill(r.card, Date.now()); // tokens that came back while you were away show at once
   };
@@ -81,7 +82,7 @@ declare global {
     code: () => serialise(read()),
     use: (code) => {
       if (!/^[A-Za-z0-9_-]{20,4000}$/.test(code)) return false;
-      const r = parse(code, slugs, Date.now(), Math.random);
+      const r = parse(code, modes, Date.now(), Math.random);
       if (r.fresh) return false;
       write(r.card); ui.paint(r.card);
       dispatchEvent(new CustomEvent("arcade:card", { detail: r.card }));
@@ -100,9 +101,19 @@ declare global {
   if (paid) ui.toast(`+${paid} tokens · ${card0.log[0]?.[3] || "Daily tokens"}`, "plus");
 
   // ---------- runs: one per tab per machine, kept in sessionStorage so a reload mid-run can't pay twice ----------
-  const RUN = `arcade:run:${slug}`;
-  const getRun = () => { try { const r = JSON.parse(sessionStorage.getItem(RUN) || "null"); return r && typeof r.mode === "string" && typeof r.at === "number" ? r as { mode: string; at: number } : undefined; } catch { return undefined; } };
-  const setRun = (r?: { mode: string; at: number }) => { try { r ? sessionStorage.setItem(RUN, JSON.stringify(r)) : sessionStorage.removeItem(RUN); } catch { /* private mode */ } };
+  // A duplicated tab copies sessionStorage, run and all, so each run's id is also listed in localStorage until it ends:
+  // the first tab to end it takes the id off and is paid, the copy finds it gone. Without localStorage, runs pay as before.
+  type Run = { mode: string; at: number; id: string };
+  const RUN = `arcade:run:${slug}`, OPEN = `arcade:open:${slug}`;
+  const getRun = () => { try { const r = JSON.parse(sessionStorage.getItem(RUN) || "null"); return r && typeof r.mode === "string" && typeof r.at === "number" && typeof r.id === "string" ? r as Run : undefined; } catch { return undefined; } };
+  const setRun = (r?: Run) => { try { r ? sessionStorage.setItem(RUN, JSON.stringify(r)) : sessionStorage.removeItem(RUN); } catch { /* private mode */ } };
+  const openRuns = (): string[] => { const a = JSON.parse(localStorage.getItem(OPEN) || "[]"); return Array.isArray(a) ? a : []; };
+  /** The run's id, or "" when it can't be listed. */
+  const enlist = (id: string) => { try { localStorage.setItem(OPEN, JSON.stringify([...openRuns(), id].slice(-20))); return id; } catch { return ""; } };
+  const claim = (id: string) => {
+    if (!id) return true;
+    try { const a = openRuns(); if (!a.includes(id)) return false; localStorage.setItem(OPEN, JSON.stringify(a.filter((x) => x !== id))); return true; } catch { return true; }
+  };
   const detail = (e: Event): Detail => { const d = (e as CustomEvent).detail; return d && typeof d === "object" ? d as Detail : {}; };
 
   if (slug) {
@@ -115,7 +126,7 @@ declare global {
         else ui.toast("Out of tokens: this run is on the house", "info");
         return;
       }
-      setRun(r.free ? undefined : { mode, at: Date.now() });
+      setRun(r.free ? undefined : { mode, at: Date.now(), id: enlist(Math.random().toString(36).slice(2)) });
       ui.running(true);
       const left = read().cr[slug] ?? 0;
       if (r.charged) ui.toast(`−1 token · ${left} ${left === 1 ? "play" : "plays"} left on ${machine!.name}`, "minus");
@@ -124,7 +135,7 @@ declare global {
       const d = detail(e), run = getRun();
       setRun(undefined);
       ui.running(false);
-      if (!run || d.quit) return;
+      if (!run || !claim(run.id) || d.quit) return;
       const r = change((c, now) => end(c, slug, run, d, now));
       if (r.paid) ui.toast(`+${r.paid} ${r.paid === 1 ? "token" : "tokens"} · ${r.why}`, "plus");
       else if (r.best) ui.toast("New best", "info");

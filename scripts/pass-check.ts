@@ -55,6 +55,19 @@ try {
   assert.equal((await card(p)).cr.coil, 1, "zen is free");
   await p.evaluate(() => window.endRun({ mode: "zen", quit: true }));
 
+  // 2a. A duplicated tab copies sessionStorage, run and all: the run pays in one tab only.
+  await p.evaluate(() => window.startRun("classic"));
+  await p.waitForTimeout(1700);
+  const [dup] = await Promise.all([p.context().waitForEvent("page"), p.evaluate(() => { window.open(location.href); })]);
+  dup.on("pageerror", (e) => errors.push(String(e)));
+  await dup.waitForFunction(() => window.arcadePass?.ready);
+  assert.ok(await dup.evaluate(() => sessionStorage.getItem("arcade:run:coil")), "the copy carries the run");
+  const tok0 = (await card(p)).tok;
+  await p.evaluate(() => window.endRun({ mode: "classic", score: 400 }));
+  await dup.evaluate(() => window.endRun({ mode: "classic", score: 400 }));
+  assert.equal((await card(p)).tok, tok0 + 1, "one run, paid once");
+  await dup.close();
+
   // 2b. Open the card from the chip and close it: the game hears its keys again, and Copy doesn't close the card.
   await p.locator("arcade-pass").evaluate((h) => (h as HTMLElement).focus());
   const before = Number(await p.locator("#keys").textContent());
