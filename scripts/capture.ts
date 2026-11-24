@@ -174,6 +174,8 @@ for (const [slug, g] of Object.entries(games)) {
   const [w, h] = g.size ?? [W, H];
   const ctx = await browser.newContext({ viewport: { width: w, height: h }, colorScheme: g.scheme ?? 'dark', recordVideo: { dir, size: { width: w, height: h } } });
   const p = await ctx.newPage();
+  // The clips show the game itself: no player card, greeting or toasts from the arcade pass.
+  await p.route('https://arcade.ashwinsathian.com/pass.js', (r) => r.abort());
   await g.init?.(p);
   await p.goto(g.url, { waitUntil: 'domcontentloaded', timeout: 30000 });
   await g.play(p);
