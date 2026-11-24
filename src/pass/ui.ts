@@ -54,6 +54,7 @@ export class PassUI {
   private toasts: HTMLElement;
   private dlg: HTMLDialogElement;
   private ticker = 0;
+  private closers: (() => void)[] = [];
   private shown = -1;
   private back: Element | null = null;
   private reduced = matchMedia("(prefers-reduced-motion: reduce)");
@@ -74,10 +75,18 @@ export class PassUI {
     this.chip.addEventListener("click", () => this.sheet());
     this.toasts = h("div", { class: "toasts", role: "status", "aria-live": "polite" });
     this.dlg = h("dialog", { class: "dlg", "aria-labelledby": "t" });
-    this.dlg.addEventListener("close", () => { clearInterval(this.ticker); (this.back as HTMLElement | null)?.focus?.({ preventScroll: true }); });
+    this.dlg.addEventListener("close", () => {
+      clearInterval(this.ticker);
+      // Back to where focus was, unless that was the pass itself: a focused chip would keep the game's keys.
+      const b = this.back as HTMLElement | null;
+      if (b && b !== this.host) b.focus?.({ preventScroll: true });
+      else (this.root.activeElement as HTMLElement | null)?.blur();
+      const f = this.closers; this.closers = []; f.forEach((g) => g());
+    });
     this.dlg.addEventListener("click", (e) => { if (e.target === this.dlg) this.dlg.close(); }); // the backdrop
     this.root.append(this.chip, this.toasts, this.dlg);
-    (opts.slot ?? document.body).append(this.host);
+    const mount = () => (opts.slot ?? document.body).append(this.host);
+    if (opts.slot || document.body) mount(); else document.addEventListener("DOMContentLoaded", mount, { once: true });
     // Keys inside the pass are the pass's own. This capture listener on window is registered before the game's
     // script runs, so it goes first and the game never hears Enter on "Insert token". The pass has no key
     // handlers of its own: buttons, forms and Esc work by default action, which stopping propagation keeps.
@@ -91,6 +100,7 @@ export class PassUI {
   }
 
   get open() { return this.dlg.open; }
+  onClose(f: () => void) { if (this.dlg.open) this.closers.push(f); else f(); }
 
   /** Repaint the chip from the card. */
   paint(c: Card) {
@@ -220,6 +230,7 @@ export class PassUI {
     const timer = h("span", {});
     const tick = () => { const ms = this.a.refillIn(); timer.textContent = ms ? `Next token in ${clock(ms)}` : c.tok >= CAP ? "Your cup is full" : `Tops up to ${FLOOR} when you run low`; };
     const cr = m ? this.a.card().cr[m.slug] ?? 0 : 0;
+    const primary = fresh ? h("button", { class: "btn gold", type: "button", autofocus: "", text: "Let’s play" }) : m ? this.hallLink() : h("button", { class: "btn ghost", type: "button", autofocus: "", text: "Close" });
     const log = h("ol", { class: "log" }, ...c.log.slice(0, 8).map(([s, w, d, why]) =>
       h("li", {}, h("b", { class: d > 0 ? "plus" : d < 0 ? "minus" : "", text: d > 0 ? `+${d}` : d < 0 ? `−${-d}` : "0" }), h("span", { text: `${w === "hall" ? "The hall" : this.opts.names[w] ?? w} · ${why}` }), h("time", { text: ago(s) }))));
     this.show([
@@ -234,11 +245,11 @@ export class PassUI {
       h("p", { class: "timer" }, timer),
       c.log.length ? h("h3", { text: "Receipt" }) : null,
       log,
-      h("div", { class: "acts" }, fresh ? h("button", { class: "btn gold", type: "button", autofocus: "", text: "Let’s play" }) : m ? this.hallLink() : h("button", { class: "btn ghost", type: "button", autofocus: "", text: "Close" }), h("a", { class: "btn ghost", href: this.opts.tokens, text: "How the arcade works" })),
+      h("div", { class: "acts" }, primary, h("a", { class: "btn ghost", href: this.opts.tokens, text: "How the arcade works" })),
       this.keep(),
       this.notice(),
     ], "card");
-    this.dlg.querySelector(".acts button")?.addEventListener("click", () => this.close());
+    if (primary instanceof HTMLButtonElement) primary.addEventListener("click", () => this.close());
     tick();
     this.ticker = window.setInterval(tick, 1000);
   }
@@ -270,7 +281,7 @@ export class PassUI {
     const forget = h("button", { class: "btn ghost sm warn", type: "button", text: "Forget my card" });
     forget.addEventListener("click", () => {
       const sure = h("div", { class: "sure" },
-        h("p", { text: "This deletes your tag, tokens, plays and receipt from this browser. A new card starts in their place." }),
+        h("p", { text: "This deletes your tag, tokens, plays and receipt from this browser. A new card with 3 tokens starts in their place." }),
         h("div", { class: "acts" }, h("button", { class: "btn ghost sm warn", type: "button", text: "Forget it" }), h("button", { class: "btn ghost sm", type: "button", text: "Keep my card" })));
       const [yes, no] = sure.querySelectorAll("button");
       yes.addEventListener("click", () => { this.a.forget(); this.toast("Card forgotten. Here's a new one.", "info"); this.sheet(); });

@@ -81,11 +81,12 @@ export const machines: Record<string, Machine> = {
       if (!m.endsWith(".bot")) return 0;
       const lv = ["easy", "good", "best"].indexOf(String(d.level)), won = yes(d, "won"), draw = yes(d, "draw");
       if (lv < 0) return 0;
-      if (m.startsWith("classic")) return won ? (lv + 1) as Tier : draw && lv === 2 ? 3 : 0;
-      if (m.startsWith("fading")) return won ? ([0, 1, 3] as Tier[])[lv] : draw && lv === 2 ? 2 : 0;
+      // Perfect play draws, so holding Best to a draw is worth a token, never the most a run can pay.
+      if (m.startsWith("classic")) return won ? (lv + 1) as Tier : draw && lv === 2 ? 1 : 0;
+      if (m.startsWith("fading")) return won ? ([0, 1, 3] as Tier[])[lv] : draw && lv === 2 ? 1 : 0;
       return won ? (lv + 1) as Tier : 0;
     },
-    pays: "A win against the bot pays 1 on Easy, 2 on Good and 3 on Best; holding Best to a draw pays too. Two-player games don't pay, and online is free.",
+    pays: "A win against the bot pays 1 on Easy, 2 on Good and 3 on Best; holding Best to a draw pays 1. Two-player games don't pay, and online is free.",
   },
   pinfall: {
     plays: 1, modes: ["game", "daily", "spares"], free: none, top: 4,

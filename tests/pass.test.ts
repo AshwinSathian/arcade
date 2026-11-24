@@ -195,3 +195,16 @@ test("a full card still fits in a cookie", () => {
   assert.match(serialise(c), /^[A-Za-z0-9_-]+$/);
   assert.ok(parse(serialise(c), slugs, T0, rand).card.log.length >= 1);
 });
+
+test("only plain keys survive parsing, so a hostile cookie can never stop the card being written", () => {
+  const raw = enc({ v: 1, tag: "Neon Heron", tok: 5, b: { "clover.☃": 5, "clover.garden": 900, "noughts.classic.bot": 3, "coil": 4 }, cr: { "coil.x": 2, coil: 2 }, dd: { "glide☃": 1 } });
+  const { card } = parse(raw, slugs, T0, rand);
+  assert.deepEqual(card.b, { "clover.garden": 900, "noughts.classic.bot": 3 });
+  assert.deepEqual(card.cr, { coil: 2 });
+  assert.deepEqual(card.dd, {});
+  assert.doesNotThrow(() => serialise(card));
+});
+
+test("holding the Best bot to a draw pays 1, not the top", () => {
+  for (const v of ["classic", "fading"]) assert.equal(machines.noughts.tier(`${v}.bot`, { draw: true, level: "best" }), 1, v);
+});

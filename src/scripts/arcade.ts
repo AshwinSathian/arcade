@@ -286,7 +286,7 @@ async function boot() {
   hall.onFocus = (i) => show(i, "hall");
   hall.onClink = (k) => (k === "slot" ? sfx.drop() : sfx.clink());
   // The change machine in the corner: the camera turns to it, and the player card opens.
-  hall.onChanger = () => { hall!.lookAtChanger(true); pass()?.open(); setTimeout(() => hall!.lookAtChanger(false), 2600); };
+  hall.onChanger = () => { hall!.lookAtChanger(true); pass()?.open(); pass()?.onClose(() => hall!.lookAtChanger(false)); };
   applyBests();
   applyCard();
   canvas.addEventListener("webglcontextlost", () => delete root.dataset.hallLive);

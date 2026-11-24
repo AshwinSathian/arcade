@@ -55,6 +55,19 @@ try {
   assert.equal((await card(p)).cr.coil, 1, "zen is free");
   await p.evaluate(() => window.endRun({ mode: "zen", quit: true }));
 
+  // 2b. Open the card from the chip and close it: the game hears its keys again, and Copy doesn't close the card.
+  await p.locator("arcade-pass").evaluate((h) => (h as HTMLElement).focus());
+  const before = Number(await p.locator("#keys").textContent());
+  await p.evaluate(() => window.arcadePass!.open());
+  await p.keyboard.press("Escape");
+  await p.waitForTimeout(300);
+  await p.keyboard.press("ArrowLeft");
+  assert.equal(Number(await p.locator("#keys").textContent()), before + 1, "keys stop reaching the game after the card closes");
+
+  // 2c. A token that came back while away shows at once.
+  await p.evaluate(() => { const c = window.arcadePass!.card(); c.tok = 0; c.at = Date.now() - 16 * 60_000; document.cookie = `arcade_card=${btoa(JSON.stringify(c)).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "")}; Path=/`; });
+  assert.equal((await card(p)).tok, 1, "refilled token not shown");
+
   // 3. Out of tokens: the start is refused and nothing changes.
   await p.evaluate(() => { const c = window.arcadePass!.card(); c.tok = 0; c.cr = {}; c.at = Date.now(); document.cookie = `arcade_card=${btoa(JSON.stringify(c)).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "")}; Path=/`; });
   assert.equal(await p.evaluate(() => window.startRun("classic")), false);

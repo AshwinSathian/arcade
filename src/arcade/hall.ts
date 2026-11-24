@@ -364,12 +364,13 @@ export class Hall {
     return new Promise((r) => (this.zoomDone = r));
   }
   /** Back out, for a page restored from the back-forward cache. */
-  leave() { this.zoom = this.zoomTo = 0; this.ins = this.insTo = 0; this.coin = -1; }
+  leave() { this.zoom = this.zoomTo = 0; this.ins = this.insTo = 0; this.coin = -1; this.visit = this.visitTo = 0; this.pending = 0; }
 
   /** Stoop to the machine's coin door and drop a token in; resolves once it is in. Play then rises into the screen. */
   insert(): Promise<void> {
     if (this.reduced) { this.onClink("slot"); return Promise.resolve(); }
     this.insTo = 1; this.coin = -0.42; // the token sets off as the camera arrives
+    this.visitTo = 0; this.pending = 0;
     return new Promise((r) => (this.insDone = r));
   }
 

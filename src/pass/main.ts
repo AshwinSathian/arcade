@@ -3,7 +3,7 @@
 //
 //   if (!dispatchEvent(new CustomEvent("arcade:start", { cancelable: true, detail: { mode } }))) return;
 //   dispatchEvent(new CustomEvent("arcade:end", { detail: { mode, score, won } }));   // or { mode, quit: true }
-import { type Card, parse, serialise, refill, refillIn, daily, cleanTag } from "./card.ts";
+import { type Card, parse, serialise, refill, refillIn, daily, cleanTag, note, FLOOR } from "./card.ts";
 import { machines, start, end, insert, type Detail } from "./economy.ts";
 import { randomTag } from "./tags.ts";
 import { list } from "./machines.gen.ts";
@@ -20,6 +20,8 @@ declare global {
       price(slug: string): Price & { line: string };
       handoff(slug: string): void;
       open(): void;
+      /** Calls f once, when the open card or dialog closes. */
+      onClose(f: () => void): void;
       /** Tokens the day's claim paid on this page load, 0 if none. */
       daily: number;
       fresh: boolean;
@@ -41,8 +43,16 @@ declare global {
   const jar = (k: string) => document.cookie.split(/;\s*/).find((c) => c.startsWith(`${k}=`))?.slice(k.length + 1);
   const setCookie = (k: string, v: string, age: number) => { try { document.cookie = `${k}=${v}${attrs}; Max-Age=${age}`; } catch { /* cookies blocked: this page still plays */ } };
   let fresh = false;
-  const read = () => { const r = parse(jar("arcade_card"), slugs, Date.now(), Math.random); fresh ||= r.fresh; return r.card; };
-  const write = (c: Card) => setCookie("arcade_card", serialise(c), 34_560_000);
+  // With cookies blocked the card lives in memory for this page, rather than being dealt afresh on every read.
+  let mem: Card | undefined;
+  const read = () => {
+    const raw = jar("arcade_card");
+    if (!raw && mem) return refill(mem, Date.now());
+    const r = parse(raw, slugs, Date.now(), Math.random);
+    fresh ||= r.fresh;
+    return refill(r.card, Date.now()); // tokens that came back while you were away show at once
+  };
+  const write = (c: Card) => { mem = c; setCookie("arcade_card", serialise(c), 34_560_000); };
   /** Every change re-reads the cookie first, so two open tabs don't undo each other. */
   function change<T>(f: (c: Card, now: number) => T): T {
     const c = read(), out = f(c, Date.now());
@@ -66,7 +76,8 @@ declare global {
     insert: () => !!slug && change((c, now) => insert(c, slug, now).ok),
     reroll: () => change((c) => { let t; do t = randomTag(Math.random); while (t === c.tag); c.tag = t; }),
     rename: (t) => { const v = cleanTag(t); if (!v) return false; change((c) => (c.tag = v)); return true; },
-    forget: () => { setCookie("arcade_card", "", 0); change(() => {}); },
+    // A forgotten card's replacement starts at the floor, not with the welcome: forgetting is not a free top-up.
+    forget: () => { setCookie("arcade_card", "", 0); mem = undefined; change((c, now) => { c.tok = FLOOR; c.log = []; note(c, now, "hall", FLOOR, "New card"); }); },
     code: () => serialise(read()),
     use: (code) => {
       if (!/^[A-Za-z0-9_-]{20,4000}$/.test(code)) return false;
@@ -99,8 +110,9 @@ declare global {
       const d = detail(e), mode = String(d.mode ?? "");
       const r = change((c, now) => start(c, slug, mode, d, now));
       if (!r.ok) {
-        if (e.cancelable) e.preventDefault();
-        ui.out();
+        // A start the game can't call off goes ahead unpaid; a toast says so rather than a dialog over a live game.
+        if (e.cancelable) { e.preventDefault(); ui.out(); }
+        else ui.toast("Out of tokens: this run is on the house", "info");
         return;
       }
       setRun(r.free ? undefined : { mode, at: Date.now() });
@@ -133,6 +145,7 @@ declare global {
     price,
     handoff: (s) => setCookie("arcade_via", s, 120),
     open: () => ui.sheet(),
+    onClose: (f) => ui.onClose(f),
     daily: paid,
     fresh,
   };

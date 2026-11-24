@@ -48,11 +48,13 @@ export function parse(raw: string | undefined, slugs: string[], now: number, ran
   try { if (raw) o = obj(JSON.parse(atob(raw.replace(/-/g, "+").replace(/_/g, "/")))); } catch { o = undefined; }
   if (!o || o.v !== 1) return { card: fresh(now, rand, cleanTag(o?.tag)), fresh: true };
   const known = new Set(slugs);
-  const pick = <T>(src: unknown, f: (v: unknown, k: string) => T | undefined) => {
+  // Keys are a machine's slug, or for bests "slug.mode" in lower-case ASCII: anything else is dropped, so a hostile
+  // cookie can't smuggle in characters that would stop the card being written back.
+  const pick = <T>(src: unknown, f: (v: unknown, k: string) => T | undefined, modes = false) => {
     const out: Record<string, T> = {};
     for (const [k, v] of Object.entries(obj(src))) {
-      const slug = k.split(".")[0];
-      if (!known.has(slug)) continue;
+      const [slug, mode] = [k.slice(0, k.indexOf(".") >>> 0), k.slice(k.indexOf(".") + 1)];
+      if (modes ? !(k.includes(".") && known.has(slug) && /^[a-z]{1,12}(\.[a-z]{1,12})?$/.test(mode)) : !known.has(k)) continue;
       const r = f(v, k);
       if (r !== undefined) out[k] = r;
     }
@@ -71,7 +73,7 @@ export function parse(raw: string | undefined, slugs: string[], now: number, ran
     log: (Array.isArray(o.log) ? o.log : []).slice(0, LOG).flatMap((r): LogRow[] =>
       Array.isArray(r) && (known.has(r[1]) || r[1] === "hall") ? [[int(r[0], 0, Math.floor(now / 1000), 0), r[1], int(r[2], -CAP, CAP, 0), cleanWhy(r[3])]] : []),
     seen: (Array.isArray(o.seen) ? o.seen : []).filter((s): s is string => typeof s === "string" && known.has(s)),
-    b: pick(o.b, (v) => (typeof v === "number" && Number.isFinite(v) && v >= 0 ? Math.min(v, 1e9) : undefined)),
+    b: pick(o.b, (v) => (typeof v === "number" && Number.isFinite(v) && v >= 0 ? Math.min(Math.round(v), 1e9) : undefined), true),
     dd: pick(o.dd, (v) => int(v, 0, d0, 0) || undefined),
   };
   return { card, fresh: false };

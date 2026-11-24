@@ -55,11 +55,12 @@
   Content-Type: application/speculationrules+json
   Cache-Control: public, max-age=3600
 
-# The arcade pass, loaded by every machine on its own subdomain: fresh for five minutes, so a change to the
-# economy reaches every game within that, and readable from those origins (the font needs CORS).
+# The arcade pass, loaded by every machine on its own subdomain: fresh for five minutes, then served stale for at
+# most an hour while it revalidates, so a change to the economy reaches every game within the hour. Readable from
+# those origins (the font needs CORS).
 /pass.js
-  Cache-Control: public, max-age=300, stale-while-revalidate=86400
+  Cache-Control: public, max-age=300, stale-while-revalidate=3600
   Access-Control-Allow-Origin: *
 /pass/*
-  Cache-Control: public, max-age=31536000, immutable
+  Cache-Control: public, max-age=86400, stale-while-revalidate=604800
   Access-Control-Allow-Origin: *
