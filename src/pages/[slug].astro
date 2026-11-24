@@ -39,7 +39,7 @@ const jsonld = [
     image: [`${site.url}${shot.src}`, `${site.url}/og/${game.slug}.jpg`],
     screenshot: `${site.url}${shot.src}`,
     author: { "@type": "Person", "@id": `${site.authorUrl}/#person`, name: site.author, url: site.authorUrl },
-    sameAs: [game.repo, ...(game.post ? [game.post.url] : [])],
+    ...(game.post ? { sameAs: [game.post.url] } : {}),
     trailer: {
       "@type": "VideoObject",
       name: `${game.name} gameplay`,
@@ -81,7 +81,6 @@ const jsonld = [
       <p class="head__line">{game.line}</p>
       <p class="head__acts">
         <a class="btn play" href={game.url} data-play>Play {game.name} <Arrow /></a>
-        <a class="link" href={game.repo}>Source code</a>
         {game.post && <a class="link" href={game.post.url}>How it was built</a>}
       </p>
     </section>

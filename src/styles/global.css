@@ -127,7 +127,7 @@ p { text-wrap: pretty; }
 .link:hover { text-decoration-color: currentColor; }
 /* The lights: three pills in one track. */
 .lights { display: inline-flex; gap: 2px; padding: 3px; margin: 0; border: 0; border-radius: 999px; background: color-mix(in srgb, currentColor 14%, transparent); }
-.lights label { position: relative; display: inline-flex; align-items: center; gap: 6px; min-height: 38px; padding: 0 12px; border-radius: 999px; font: 600 var(--t-sm) / 1 var(--font); cursor: pointer; transition: background-color 200ms, color 200ms; }
+.lights label { position: relative; display: inline-flex; align-items: center; justify-content: center; gap: 6px; min-height: 44px; min-width: 44px; padding: 0 12px; border-radius: 999px; font: 600 var(--t-sm) / 1 var(--font); cursor: pointer; transition: background-color 200ms, color 200ms; }
 .lights input { position: absolute; inset: 0; margin: 0; opacity: 0; cursor: pointer; }
 .lights svg { width: 14px; height: 14px; }
 .lights label:has(:checked) { background: var(--ink); color: var(--bg); }

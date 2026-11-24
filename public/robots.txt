@@ -4,4 +4,4 @@ Allow: /
 # Card templates, which the social card images in /og/ are photographed from.
 Disallow: /cards/
 
-Sitemap: https://games.ashwinsathian.com/sitemap-index.xml
+Sitemap: https://arcade.ashwinsathian.com/sitemap-index.xml

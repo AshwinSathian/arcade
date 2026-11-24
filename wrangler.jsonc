@@ -1,6 +1,6 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
-  "name": "games",
+  "name": "arcade",
   // Personal account. The login can see more than one account, so pin it.
   "account_id": "5e8cabf1f94e15e681dfe58d4164a8ed",
   "compatibility_date": "2026-11-01",
@@ -8,5 +8,5 @@
   "main": "./worker/index.js",
   "assets": { "directory": "./dist", "binding": "ASSETS", "html_handling": "auto-trailing-slash", "not_found_handling": "404-page", "run_worker_first": ["/media/*"] },
   "workers_dev": true,
-  "routes": [{ "pattern": "games.ashwinsathian.com", "custom_domain": true }]
+  "routes": [{ "pattern": "arcade.ashwinsathian.com", "custom_domain": true }]
 }

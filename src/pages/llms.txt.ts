@@ -6,14 +6,13 @@ export const GET: APIRoute = () => {
   const body = [
     `# ${site.name}`,
     "",
-    `> Ten free games that run in a web browser on phone, tablet and desktop, made by ${site.author} (${site.authorUrl}). No install, no sign-up, no ads and no analytics. All ten are open source under the MIT licence.`,
+    `> Ten free games that run in a web browser on phone, tablet and desktop, made by ${site.author} (${site.authorUrl}). No install, no sign-up, no ads and no analytics. They stand in a 3D arcade drawn live in WebGL 2, whose source is open under the MIT licence: ${site.repo}`,
     "",
     ...games.flatMap((g) => [
       `## ${g.name} (${g.kind})`,
       "",
       `- Play: ${g.url}`,
       `- About: ${site.url}/${g.slug}`,
-      `- Source: ${g.repo}`,
       ...(g.post ? [`- Engineering write-up: ${g.post.url}`] : []),
       `- Modes: ${g.modes.join(", ")}`,
       `- Controls: ${g.controls}`,

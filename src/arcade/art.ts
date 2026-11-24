@@ -1,7 +1,8 @@
 // Cabinet artwork, painted on a canvas when the page opens: marquee, side art, control panel and a motif per game.
 // Every function draws into the rectangle it is given, so one painter serves an upright, a table and a pinball.
 export type Rect = [number, number, number, number];
-export type ArtGame = { slug: string; name: string; kind: string; ground: string; bright: string };
+export type Best = { v: string; l: string };
+export type ArtGame = { slug: string; name: string; kind: string; ground: string; bright: string; best?: Best };
 type C = CanvasRenderingContext2D;
 
 const FONT = "Bricolage, system-ui, sans-serif";
@@ -139,9 +140,11 @@ export function marquee(c: C, g: ArtGame, [x, y, w, h]: Rect) {
   const size = fit(c, g.name, 800, tw, square ? h * 0.22 : h * 0.46);
   const base = square ? y + h * 0.78 : y + h * 0.56;
   c.fillText(g.name, tx, base);
-  c.fillStyle = "#f4f1ea";
-  fit(c, `${g.kind.toUpperCase()}  ·  FREE PLAY`, 700, tw, size * 0.24);
-  c.fillText(`${g.kind.toUpperCase()}  ·  FREE PLAY`, tx, base + size * 0.36);
+  // The player's own best, when the game has shared one; otherwise what the machine is.
+  const sub = g.best ? `YOUR BEST  ${g.best.v}  ·  ${g.best.l.toUpperCase()}` : `${g.kind.toUpperCase()}  ·  FREE PLAY`;
+  c.fillStyle = g.best ? shade(g.bright, 0.55) : "#f4f1ea";
+  fit(c, sub, 700, tw, size * 0.24);
+  c.fillText(sub, tx, base + size * 0.36);
 }
 
 export function side(c: C, g: ArtGame, [x, y, w, h]: Rect, frontRight = true) {

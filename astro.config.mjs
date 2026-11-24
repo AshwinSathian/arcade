@@ -3,7 +3,7 @@ import { defineConfig } from "astro/config";
 import sitemap from "@astrojs/sitemap";
 
 export default defineConfig({
-  site: "https://games.ashwinsathian.com",
+  site: "https://arcade.ashwinsathian.com",
   // Fully static: every page is a file served from Cloudflare's edge.
   output: "static",
   trailingSlash: "never",

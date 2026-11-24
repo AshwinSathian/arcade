@@ -1,6 +1,30 @@
 {
-  "name": "games",
-  "version": "1.0.0",
+  "name": "arcade",
+  "version": "2.0.0",
+  "description": "A 3D arcade for ten browser games, drawn live in WebGL 2 with no 3D library. Day and Night, real gameplay on every screen.",
+  "homepage": "https://arcade.ashwinsathian.com",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/AshwinSathian/arcade.git"
+  },
+  "bugs": "https://github.com/AshwinSathian/arcade/issues",
+  "license": "MIT",
+  "author": "Ashwin Sathian (https://ashwinsathian.com)",
+  "keywords": [
+    "arcade",
+    "webgl2",
+    "3d",
+    "astro",
+    "cloudflare-workers",
+    "browser-games",
+    "web-audio",
+    "pbr",
+    "hdr",
+    "bloom"
+  ],
+  "engines": {
+    "node": ">=24"
+  },
   "private": true,
   "type": "module",
   "scripts": {
@@ -8,10 +32,12 @@
     "build": "astro check && astro build",
     "preview": "wrangler dev --port 8799",
     "test": "npm run build && node --test tests/*.test.mjs",
-    "capture": "node scripts/capture.ts",
-    "og": "node scripts/og.ts",
     "deploy": "npm run build && wrangler deploy",
-    "hall": "node scripts/hall.ts"
+    "deploy:redirect": "wrangler deploy --config worker/redirect.jsonc",
+    "capture": "node scripts/capture.ts",
+    "hall": "node scripts/hall.ts",
+    "og": "node scripts/og.ts",
+    "shoot": "node scripts/shoot.ts"
   },
   "dependencies": {
     "@astrojs/sitemap": "^3.7.6",

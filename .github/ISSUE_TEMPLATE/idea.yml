@@ -1,0 +1,11 @@
+name: Idea
+description: Something the arcade could do.
+labels: [idea]
+body:
+  - type: textarea
+    id: idea
+    attributes:
+      label: The idea
+      description: What it would do for a visitor, and where in the hall it would live.
+    validations:
+      required: true

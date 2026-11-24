@@ -2,7 +2,7 @@
 let ctx: AudioContext | undefined;
 let out: GainNode | undefined;
 export let soundOn = true;
-export const setSound = (on: boolean) => { soundOn = on; };
+export const setSound = (on: boolean) => { soundOn = on; if (!on) ambience.stop(); };
 
 function ac() {
   if (!soundOn) return undefined;
@@ -38,4 +38,57 @@ export const sfx = {
   coin: () => { tone(1568, 0, 0.12, "triangle", 0.18); tone(2093, 0.07, 0.5, "triangle", 0.16); tone(4186, 0.07, 0.3, "sine", 0.04); },
   enter: () => { noise(0, 0.6, 0.22, 300, 4000); tone(220, 0.05, 0.55, "sawtooth", 0.05, 880); },
   lights: (on: boolean) => { for (let k = 0; k < 4; k++) tone(on ? 7000 - k * 900 : 3000, k * 0.09 + Math.random() * 0.03, 0.05, "square", 0.025); tone(on ? 110 : 90, 0, 0.6, "sine", 0.07); },
+};
+
+// The room: a low hum, and now and then a few notes of attract music from a machine near the camera,
+// panned to where it stands. Quiet enough to forget; it fades out whenever the hall is not in view.
+const SCALE = [0, 2, 4, 7, 9, 12, 14, 16];
+let bed: { src: AudioBufferSourceNode; gain: GainNode } | undefined;
+let timer = 0;
+export const ambience = {
+  start(near: () => { focus: number; count: number; seed: (i: number) => number }) {
+    const c = ac();
+    if (!c || !out || bed) return;
+    const len = c.sampleRate * 4, b = c.createBuffer(2, len, c.sampleRate);
+    for (let ch = 0; ch < 2; ch++) {
+      const d = b.getChannelData(ch);
+      let last = 0;
+      for (let k = 0; k < len; k++) { last = (last + 0.02 * (Math.random() * 2 - 1)) / 1.02; d[k] = last * 3.5; } // brown noise
+    }
+    const src = c.createBufferSource(), lp = c.createBiquadFilter(), gain = c.createGain();
+    src.buffer = b; src.loop = true;
+    lp.type = "lowpass"; lp.frequency.value = 220;
+    gain.gain.setValueAtTime(0, c.currentTime); gain.gain.linearRampToValueAtTime(0.16, c.currentTime + 2.5);
+    src.connect(lp).connect(gain).connect(out); src.start();
+    bed = { src, gain };
+    const blip = () => {
+      const ctx = ac();
+      if (!ctx || !out || !bed) return;
+      const { focus, count, seed } = near();
+      const i = Math.max(0, Math.min(count - 1, focus + Math.round((Math.random() - 0.5) * 4)));
+      const pan = ctx.createStereoPanner(), g = ctx.createGain(), t = ctx.currentTime;
+      pan.pan.value = Math.max(-1, Math.min(1, (i - focus) / 2.5));
+      g.gain.value = i === focus ? 0.05 : 0.03;
+      pan.connect(g).connect(out);
+      const root = 330 * 2 ** ((seed(i) % 7) / 12), notes = 3 + (seed(i) % 3);
+      for (let n = 0; n < notes; n++) {
+        const o = ctx.createOscillator(), e = ctx.createGain(), at = t + n * 0.09;
+        o.type = seed(i) % 2 ? "square" : "triangle";
+        o.frequency.value = root * 2 ** (SCALE[(seed(i) + n * 3) % SCALE.length] / 12);
+        e.gain.setValueAtTime(0, at); e.gain.linearRampToValueAtTime(0.5, at + 0.005); e.gain.exponentialRampToValueAtTime(0.001, at + 0.08);
+        o.connect(e).connect(pan); o.start(at); o.stop(at + 0.1);
+      }
+      timer = window.setTimeout(blip, 1800 + Math.random() * 3200);
+    };
+    timer = window.setTimeout(blip, 1500);
+  },
+  stop() {
+    clearTimeout(timer);
+    if (!bed || !ctx) return;
+    const b = bed;
+    bed = undefined;
+    b.gain.gain.setTargetAtTime(0, ctx.currentTime, 0.3);
+    setTimeout(() => b.src.stop(), 1500);
+  },
+  get on() { return !!bed; },
 };
